@@ -1,65 +1,66 @@
 // lib/features/profile/presentation/side_panel.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rq_balay_tracker/features/profile/presentation/profile_provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
-import 'profile_provider.dart';
+import '../../auth/presentation/login_screen.dart';
 
 class SidePanel extends StatelessWidget {
   // Mock data - replace with actual user data
   final Map<String, dynamic> userData = {
-    'roomNumber': '101',
-    'name': 'John Doe',
-    'phoneNumber': '+63 912 345 6789',
-    'email': 'john.doe@email.com',
+    'roomNumber': '303',
+    'name': 'Maria Santos Cruz',
+    'phoneNumber': '+63 917 123 4567',
+    'email': 'maria.cruz@gmail.com',
+    'address': 'Room 303, RQ Balay Dormitory',
+    'moveInDate': 'January 15, 2024',
+    'contractEnd': 'December 15, 2024',
   };
 
   SidePanel({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ProfileProvider>(
-      builder: (context, profileProvider, child) {
-        final user = profileProvider.user;
-        if (user == null) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        return Drawer(
-          child: Column(
-            children: [
-              // Header with room number
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
-                color: AppColors.primaryBlue,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Room ${userData['roomNumber']}',
-                      style: AppTextStyles.heading.copyWith(
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
+    return Drawer(
+      child: Column(
+        children: [
+          // Header with room number
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
+            color: AppColors.primaryBlue,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Room ${userData['roomNumber']}',
+                  style: AppTextStyles.heading.copyWith(color: Colors.white),
                 ),
-              ),
-              // Profile Information
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: [
-                    _buildProfileSection(),
-                    const Divider(height: 32),
-                    _buildLogoutButton(context),
-                  ],
+                const SizedBox(height: 4),
+                Text(
+                  userData['name'],
+                  style: AppTextStyles.body.copyWith(
+                    color: Colors.white.withOpacity(0.8),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        );
-      },
+          // Profile Information
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                _buildProfileSection(),
+                const Divider(height: 32),
+                _buildLogoutButton(context),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -69,10 +70,13 @@ class SidePanel extends StatelessWidget {
       children: [
         Text('Profile Information', style: AppTextStyles.subheading),
         const SizedBox(height: 16),
-        _buildInfoRow('Name', userData['name']),
+        _buildInfoRow('Full Name', userData['name']),
         _buildInfoRow('Phone', userData['phoneNumber']),
         _buildInfoRow('Email', userData['email']),
         _buildInfoRow('Room', userData['roomNumber']),
+        _buildInfoRow('Address', userData['address']),
+        _buildInfoRow('Move-in Date', userData['moveInDate']),
+        _buildInfoRow('Contract End', userData['contractEnd']),
       ],
     );
   }
@@ -103,8 +107,12 @@ class SidePanel extends StatelessWidget {
           ),
         ),
         onPressed: () {
+          context.read<ProfileProvider>().logout();
           // Handle logout
-          Navigator.pop(context); // Close drawer
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => LoginScreen()),
+          ); // Close drawer
           // Add your logout logic here
         },
         child: Text('Logout', style: AppTextStyles.buttonText),

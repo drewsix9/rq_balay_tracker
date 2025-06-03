@@ -7,17 +7,20 @@ import '../theme/app_text_styles.dart';
 class AppInputField extends StatelessWidget {
   final String hint;
   final TextEditingController controller;
+  final String? Function(String?)? validator;
 
   const AppInputField({
     super.key,
     required this.hint,
     required this.controller,
+    this.validator,
   });
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       controller: controller,
+      validator: validator,
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: AppTextStyles.muted,

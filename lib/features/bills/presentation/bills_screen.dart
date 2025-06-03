@@ -73,10 +73,14 @@ class BillsScreen extends StatelessWidget {
           style: AppTextStyles.subheading.copyWith(color: Colors.white),
         ),
         backgroundColor: AppColors.primaryBlue,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.white),
-          onPressed: () {
-            Scaffold.of(context).openDrawer();
+        leading: Builder(
+          builder: (context) {
+            return IconButton(
+              icon: const Icon(Icons.menu, color: Colors.white),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
           },
         ),
       ),

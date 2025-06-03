@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'core/theme/app_theme.dart';
-import 'features/bills/presentation/bills_screen.dart';
+import 'features/auth/presentation/login_screen.dart';
 import 'features/profile/presentation/profile_provider.dart';
 
 void main() {
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'RQ Balay Tracker',
       theme: AppTheme.lightTheme,
-      home: BillsScreen(),
+      home: LoginScreen(),
     );
   }
 }

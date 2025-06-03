@@ -1,6 +1,7 @@
 // lib/features/profile/presentation/profile_provider.dart
 import 'package:flutter/foundation.dart';
-import 'package:rq_balay_tracker/features/profile/domain/user_model.dart';
+
+import '../domain/user_model.dart';
 
 class ProfileProvider extends ChangeNotifier {
   UserModel? _user;
