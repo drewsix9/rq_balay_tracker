@@ -1,10 +1,9 @@
 // lib/features/profile/presentation/side_panel.dart
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:rq_balay_tracker/features/profile/presentation/profile_provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/usecases/unit_shared_pref.dart';
 import '../../auth/presentation/login_screen.dart';
 
 class SidePanel extends StatelessWidget {
@@ -107,8 +106,8 @@ class SidePanel extends StatelessWidget {
           ),
         ),
         onPressed: () {
-          context.read<ProfileProvider>().logout();
           // Handle logout
+          UnitSharedPref.clearUnit();
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => LoginScreen()),

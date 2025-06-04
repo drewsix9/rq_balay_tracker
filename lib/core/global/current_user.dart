@@ -2,13 +2,32 @@ import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
 
+import '../logger/app_logger.dart';
+
 class CurrentUser extends Equatable {
   final String? unit;
 
   const CurrentUser({this.unit});
 
-  factory CurrentUser.fromMap(Map<String, dynamic> data) =>
-      CurrentUser(unit: data['unit'] as String?);
+  factory CurrentUser.fromMap(Map<String, dynamic> data) {
+    final unitValue = data['unit'];
+    String? unitString;
+
+    if (unitValue != null) {
+      if (unitValue is String) {
+        unitString = unitValue.trim().isEmpty ? null : unitValue.trim();
+      } else if (unitValue is num) {
+        unitString = unitValue.toString();
+      } else {
+        unitString = unitValue.toString();
+      }
+    }
+
+    AppLogger.d("Unit string: $unitString");
+    AppLogger.d("Unit string type: ${unitString.runtimeType}");
+
+    return CurrentUser(unit: unitString);
+  }
 
   Map<String, dynamic> toMap() => {'unit': unit};
 

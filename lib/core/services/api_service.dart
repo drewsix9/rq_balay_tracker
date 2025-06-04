@@ -3,21 +3,14 @@
 
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../features/bills/presentation/bills_screen.dart';
-import '../global/current_user.dart';
 import '../logger/app_logger.dart';
 
 class ApiService {
   static const String baseUrl = 'https://epostalhub.shop';
 
-  static Future<Map<String, dynamic>?> login(
-    String userName,
-    BuildContext context,
-  ) async {
+  static Future<Map<String, dynamic>?> login(String userName) async {
     try {
       var url = Uri.http('balay.quisumbing.net', 'app/mobile.cf');
       var response = await http.post(
@@ -38,26 +31,7 @@ class ApiService {
       }
 
       try {
-        CurrentUser currentUser = CurrentUser.fromMap(jsonResponse);
-        AppLogger.d("Created user with unit: ${currentUser.unit}");
-
-        if (currentUser.unit != null) {
-          try {
-            final prefs = await SharedPreferences.getInstance();
-            await prefs.setString('unit', currentUser.unit!);
-            AppLogger.d("Saved unit to SharedPreferences: ${currentUser.unit}");
-          } catch (e) {
-            AppLogger.e("Error saving to SharedPreferences: $e");
-            throw Exception('Error saving to SharedPreferences: $e');
-          }
-        }
         if (response.statusCode == 200) {
-          if (context.mounted) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => BillsScreen()),
-            );
-          }
           return jsonResponse;
         } else {
           AppLogger.e("Login failed: $jsonResponse");
