@@ -57,6 +57,7 @@ class LoginScreen extends StatelessWidget {
 
   void _handleLogin(BuildContext context) async {
     String userName = _userNameController.text.trim();
+    AppLogger.w("User Name Controller: $userName");
     final response = await ApiService.login(userName);
 
     if (response!['unit'].toString().isNotEmpty) {

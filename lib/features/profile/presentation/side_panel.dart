@@ -1,5 +1,6 @@
 // lib/features/profile/presentation/side_panel.dart
 import 'package:flutter/material.dart';
+import 'package:rq_balay_tracker/core/logger/app_logger.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
@@ -108,6 +109,7 @@ class SidePanel extends StatelessWidget {
         onPressed: () {
           // Handle logout
           UnitSharedPref.clearUnit();
+          AppLogger.i("Unit cleared from SharedPreferences");
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => LoginScreen()),
