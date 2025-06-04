@@ -5,21 +5,11 @@ import 'package:rq_balay_tracker/core/logger/app_logger.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/usecases/unit_shared_pref.dart';
+import '../../../core/usecases/user_shared_pref.dart';
 import '../../auth/presentation/login_screen.dart';
 
 class SidePanel extends StatelessWidget {
-  // Mock data - replace with actual user data
-  final Map<String, dynamic> userData = {
-    'userName': '303',
-    'name': 'Maria Santos Cruz',
-    'phoneNumber': '+63 917 123 4567',
-    'email': 'maria.cruz@gmail.com',
-    'address': 'Room 303, RQ Balay Dormitory',
-    'moveInDate': 'January 15, 2024',
-    'contractEnd': 'December 15, 2024',
-  };
-
-  SidePanel({super.key});
+  const SidePanel({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,21 +21,34 @@ class SidePanel extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
             color: AppColors.primaryBlue,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Room ${userData['userName']}',
-                  style: AppTextStyles.heading.copyWith(color: Colors.white),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  userData['name'],
-                  style: AppTextStyles.body.copyWith(
-                    color: Colors.white.withOpacity(0.8),
-                  ),
-                ),
-              ],
+            child: FutureBuilder(
+              future: UserSharedPref.getCurrentUser(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasData && snapshot.data != null) {
+                  final user = snapshot.data!;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Room ${user.unit}',
+                        style: AppTextStyles.heading.copyWith(
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        user.name,
+                        style: AppTextStyles.body.copyWith(
+                          color: Colors.white.withOpacity(0.8),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+                return const SizedBox.shrink();
+              },
             ),
           ),
           // Profile Information
@@ -53,7 +56,15 @@ class SidePanel extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                _buildProfileSection(),
+                FutureBuilder(
+                  future: _buildProfileSection(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    }
+                    return snapshot.data ?? const SizedBox.shrink();
+                  },
+                ),
                 const Divider(height: 32),
                 _buildLogoutButton(context),
               ],
@@ -64,20 +75,34 @@ class SidePanel extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Profile Information', style: AppTextStyles.subheading),
-        const SizedBox(height: 16),
-        _buildInfoRow('Full Name', userData['name']),
-        _buildInfoRow('Phone', userData['phoneNumber']),
-        _buildInfoRow('Email', userData['email']),
-        _buildInfoRow('Room', userData['userName']),
-        _buildInfoRow('Address', userData['address']),
-        _buildInfoRow('Move-in Date', userData['moveInDate']),
-        _buildInfoRow('Contract End', userData['contractEnd']),
-      ],
+  Future<Widget> _buildProfileSection() async {
+    return FutureBuilder(
+      future: UserSharedPref.getCurrentUser(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasData && snapshot.data != null) {
+          final user = snapshot.data!;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Profile Information', style: AppTextStyles.subheading),
+              const SizedBox(height: 16),
+              _buildInfoRow(
+                'Phone',
+                (user.mobileNo ?? '').isNotEmpty ? user.mobileNo! : 'N/A',
+              ),
+              _buildInfoRow(
+                'Email',
+                (user.email ?? '').isNotEmpty ? user.email! : 'N/A',
+              ),
+              _buildInfoRow('Room', user.unit ?? 'N/A'),
+              _buildInfoRow('Move-in Date', user.startDate ?? 'N/A'),
+            ],
+          );
+        }
+        return const SizedBox.shrink();
+      },
     );
   }
 
@@ -109,7 +134,8 @@ class SidePanel extends StatelessWidget {
         onPressed: () {
           // Handle logout
           UnitSharedPref.clearUnit();
-          AppLogger.i("Unit cleared from SharedPreferences");
+          UserSharedPref.clearCurrentUser();
+          AppLogger.i("Unit and User cleared from SharedPreferences");
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => LoginScreen()),

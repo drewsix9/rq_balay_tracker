@@ -2,10 +2,12 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+import '../../../core/global/current_user.dart';
 import '../../../core/logger/app_logger.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/usecases/unit_shared_pref.dart';
+import '../../../core/usecases/user_shared_pref.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_input_field.dart';
 import '../../bills/presentation/bills_screen.dart';
@@ -62,9 +64,13 @@ class LoginScreen extends StatelessWidget {
 
     if (response!['unit'].toString().isNotEmpty) {
       UnitSharedPref.saveUnit(response['unit']);
+      UserSharedPref.saveCurrentUser(CurrentUserModel.fromMap(response));
+
+      AppLogger.w("User saved to SharedPreferences: ${response['name']}");
       AppLogger.w(
         "Unit saved to SharedPreferences: ${response['unit']} and type is ${response['unit'].runtimeType}",
       );
+
       if (context.mounted) {
         Navigator.pushReplacement(
           context,
