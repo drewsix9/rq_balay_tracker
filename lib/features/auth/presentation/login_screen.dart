@@ -8,7 +8,7 @@ import '../../../core/widgets/app_input_field.dart';
 
 class LoginScreen extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
-  final _roomNumberController = TextEditingController();
+  final _userNameController = TextEditingController();
 
   LoginScreen({super.key});
 
@@ -26,7 +26,7 @@ class LoginScreen extends StatelessWidget {
               const SizedBox(height: 32),
               AppInputField(
                 hint: 'Username / Room Number',
-                controller: _roomNumberController,
+                controller: _userNameController,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Please enter a username or room number';
@@ -39,21 +39,18 @@ class LoginScreen extends StatelessWidget {
                 label: 'Login',
                 onPressed: () async {
                   if (_formKey.currentState?.validate() ?? false) {
-                    /*try {
-                      final roomNumber = _roomNumberController.text.trim();
-                      await ApiService.login(roomNumber, context);
+                    try {
+                      final userName = _userNameController.text.trim();
+                      await ApiService.login(userName, context);
                     } catch (e) {
                       if (context.mounted) {
                         ScaffoldMessenger.of(
                           context,
                         ).showSnackBar(SnackBar(content: Text(e.toString())));
                       }
-                    }*/
-                    final roomNumber = _roomNumberController.text.trim();
-                    await ApiService.login(roomNumber, context);
+                    }
                   }
-
-                  _roomNumberController.clear();
+                  _userNameController.clear();
                 },
               ),
             ],

@@ -1,6 +1,6 @@
 // lib/features/profile/domain/user_model.dart
 class UserModel {
-  final String roomNumber;
+  final String userName;
   final String name;
   final int monthlyRate;
   final bool wifiEnabled;
@@ -11,7 +11,7 @@ class UserModel {
 
   UserModel({
     required this.monthlyRate,
-    required this.roomNumber,
+    required this.userName,
     required this.name,
     required this.phoneNumber,
     required this.email,
@@ -23,7 +23,7 @@ class UserModel {
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       monthlyRate: json['monthlyRate'],
-      roomNumber: json['roomNumber'],
+      userName: json['userName'],
       name: json['name'],
       phoneNumber: json['phoneNumber'],
       startDate: json['startDate'],

@@ -10,7 +10,7 @@ import '../../auth/presentation/login_screen.dart';
 class SidePanel extends StatelessWidget {
   // Mock data - replace with actual user data
   final Map<String, dynamic> userData = {
-    'roomNumber': '303',
+    'userName': '303',
     'name': 'Maria Santos Cruz',
     'phoneNumber': '+63 917 123 4567',
     'email': 'maria.cruz@gmail.com',
@@ -35,7 +35,7 @@ class SidePanel extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Room ${userData['roomNumber']}',
+                  'Room ${userData['userName']}',
                   style: AppTextStyles.heading.copyWith(color: Colors.white),
                 ),
                 const SizedBox(height: 4),
@@ -73,7 +73,7 @@ class SidePanel extends StatelessWidget {
         _buildInfoRow('Full Name', userData['name']),
         _buildInfoRow('Phone', userData['phoneNumber']),
         _buildInfoRow('Email', userData['email']),
-        _buildInfoRow('Room', userData['roomNumber']),
+        _buildInfoRow('Room', userData['userName']),
         _buildInfoRow('Address', userData['address']),
         _buildInfoRow('Move-in Date', userData['moveInDate']),
         _buildInfoRow('Contract End', userData['contractEnd']),
