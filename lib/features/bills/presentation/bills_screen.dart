@@ -1,26 +1,44 @@
 // lib/features/bills/presentation/bills_screen.dart
 import 'package:flutter/material.dart';
 
+import '../../../core/global/current_user.dart';
+import '../../../core/logger/app_logger.dart';
+import '../../../core/services/api_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
-import '../../../core/widgets/app_button.dart';
+import '../../../core/usecases/unit_shared_pref.dart';
+import '../../../core/usecases/user_shared_pref.dart';
 import '../../profile/presentation/side_panel.dart';
+import 'widgets/shimmer_card.dart';
 
-class BillsScreen extends StatelessWidget {
+class BillsScreen extends StatefulWidget {
   const BillsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Mock data - replace with actual data from your backend
-    final latestBill = {
-      'total': 2500.00,
-      'electricity': 1200.00,
-      'water': 800.00,
-      'wifi': 500.00,
-      'dueDate': DateTime.now().add(const Duration(days: 5)),
-      'isPaid': false,
-    };
+  State<BillsScreen> createState() => _BillsScreenState();
+}
 
+class _BillsScreenState extends State<BillsScreen> {
+  String? currentUnit;
+  CurrentUserModel? currentUser;
+  @override
+  void initState() {
+    super.initState();
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    try {
+      currentUnit = await UnitSharedPref.getUnit();
+      currentUser = await UserSharedPref.getCurrentUser();
+      setState(() {}); // Trigger rebuild after getting currentUnit
+    } catch (e) {
+      AppLogger.d('Error getting unit and user: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final transactions = [
       {
         'date': DateTime.now().subtract(const Duration(days: 30)),
@@ -72,6 +90,7 @@ class BillsScreen extends StatelessWidget {
           'My Bills',
           style: AppTextStyles.subheading.copyWith(color: Colors.white),
         ),
+
         backgroundColor: AppColors.primaryBlue,
         leading: Builder(
           builder: (context) {
@@ -85,151 +104,381 @@ class BillsScreen extends StatelessWidget {
         ),
       ),
       drawer: SidePanel(),
-      body: Column(
-        children: [
-          // Latest Bill Card (Fixed at top)
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Latest Bill Card (Fixed at top)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                  side: BorderSide(color: Colors.black, width: 1.5),
+                ),
+                child: FutureBuilder(
+                  future:
+                      currentUnit == null
+                          ? Future.value(null)
+                          : ApiService.getMonthBill(currentUnit!),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const ShimmerCard();
+                    }
+                    if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    }
+                    final data = snapshot.data;
+                    if (data == null) {
+                      return const Center(child: Text('No data available'));
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Left side: Date, Amount, Button
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Month/Year
+                                Text(
+                                  '${data['rMonth']} ${data['rYear']}',
+                                  style: AppTextStyles.subheading.copyWith(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.primaryBlue,
+                                  ),
+                                ),
+                                SizedBox(height: 6),
+                                // Amount label
+                                Text(
+                                  'Total Due',
+                                  style: AppTextStyles.caption.copyWith(
+                                    fontSize: 12,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                                // Amount
+                                Text(
+                                  'PHP ${data['totalDue']}',
+                                  style: AppTextStyles.heading.copyWith(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                // (Optional) Due date
+                                Text(
+                                  'Due: June 30, 2025',
+                                  style: AppTextStyles.caption.copyWith(
+                                    fontSize: 12,
+                                    color: Colors.red[400],
+                                  ),
+                                ),
+                                SizedBox(height: 24),
+                                // Pay GCash Button
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: SizedBox(
+                                    width: 120,
+                                    height: 38,
+                                    child: ElevatedButton.icon(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: AppColors.primaryBlue,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                        ),
+                                        elevation: 2,
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                        // Handle Gcash payment
+                                      },
+                                      icon: Icon(
+                                        Icons.account_balance_wallet,
+                                        size: 16,
+                                        color: Colors.white,
+                                      ), // GCash-like icon
+                                      label: Text(
+                                        'Pay GCash',
+                                        style: AppTextStyles.buttonText
+                                            .copyWith(
+                                              fontSize: 13,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 16),
+                          // Right side: kWh, Water, Wifi
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Electricity Section
+                                Text(
+                                  'Electricity',
+                                  style: AppTextStyles.subheading.copyWith(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 8.0),
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              'Rate:',
+                                              style: AppTextStyles.caption,
+                                            ),
+                                          ),
+                                          Text(
+                                            '₱${data['eRate']}/kWh',
+                                            style: AppTextStyles.body.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              'Total:',
+                                              style: AppTextStyles.caption,
+                                            ),
+                                          ),
+                                          Text(
+                                            '₱${data['eTotal']}',
+                                            style: AppTextStyles.body.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 12),
+
+                                // Water Section
+                                Text(
+                                  'Water',
+                                  style: AppTextStyles.subheading.copyWith(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 8.0),
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              'Rate:',
+                                              style: AppTextStyles.caption,
+                                            ),
+                                          ),
+                                          Text(
+                                            '₱${data['wRate']}/m³',
+                                            style: AppTextStyles.body.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              'Total:',
+                                              style: AppTextStyles.caption,
+                                            ),
+                                          ),
+                                          Text(
+                                            '₱${data['wTotal']}',
+                                            style: AppTextStyles.body.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 12),
+
+                                // WiFi Section
+                                (currentUser?.wifi == '1'
+                                    ? Text(
+                                      'WiFi',
+                                      style: AppTextStyles.subheading.copyWith(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    )
+                                    : SizedBox.shrink()),
+                                (currentUser?.wifi == '1'
+                                    ? SizedBox(height: 4)
+                                    : SizedBox.shrink()),
+                                (currentUser?.wifi == '1'
+                                    ? Padding(
+                                      padding: const EdgeInsets.only(left: 8.0),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              'Total:',
+                                              style: AppTextStyles.caption,
+                                            ),
+                                          ),
+                                          Text(
+                                            '₱${data['wifi']}',
+                                            style: AppTextStyles.body.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                    : SizedBox.shrink()),
+                                (currentUser?.wifi == '1'
+                                    ? SizedBox(height: 12)
+                                    : SizedBox.shrink()),
+
+                                // Monthly Rate Section
+                                Text(
+                                  'Monthly Rent',
+                                  style: AppTextStyles.subheading.copyWith(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 8.0),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          'Total:',
+                                          style: AppTextStyles.caption,
+                                        ),
+                                      ),
+                                      Text(
+                                        '₱${data['monthlyRate']}',
+                                        style: AppTextStyles.body.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
+            ),
+            // Transaction History (Scrollable)
+            Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Latest Bill', style: AppTextStyles.subheading),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Total Amount', style: AppTextStyles.body),
-                        Text(
-                          '₱${(latestBill['total'] as num?)?.toStringAsFixed(2) ?? '0.00'}',
-                          style: AppTextStyles.subheading.copyWith(
-                            color: AppColors.primaryBlue,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    _buildUtilityRow(
-                      'Electricity',
-                      '₱${(latestBill['electricity'] as num?)?.toStringAsFixed(2) ?? '0.00'}',
-                    ),
-                    _buildUtilityRow(
-                      'Water',
-                      '₱${(latestBill['water'] as num?)?.toStringAsFixed(2) ?? '0.00'}',
-                    ),
-                    _buildUtilityRow(
-                      'WiFi',
-                      '₱${(latestBill['wifi'] as num?)?.toStringAsFixed(2) ?? '0.00'}',
-                    ),
-                    const SizedBox(height: 16),
                     Text(
-                      'Due Date: ${_formatDate(latestBill['dueDate'] as DateTime)}',
-                      style: AppTextStyles.muted,
+                      'Transaction History',
+                      style: AppTextStyles.subheading,
                     ),
                     const SizedBox(height: 16),
-                    if (latestBill['isPaid'] == false)
-                      AppButton(
-                        label: 'Pay with GCash',
-                        onPressed: () {
-                          // Handle GCash payment
-                        },
+                    if (transactions.isEmpty)
+                      Center(
+                        child: Text(
+                          'No pending payments',
+                          style: AppTextStyles.muted,
+                        ),
                       )
                     else
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: transactions.length,
+                          itemBuilder: (context, index) {
+                            final transaction = transactions[index];
+                            return Card(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: ListTile(
+                                title: Text(
+                                  _formatDate(transaction['date'] as DateTime),
+                                  style: AppTextStyles.body,
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      '₱${(transaction['amount'] as num).toStringAsFixed(2)}',
+                                      style: AppTextStyles.body,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color:
+                                            transaction['isPaid'] != null
+                                                ? AppColors.success
+                                                : AppColors.warning,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        transaction['isPaid'] != null
+                                            ? 'Paid'
+                                            : 'Pending',
+                                        style: AppTextStyles.body.copyWith(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                        decoration: BoxDecoration(
-                          color: AppColors.success,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text('Paid', style: AppTextStyles.buttonText),
                       ),
                   ],
                 ),
               ),
             ),
-          ),
-          // Transaction History (Scrollable)
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Transaction History', style: AppTextStyles.subheading),
-                  const SizedBox(height: 16),
-                  if (transactions.isEmpty)
-                    Center(
-                      child: Text(
-                        'No pending payments',
-                        style: AppTextStyles.muted,
-                      ),
-                    )
-                  else
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: transactions.length,
-                        itemBuilder: (context, index) {
-                          final transaction = transactions[index];
-                          return Card(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: ListTile(
-                              title: Text(
-                                _formatDate(transaction['date'] as DateTime),
-                                style: AppTextStyles.body,
-                              ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    '₱${(transaction['amount'] as num).toStringAsFixed(2)}',
-                                    style: AppTextStyles.body,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          transaction['isPaid'] != null
-                                              ? AppColors.success
-                                              : AppColors.warning,
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      transaction['isPaid'] != null
-                                          ? 'Paid'
-                                          : 'Pending',
-                                      style: AppTextStyles.body.copyWith(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

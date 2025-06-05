@@ -12,52 +12,63 @@ import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_input_field.dart';
 import '../../bills/presentation/bills_screen.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  bool _isLoading = false;
   final _formKey = GlobalKey<FormState>();
   final _userNameController = TextEditingController();
-
-  LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('RQ Balay Tracker', style: AppTextStyles.heading),
-              const SizedBox(height: 32),
-              AppInputField(
-                hint: 'Username / Room Number',
-                controller: _userNameController,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please enter a username or room number';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              AppButton(
-                label: 'Login',
-                onPressed: () async {
-                  if (_formKey.currentState?.validate() ?? false) {
-                    _handleLogin(context);
-                  }
-                  _userNameController.clear();
-                },
-              ),
-            ],
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('RQ Balay Tracker', style: AppTextStyles.heading),
+                const SizedBox(height: 32),
+                AppInputField(
+                  hint: 'Username / Room Number',
+                  controller: _userNameController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter a username or room number';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                AppButton(
+                  label: 'Login',
+                  isLoading: _isLoading,
+                  onPressed: () async {
+                    if (_formKey.currentState?.validate() ?? false) {
+                      setState(() => _isLoading = true);
+                      await _handleLogin(context);
+                      setState(() => _isLoading = false);
+                    }
+                    _userNameController.clear();
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  void _handleLogin(BuildContext context) async {
+  Future<void> _handleLogin(BuildContext context) async {
     String userName = _userNameController.text.trim();
     AppLogger.w("User Name Controller: $userName");
     final response = await ApiService.login(userName);

@@ -24,4 +24,6 @@ class AppTextStyles {
     fontWeight: FontWeight.bold,
     color: Colors.white,
   );
+
+  static const caption = TextStyle(fontSize: 12, color: AppColors.textMuted);
 }

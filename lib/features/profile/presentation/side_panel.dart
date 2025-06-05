@@ -14,63 +14,65 @@ class SidePanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: Column(
-        children: [
-          // Header with room number
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
-            color: AppColors.primaryBlue,
-            child: FutureBuilder(
-              future: UserSharedPref.getCurrentUser(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
-                } else if (snapshot.hasData && snapshot.data != null) {
-                  final user = snapshot.data!;
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Room ${user.unit}',
-                        style: AppTextStyles.heading.copyWith(
-                          color: Colors.white,
+      child: SafeArea(
+        child: Column(
+          children: [
+            // Header with room number
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
+              color: AppColors.primaryBlue,
+              child: FutureBuilder(
+                future: UserSharedPref.getCurrentUser(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  } else if (snapshot.hasData && snapshot.data != null) {
+                    final user = snapshot.data!;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Room ${user.unit}',
+                          style: AppTextStyles.heading.copyWith(
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      // Text(
-                      //   user.name,
-                      //   style: AppTextStyles.body.copyWith(
-                      //     color: Colors.white.withOpacity(0.8),
-                      //   ),
-                      // ),
-                    ],
-                  );
-                }
-                return const SizedBox.shrink();
-              },
+                        const SizedBox(height: 4),
+                        // Text(
+                        //   user.name,
+                        //   style: AppTextStyles.body.copyWith(
+                        //     color: Colors.white.withOpacity(0.8),
+                        //   ),
+                        // ),
+                      ],
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
             ),
-          ),
-          // Profile Information
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                FutureBuilder(
-                  future: _buildProfileSection(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    }
-                    return snapshot.data ?? const SizedBox.shrink();
-                  },
-                ),
-                const Divider(height: 32),
-                _buildLogoutButton(context),
-              ],
+            // Profile Information
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  FutureBuilder(
+                    future: _buildProfileSection(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      }
+                      return snapshot.data ?? const SizedBox.shrink();
+                    },
+                  ),
+                  const Divider(height: 32),
+                  _buildLogoutButton(context),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
