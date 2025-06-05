@@ -109,14 +109,40 @@ class SidePanel extends StatelessWidget {
   }
 
   Widget _buildInfoRow(String label, String value) {
+    IconData icon;
+    switch (label) {
+      case 'Name':
+        icon = Icons.person;
+        break;
+      case 'Phone':
+        icon = Icons.phone;
+        break;
+      case 'Email':
+        icon = Icons.email;
+        break;
+      case 'Move-in Date':
+        icon = Icons.calendar_today;
+        break;
+      default:
+        icon = Icons.info;
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Text(label, style: AppTextStyles.muted),
-          const SizedBox(height: 4),
-          Text(value, style: AppTextStyles.body),
+          Icon(icon, size: 20, color: AppColors.primaryBlue),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: AppTextStyles.muted),
+                const SizedBox(height: 4),
+                Text(value, style: AppTextStyles.body),
+              ],
+            ),
+          ),
         ],
       ),
     );
