@@ -116,7 +116,7 @@ class _BillsScreenState extends State<BillsScreen> {
         child: Column(
           children: [
             // Latest Bill Card (Fixed at top)
-            _buildMonthBillCard(
+            BuildMonthBillCard(
               currentUnit: currentUnit,
               currentUser: currentUser,
             ),
@@ -207,27 +207,10 @@ class _BillsScreenState extends State<BillsScreen> {
       ),
     );
   }
-
-  Widget _buildUtilityRow(String label, String amount) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: AppTextStyles.body),
-          Text(amount, style: AppTextStyles.body),
-        ],
-      ),
-    );
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
-  }
 }
 
-class _buildMonthBillCard extends StatelessWidget {
-  const _buildMonthBillCard({
+class BuildMonthBillCard extends StatelessWidget {
+  const BuildMonthBillCard({
     super.key,
     required this.currentUnit,
     required this.currentUser,

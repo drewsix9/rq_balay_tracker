@@ -8,14 +8,8 @@ class AppLogger {
       lineLength: 120, // Width of the output
       colors: true, // Colorful log messages
       printEmojis: true, // Print an emoji for each log message
-      printTime: true, // Should each log print contain a timestamp
     ),
   );
-
-  // Verbose log
-  static void v(dynamic message, [dynamic error, StackTrace? stackTrace]) {
-    _logger.v(message, error: error, stackTrace: stackTrace);
-  }
 
   // Debug log
   static void d(dynamic message, [dynamic error, StackTrace? stackTrace]) {
