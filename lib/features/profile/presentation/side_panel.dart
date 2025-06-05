@@ -38,12 +38,12 @@ class SidePanel extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        user.name,
-                        style: AppTextStyles.body.copyWith(
-                          color: Colors.white.withOpacity(0.8),
-                        ),
-                      ),
+                      // Text(
+                      //   user.name,
+                      //   style: AppTextStyles.body.copyWith(
+                      //     color: Colors.white.withOpacity(0.8),
+                      //   ),
+                      // ),
                     ],
                   );
                 }
@@ -88,16 +88,16 @@ class SidePanel extends StatelessWidget {
             children: [
               Text('Profile Information', style: AppTextStyles.subheading),
               const SizedBox(height: 16),
+              _buildInfoRow('Name', (user.name)),
               _buildInfoRow(
                 'Phone',
-                (user.mobileNo ?? '').isNotEmpty ? user.mobileNo! : 'N/A',
+                (user.mobileno?.isEmpty ?? true) ? 'N/A' : user.mobileno!,
               ),
               _buildInfoRow(
                 'Email',
-                (user.email ?? '').isNotEmpty ? user.email! : 'N/A',
+                (user.email?.isEmpty ?? true) ? 'N/A' : user.email!,
               ),
-              _buildInfoRow('Room', user.unit ?? 'N/A'),
-              _buildInfoRow('Move-in Date', user.startDate ?? 'N/A'),
+              _buildInfoRow('Move-in Date', user.startDate),
             ],
           );
         }

@@ -7,7 +7,7 @@ class CurrentUserModel extends Equatable {
   final String name;
   final String monthlyRate;
   final String wifi;
-  final String? mobileNo;
+  final String? mobileno;
   final String? email;
   final String startDate;
 
@@ -16,7 +16,7 @@ class CurrentUserModel extends Equatable {
     required this.name,
     required this.monthlyRate,
     required this.wifi,
-    required this.mobileNo,
+    required this.mobileno,
     required this.email,
     required this.startDate,
   });
@@ -27,7 +27,7 @@ class CurrentUserModel extends Equatable {
         name: data['name'] as String,
         monthlyRate: data['monthly_rate'] as String,
         wifi: data['wifi'] as String,
-        mobileNo: data['mobileNo'] as String?,
+        mobileno: data['mobileno'] as String?,
         email: data['email'] as String?,
         startDate: data['start_date'] as String,
       );
@@ -37,7 +37,7 @@ class CurrentUserModel extends Equatable {
     'name': name,
     'monthly_rate': monthlyRate,
     'wifi': wifi,
-    'mobileNo': mobileNo,
+    'mobileno': mobileno,
     'email': email,
     'start_date': startDate,
   };
@@ -59,7 +59,7 @@ class CurrentUserModel extends Equatable {
     String? name,
     String? monthlyRate,
     String? wifi,
-    String? mobileNo,
+    String? mobileno,
     String? email,
     String? startDate,
   }) {
@@ -68,7 +68,7 @@ class CurrentUserModel extends Equatable {
       name: name ?? this.name,
       monthlyRate: monthlyRate ?? this.monthlyRate,
       wifi: wifi ?? this.wifi,
-      mobileNo: mobileNo ?? this.mobileNo,
+      mobileno: mobileno ?? this.mobileno,
       email: email ?? this.email,
       startDate: startDate ?? this.startDate,
     );
@@ -79,6 +79,6 @@ class CurrentUserModel extends Equatable {
 
   @override
   List<Object?> get props {
-    return [unit, name, monthlyRate, wifi, mobileNo, email, startDate];
+    return [unit, name, monthlyRate, wifi, mobileno, email, startDate];
   }
 }
