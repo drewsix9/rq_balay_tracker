@@ -70,7 +70,7 @@ class SidePanel extends StatelessWidget {
                     },
                   ),
                   Divider(height: 32.h),
-                  _buildLogoutButton(context),
+                  LogoutButton(),
                 ],
               ),
             ),
@@ -96,16 +96,17 @@ class SidePanel extends StatelessWidget {
                 style: AppTextStyles.subheading.copyWith(fontSize: 20.sp),
               ),
               SizedBox(height: 16.h),
-              _buildInfoRow('Name', (user.name)),
-              _buildInfoRow(
-                'Phone',
-                (user.mobileno?.isEmpty ?? true) ? 'N/A' : user.mobileno!,
+              InfoRow(label: 'Name', value: user.name),
+              InfoRow(
+                label: 'Phone',
+                value:
+                    (user.mobileno?.isEmpty ?? true) ? 'N/A' : user.mobileno!,
               ),
-              _buildInfoRow(
-                'Email',
-                (user.email?.isEmpty ?? true) ? 'N/A' : user.email!,
+              InfoRow(
+                label: 'Email',
+                value: (user.email?.isEmpty ?? true) ? 'N/A' : user.email!,
               ),
-              _buildInfoRow('Move-in Date', user.startDate),
+              InfoRow(label: 'Move-in Date', value: user.startDate),
             ],
           );
         }
@@ -113,8 +114,16 @@ class SidePanel extends StatelessWidget {
       },
     );
   }
+}
 
-  Widget _buildInfoRow(String label, String value) {
+class InfoRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const InfoRow({super.key, required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
     IconData icon;
     switch (label) {
       case 'Name':
@@ -159,8 +168,13 @@ class SidePanel extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildLogoutButton(BuildContext context) {
+class LogoutButton extends StatelessWidget {
+  const LogoutButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
@@ -180,8 +194,7 @@ class SidePanel extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => LoginScreen()),
-          ); // Close drawer
-          // Add your logout logic here
+          );
         },
         child: Text(
           'Logout',
