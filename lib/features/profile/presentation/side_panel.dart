@@ -16,6 +16,8 @@ class SidePanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      backgroundColor: AppColors.surface,
+      elevation: 0,
       child: SafeArea(
         child: Column(
           children: [
