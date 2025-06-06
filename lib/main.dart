@@ -1,14 +1,17 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'core/providers/bills_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/login_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SharedPreferences.getInstance();
+
   runApp(const MyApp());
 }
 
@@ -22,11 +25,14 @@ class MyApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'RQ Balay Tracker',
-          theme: AppTheme.lightTheme,
-          home: LoginScreen(),
+        return MultiProvider(
+          providers: [ChangeNotifierProvider(create: (_) => BillsProvider())],
+          child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'RQ Balay Tracker',
+            theme: AppTheme.lightTheme,
+            home: LoginScreen(),
+          ),
         );
       },
     );

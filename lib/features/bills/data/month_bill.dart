@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
 
-class MonthBill extends Equatable {
+class MonthBillModel extends Equatable {
   final String? unit;
   final String? id;
   final String? rMonth;
@@ -19,7 +19,7 @@ class MonthBill extends Equatable {
   final String? datePaid;
   final String? totalDue;
 
-  const MonthBill({
+  const MonthBillModel({
     this.unit,
     this.id,
     this.rMonth,
@@ -37,7 +37,7 @@ class MonthBill extends Equatable {
     this.totalDue,
   });
 
-  factory MonthBill.fromMap(Map<String, dynamic> data) => MonthBill(
+  factory MonthBillModel.fromMap(Map<String, dynamic> data) => MonthBillModel(
     unit: data['unit'] as String?,
     id: data['id'] as String?,
     rMonth: data['rMonth'] as String?,
@@ -75,17 +75,17 @@ class MonthBill extends Equatable {
 
   /// `dart:convert`
   ///
-  /// Parses the string and returns the resulting Json object as [MonthBill].
-  factory MonthBill.fromJson(String data) {
-    return MonthBill.fromMap(json.decode(data) as Map<String, dynamic>);
+  /// Parses the string and returns the resulting Json object as [MonthBillModel].
+  factory MonthBillModel.fromJson(String data) {
+    return MonthBillModel.fromMap(json.decode(data) as Map<String, dynamic>);
   }
 
   /// `dart:convert`
   ///
-  /// Converts [MonthBill] to a JSON string.
+  /// Converts [MonthBillModel] to a JSON string.
   String toJson() => json.encode(toMap());
 
-  MonthBill copyWith({
+  MonthBillModel copyWith({
     String? unit,
     String? id,
     String? rMonth,
@@ -102,7 +102,7 @@ class MonthBill extends Equatable {
     String? datePaid,
     String? totalDue,
   }) {
-    return MonthBill(
+    return MonthBillModel(
       unit: unit ?? this.unit,
       id: id ?? this.id,
       rMonth: rMonth ?? this.rMonth,
