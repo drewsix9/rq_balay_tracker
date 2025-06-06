@@ -24,7 +24,9 @@ class _BillsScreenState extends State<BillsScreen> {
   @override
   void initState() {
     super.initState();
-    // Provider.of<BillsProvider>(context, listen: false).getCurrentMonthBill();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<BillsProvider>(context, listen: false).initialize();
+    });
   }
 
   @override
@@ -58,7 +60,7 @@ class _BillsScreenState extends State<BillsScreen> {
                 onPressed:
                     billsProvider.isLoading
                         ? null
-                        : () => billsProvider.reloadMonthBill(),
+                        : () => billsProvider.reload(),
               );
             },
           ),
@@ -365,7 +367,7 @@ class BuildMonthBillCard extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.r),
                         ),
-                        elevation: 2,
+                        elevation: 0,
                         padding: EdgeInsets.symmetric(horizontal: 16.w),
                       ),
                       onPressed: () {

@@ -22,86 +22,82 @@ class BillsProvider with ChangeNotifier {
   TransactionHistoryModel? get transactionHistory => _transactionHistory;
   bool get isLoading => _isLoading;
 
-  BillsProvider() {
-    _initialize();
-  }
-
-  Future<void> _initialize() async {
+  /// Initialize the bills provider and fetch all necessary data
+  Future<void> initialize() async {
     try {
-      _currentUnit = await UnitSharedPref.getUnit();
-      _currentUser = await UserSharedPref.getCurrentUser();
+      await _loadUserData();
       if (_currentUnit == null) return;
 
-      await getCurrentMonthBill();
-      await getTransactionHistory();
+      await Future.wait([_fetchCurrentMonthBill(), _fetchTransactionHistory()]);
     } catch (e) {
       AppLogger.e('Error initializing BillsProvider: $e');
     }
   }
 
-  Future<void> getCurrentMonthBill() async {
+  /// Load user data from shared preferences
+  Future<void> _loadUserData() async {
+    try {
+      _currentUnit = await UnitSharedPref.getUnit();
+      _currentUser = await UserSharedPref.getCurrentUser();
+    } catch (e) {
+      AppLogger.e('Error loading user data: $e');
+      rethrow;
+    }
+  }
+
+  /// Fetch current month bill from API
+  Future<void> _fetchCurrentMonthBill() async {
     if (_currentUnit == null) return;
 
     try {
-      _isLoading = true;
-      notifyListeners();
-
+      _setLoading(true);
       final data = await ApiService.getMonthBill(_currentUnit!);
       if (data != null) {
         _currentBill = MonthBillModel.fromMap(data);
+        await _saveCurrentMonthBill();
+      }
+    } catch (e) {
+      AppLogger.e('Error fetching current month bill: $e');
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Save current month bill to shared preferences
+  Future<void> _saveCurrentMonthBill() async {
+    try {
+      if (_currentBill != null) {
         await MonthBillSharedPref.saveMonthBill(_currentBill!);
       }
     } catch (e) {
-      AppLogger.e('Error getting current month bill: $e');
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+      AppLogger.e('Error saving current month bill: $e');
     }
   }
 
-  Future<void> reloadMonthBill() async {
+  /// Fetch transaction history from API
+  Future<void> _fetchTransactionHistory() async {
     if (_currentUnit == null) return;
 
     try {
-      _isLoading = true;
-      notifyListeners();
-
-      final data = await ApiService.getMonthBill(_currentUnit!);
-      if (data != null) {
-        _currentBill = MonthBillModel.fromMap(data);
-        try {
-          await MonthBillSharedPref.saveMonthBill(_currentBill!);
-        } catch (e) {
-          AppLogger.e('Error saving month bill: $e');
-        }
-      }
+      _setLoading(true);
+      _transactionHistory = await ApiService.getTransactionHistory(
+        _currentUnit!,
+      );
     } catch (e) {
-      AppLogger.e('Error reloading bill: $e');
+      AppLogger.e('Error fetching transaction history: $e');
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _setLoading(false);
     }
   }
 
-  Future<void> getTransactionHistory() async {
-    if (_currentUnit == null) return;
+  /// Set loading state and notify listeners
+  void _setLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
+  }
 
-    try {
-      _isLoading = true;
-      notifyListeners();
-
-      final data = await ApiService.getTransactionHistory(_currentUnit!);
-
-      _transactionHistory = data;
-
-      // await TransactionHistorySharedPref.saveTransactions(
-      //   _transactionHistory!.transactionHistory!.map((e) => e.toMap()).toList(),
-      // );
-    } catch (e) {
-      AppLogger.e('Error getting transaction history: $e');
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+  /// Reload all data
+  Future<void> reload() async {
+    await initialize();
   }
 }
