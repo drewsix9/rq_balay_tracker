@@ -4,15 +4,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:money_formatter/money_formatter.dart';
 import 'package:provider/provider.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../core/global/current_user_model.dart';
+import '../../../core/logger/app_logger.dart';
 import '../../../core/providers/bills_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 // import '../../profile/presentation/side_panel.dart';
 import '../../profile/presentation/side_panel.dart';
 import '../data/month_bill_model.dart';
-import 'widgets/shimmer_card.dart';
 
 class BillsScreen extends StatefulWidget {
   const BillsScreen({super.key});
@@ -68,32 +69,74 @@ class _BillsScreenState extends State<BillsScreen> {
         ],
       ),
       drawer: SidePanel(),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Consumer<BillsProvider>(
-              builder: (context, billsProvider, child) {
-                if (billsProvider.isLoading) {
-                  return Center(child: ShimmerCard());
-                }
+      body: Column(
+        children: [
+          Consumer<BillsProvider>(
+            builder: (context, billsProvider, child) {
+              // if (billsProvider.isLoading) {
+              //   return Center(child: ShimmerCard());
+              // }
 
-                final currentBill = billsProvider.currentBill;
-                if (currentBill == null) {
-                  return const Expanded(
-                    child: Center(child: Text('No bill data available')),
-                  );
-                }
-
-                return BuildMonthBillCard(
-                  currentUnit: billsProvider.currentUnit,
-                  currentUser: billsProvider.currentUser,
-                  currentBill: currentBill,
+              final currentBill = billsProvider.currentBill;
+              if (currentBill == null) {
+                return const Expanded(
+                  child: Center(child: Text('No bill data available')),
                 );
-              },
-            ),
-            _buildTransactionList(),
-          ],
-        ),
+              }
+              AppLogger.d('currentBill.paid: ${currentBill.paid}');
+              if (currentBill.paid == 'Y') {
+                return Padding(
+                  padding: EdgeInsets.all(16.w),
+                  child: Skeletonizer(
+                    // ignoreContainers: true,
+                    enabled:
+                        Provider.of<BillsProvider>(
+                          context,
+                          listen: false,
+                        ).isLoading,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        // color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(12.r),
+                        boxShadow: [
+                          BoxShadow(
+                            offset: const Offset(0, 4),
+                            blurRadius: 6,
+                            spreadRadius: -1,
+                            color: Colors.black.withValues(alpha: 0.1),
+                          ),
+                        ],
+                      ),
+                      child: Card(
+                        // elevation: 20,
+                        color: AppColors.surface,
+                        child: Padding(
+                          padding: EdgeInsets.all(16.w),
+                          child: Center(
+                            child: Text(
+                              'No Pending Payment',
+                              style: AppTextStyles.subheading.copyWith(
+                                fontSize: 16.sp,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }
+
+              return BuildMonthBillCard(
+                currentUnit: billsProvider.currentUnit,
+                currentUser: billsProvider.currentUser,
+                currentBill: currentBill,
+              );
+            },
+          ),
+          _buildTransactionList(),
+        ],
       ),
     );
   }
@@ -101,21 +144,24 @@ class _BillsScreenState extends State<BillsScreen> {
   Widget _buildTransactionList() {
     return Expanded(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        padding: EdgeInsets.symmetric(horizontal: 12.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Transaction History',
-              style: AppTextStyles.subheading.copyWith(fontSize: 18.sp),
+            Skeletonizer(
+              enabled:
+                  Provider.of<BillsProvider>(context, listen: false).isLoading,
+              child: Text(
+                'Transaction History',
+                style: AppTextStyles.subheading.copyWith(fontSize: 18.sp),
+              ),
             ),
             SizedBox(height: 12.h),
             Consumer<BillsProvider>(
               builder: (context, provider, child) {
-                if (provider.isLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
+                // if (provider.isLoading) {
+                //   return const Expanded(child: TransactionShimmer());
+                // }
                 final transactions =
                     provider.transactionHistory?.transactionHistory ?? [];
 
@@ -129,121 +175,149 @@ class _BillsScreenState extends State<BillsScreen> {
                 }
 
                 return Expanded(
-                  child: ListView.builder(
-                    itemCount: transactions.length,
-                    itemBuilder: (context, index) {
-                      final transaction = transactions[index];
-                      return Card(
-                        elevation: 0,
-                        color: AppColors.surface,
-                        margin: EdgeInsets.only(bottom: 8.h),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                        child: ExpansionTile(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          tilePadding: EdgeInsets.symmetric(horizontal: 16.w),
-                          backgroundColor: AppColors.surface,
-                          collapsedBackgroundColor: AppColors.surface,
-                          collapsedIconColor: AppColors.textMuted,
-                          iconColor: AppColors.textMuted,
-                          collapsedTextColor: AppColors.textMuted,
-                          textColor: AppColors.textMuted,
-                          title: Text(
-                            DateFormat('MMMM d, yyyy').format(
-                              DateTime.parse(
-                                transaction.date ?? DateTime.now().toString(),
-                              ),
-                            ),
-                            style: AppTextStyles.caption.copyWith(
-                              fontSize: 14.sp,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                '₱${transaction.totalDue}',
-                                style: AppTextStyles.body.copyWith(
-                                  fontSize: 14.sp,
-                                ),
-                              ),
-                              SizedBox(width: 8.w),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 4.w,
-                                  vertical: 2.h,
-                                ),
-                                decoration: BoxDecoration(
-                                  color:
-                                      transaction.paid == 'Y'
-                                          ? AppColors.success
-                                          : AppColors.warning,
-                                  borderRadius: BorderRadius.circular(4.r),
-                                ),
-                                child: Text(
-                                  transaction.paid == 'Y' ? 'Paid' : 'Pending',
-                                  style: AppTextStyles.body.copyWith(
-                                    color: Colors.white,
-                                    fontSize: 14.sp,
-                                  ),
-                                ),
+                  child: Skeletonizer(
+                    ignoreContainers: true,
+                    enabled:
+                        Provider.of<BillsProvider>(
+                          context,
+                          listen: false,
+                        ).isLoading,
+                    child: ListView.separated(
+                      separatorBuilder:
+                          (context, index) => SizedBox(height: 12.h),
+
+                      itemCount: transactions.length,
+                      itemBuilder: (context, index) {
+                        final transaction = transactions[index];
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12.r),
+                            boxShadow: [
+                              BoxShadow(
+                                offset: const Offset(0, 4),
+                                blurRadius: 6,
+                                spreadRadius: -1,
+                                color: Colors.black.withValues(alpha: 0.1),
                               ),
                             ],
                           ),
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.all(16.w),
-                              child: Column(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12.r),
+                            child: ExpansionTile(
+                              childrenPadding: EdgeInsets.symmetric(
+                                horizontal: 16.w,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                              tilePadding: EdgeInsets.symmetric(
+                                horizontal: 16.w,
+                              ),
+                              backgroundColor: Colors.white,
+                              collapsedBackgroundColor: AppColors.surface,
+                              collapsedIconColor: AppColors.textMuted,
+                              iconColor: AppColors.textMuted,
+                              collapsedTextColor: AppColors.textMuted,
+                              textColor: AppColors.textMuted,
+                              title: Text(
+                                DateFormat('MMMM d, yyyy').format(
+                                  DateTime.parse(
+                                    transaction.date ??
+                                        DateTime.now().toString(),
+                                  ),
+                                ),
+                                style: AppTextStyles.caption.copyWith(
+                                  fontSize: 14.sp,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  _buildBillDetailRow(
-                                    'Electricity',
-                                    '₱${transaction.eTotal}',
-                                    '₱${transaction.eRate}/kWh',
-                                  ),
-                                  SizedBox(height: 12.h),
-                                  _buildBillDetailRow(
-                                    'Water',
-                                    '₱${transaction.wTotal}',
-                                    '₱${transaction.wRate}/m³',
-                                  ),
-                                  if (transaction.wifi != null &&
-                                      transaction.wifi != '0.00') ...[
-                                    SizedBox(height: 12.h),
-                                    _buildBillDetailRow(
-                                      'WiFi',
-                                      '₱${transaction.wifi}',
-                                      'Monthly',
-                                    ),
-                                  ],
-                                  SizedBox(height: 12.h),
-                                  _buildBillDetailRow(
-                                    'Rent',
-                                    '₱${transaction.monthlyRate}',
-                                    'Monthly',
-                                  ),
-                                  SizedBox(height: 12.h),
-                                  Container(
-                                    height: 1,
-                                    color: AppColors.divider,
-                                  ),
-                                  SizedBox(height: 12.h),
-                                  _buildBillDetailRow(
-                                    'Total Due',
+                                  Text(
                                     '₱${transaction.totalDue}',
-                                    '',
-                                    isTotal: true,
+                                    style: AppTextStyles.body.copyWith(
+                                      fontSize: 14.sp,
+                                    ),
+                                  ),
+                                  SizedBox(width: 8.w),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 4.w,
+                                      vertical: 2.h,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          transaction.paid == 'Y'
+                                              ? AppColors.success
+                                              : AppColors.warning,
+                                      borderRadius: BorderRadius.circular(4.r),
+                                    ),
+                                    child: Text(
+                                      transaction.paid == 'Y'
+                                          ? 'Paid'
+                                          : 'Pending',
+                                      style: AppTextStyles.body.copyWith(
+                                        color: Colors.white,
+                                        fontSize: 14.sp,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.all(16.w),
+                                  child: Column(
+                                    children: [
+                                      _buildBillDetailRow(
+                                        'Electricity',
+                                        '₱${transaction.eTotal}',
+                                        '₱${transaction.eRate}/kWh',
+                                      ),
+                                      SizedBox(height: 12.h),
+                                      _buildBillDetailRow(
+                                        'Water',
+                                        '₱${transaction.wTotal}',
+                                        '₱${transaction.wRate}/m³',
+                                      ),
+                                      if (transaction.wifi != null &&
+                                          transaction.wifi != '0.00') ...[
+                                        SizedBox(height: 12.h),
+                                        _buildBillDetailRow(
+                                          'WiFi',
+                                          '₱${transaction.wifi}',
+                                          'Monthly',
+                                        ),
+                                      ],
+                                      SizedBox(height: 12.h),
+                                      _buildBillDetailRow(
+                                        'Rent',
+                                        '₱${transaction.monthlyRate}',
+                                        'Monthly',
+                                      ),
+                                      SizedBox(height: 12.h),
+                                      Container(
+                                        height: 1,
+                                        color: AppColors.divider,
+                                      ),
+                                      SizedBox(height: 12.h),
+                                      _buildBillDetailRow(
+                                        'Total Due',
+                                        '₱${transaction.totalDue}',
+                                        '',
+                                        isTotal: true,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      );
-                    },
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 );
               },
@@ -310,258 +384,273 @@ class BuildMonthBillCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(16.w),
-      child: Card(
-        elevation: 0,
-        color: AppColors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.r),
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(16.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Skeletonizer(
+        // ignoreContainers: true,
+        enabled: Provider.of<BillsProvider>(context, listen: false).isLoading,
+        child: Container(
+          decoration: BoxDecoration(
+            // color: AppColors.surface,
+            borderRadius: BorderRadius.circular(12.r),
+            boxShadow: [
+              BoxShadow(
+                offset: const Offset(0, 4),
+                blurRadius: 6,
+                spreadRadius: -1,
+                color: Colors.black.withValues(alpha: 0.1),
+              ),
+            ],
+          ),
+          child: Card(
+            // elevation: 20,
+            color: AppColors.surface,
+            child: Padding(
+              padding: EdgeInsets.all(16.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        DateFormat('MMMM yyyy').format(
-                          DateTime.parse(
-                            currentBill.date ??
-                                DateTime.now().toIso8601String(),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            DateFormat('MMMM yyyy').format(
+                              DateTime.parse(
+                                currentBill.date ??
+                                    DateTime.now().toIso8601String(),
+                              ),
+                            ),
+                            style: AppTextStyles.subheading.copyWith(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primaryBlue,
+                            ),
                           ),
-                        ),
-                        style: AppTextStyles.subheading.copyWith(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primaryBlue,
-                        ),
+                          SizedBox(height: 8.h),
+                          Text(
+                            'Total Due',
+                            style: AppTextStyles.caption.copyWith(
+                              fontSize: 14.sp,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          SizedBox(height: 2.h),
+                          Text(
+                            'PHP ${MoneyFormatter(amount: double.tryParse(currentBill.totalDue ?? '0') ?? 0).output.nonSymbol}',
+                            style: AppTextStyles.heading.copyWith(
+                              fontSize: 24.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 8.h),
-                      Text(
-                        'Total Due',
-                        style: AppTextStyles.caption.copyWith(
-                          fontSize: 14.sp,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                      SizedBox(height: 2.h),
-                      Text(
-                        'PHP ${MoneyFormatter(amount: double.tryParse(currentBill.totalDue ?? '0') ?? 0).output.nonSymbol}',
-                        style: AppTextStyles.heading.copyWith(
-                          fontSize: 24.sp,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                      SizedBox(
+                        width: 120.w,
+                        height: 48.h,
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primaryBlue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            elevation: 0,
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          ),
+                          onPressed: () {
+                            // Handle Gcash payment
+                          },
+                          icon: Icon(
+                            Icons.account_balance_wallet,
+                            size: 20.sp,
+                            color: Colors.white,
+                          ),
+                          label: Text(
+                            'Pay GCash',
+                            style: AppTextStyles.buttonText.copyWith(
+                              fontSize: 14.sp,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(
-                    width: 120.w,
-                    height: 48.h,
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryBlue,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.r),
+                  SizedBox(height: 12.h),
+                  Divider(color: Colors.grey[300], thickness: 1),
+                  SizedBox(height: 12.h),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              height: 60.h,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Electricity',
+                                    style: AppTextStyles.subheading.copyWith(
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(height: 2.h),
+                                  Text(
+                                    '₱${currentBill.eRate ?? '0'}/kWh',
+                                    style: AppTextStyles.caption.copyWith(
+                                      fontSize: 14.sp,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              height: 60.h,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Water',
+                                    style: AppTextStyles.subheading.copyWith(
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(height: 2.h),
+                                  Text(
+                                    '₱${MoneyFormatter(amount: double.tryParse(currentBill.wRate ?? '0') ?? 0).output.nonSymbol}/m³',
+                                    style: AppTextStyles.caption.copyWith(
+                                      fontSize: 14.sp,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (currentUser?.wifi == 'Y')
+                              SizedBox(
+                                height: 60.h,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'WiFi',
+                                      style: AppTextStyles.subheading.copyWith(
+                                        fontSize: 16.sp,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    SizedBox(height: 2.h),
+                                    Text(
+                                      'Monthly',
+                                      style: AppTextStyles.caption.copyWith(
+                                        fontSize: 14.sp,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            SizedBox(
+                              height: 60.h,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Rent',
+                                    style: AppTextStyles.subheading.copyWith(
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(height: 2.h),
+                                  Text(
+                                    'Monthly',
+                                    style: AppTextStyles.caption.copyWith(
+                                      fontSize: 14.sp,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        elevation: 0,
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
                       ),
-                      onPressed: () {
-                        // Handle Gcash payment
-                      },
-                      icon: Icon(
-                        Icons.account_balance_wallet,
-                        size: 20.sp,
-                        color: Colors.white,
-                      ),
-                      label: Text(
-                        'Pay GCash',
-                        style: AppTextStyles.buttonText.copyWith(
-                          fontSize: 14.sp,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 12.h),
-              Divider(color: Colors.grey[300], thickness: 1),
-              SizedBox(height: 12.h),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          height: 60.h,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Electricity',
-                                style: AppTextStyles.subheading.copyWith(
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 2.h),
-                              Text(
-                                '₱${currentBill.eRate ?? '0'}/kWh',
-                                style: AppTextStyles.caption.copyWith(
-                                  fontSize: 14.sp,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 60.h,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Water',
-                                style: AppTextStyles.subheading.copyWith(
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 2.h),
-                              Text(
-                                '₱${MoneyFormatter(amount: double.tryParse(currentBill.wRate ?? '0') ?? 0).output.nonSymbol}/m³',
-                                style: AppTextStyles.caption.copyWith(
-                                  fontSize: 14.sp,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (currentUser?.wifi == 'Y')
-                          SizedBox(
-                            height: 60.h,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'WiFi',
-                                  style: AppTextStyles.subheading.copyWith(
+                      Expanded(
+                        flex: 3,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            SizedBox(
+                              height: 60.h,
+                              child: Center(
+                                child: Text(
+                                  '₱${MoneyFormatter(amount: double.tryParse(currentBill.eTotal ?? '0') ?? 0).output.nonSymbol}',
+                                  style: AppTextStyles.body.copyWith(
                                     fontSize: 16.sp,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                SizedBox(height: 2.h),
-                                Text(
-                                  'Monthly',
-                                  style: AppTextStyles.caption.copyWith(
-                                    fontSize: 14.sp,
-                                    color: Colors.grey[600],
+                              ),
+                            ),
+                            SizedBox(
+                              height: 60.h,
+                              child: Center(
+                                child: Text(
+                                  '₱${MoneyFormatter(amount: double.tryParse(currentBill.wTotal ?? '0') ?? 0).output.nonSymbol}',
+                                  style: AppTextStyles.body.copyWith(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
-                        SizedBox(
-                          height: 60.h,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Rent',
-                                style: AppTextStyles.subheading.copyWith(
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.bold,
+                            if (currentUser?.wifi == 'Y')
+                              SizedBox(
+                                height: 60.h,
+                                child: Center(
+                                  child: Text(
+                                    '₱${MoneyFormatter(amount: double.parse(currentBill.wifi ?? '0')).output.nonSymbol}',
+                                    style: AppTextStyles.body.copyWith(
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
                               ),
-                              SizedBox(height: 2.h),
-                              Text(
-                                'Monthly',
-                                style: AppTextStyles.caption.copyWith(
-                                  fontSize: 14.sp,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        SizedBox(
-                          height: 60.h,
-                          child: Center(
-                            child: Text(
-                              '₱${MoneyFormatter(amount: double.tryParse(currentBill.eTotal ?? '0') ?? 0).output.nonSymbol}',
-                              style: AppTextStyles.body.copyWith(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 60.h,
-                          child: Center(
-                            child: Text(
-                              '₱${MoneyFormatter(amount: double.tryParse(currentBill.wTotal ?? '0') ?? 0).output.nonSymbol}',
-                              style: AppTextStyles.body.copyWith(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                        if (currentUser?.wifi == 'Y')
-                          SizedBox(
-                            height: 60.h,
-                            child: Center(
-                              child: Text(
-                                '₱${MoneyFormatter(amount: double.parse(currentBill.wifi ?? '0')).output.nonSymbol}',
-                                style: AppTextStyles.body.copyWith(
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.bold,
+                            SizedBox(
+                              height: 60.h,
+                              child: Center(
+                                child: Text(
+                                  '₱${MoneyFormatter(amount: double.parse(currentBill.monthlyRate ?? '0')).output.nonSymbol}',
+                                  style: AppTextStyles.body.copyWith(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        SizedBox(
-                          height: 60.h,
-                          child: Center(
-                            child: Text(
-                              '₱${MoneyFormatter(amount: double.parse(currentBill.monthlyRate ?? '0')).output.nonSymbol}',
-                              style: AppTextStyles.body.copyWith(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
       ),
