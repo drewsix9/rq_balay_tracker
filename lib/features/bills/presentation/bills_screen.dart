@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/global/current_user.dart';
 import '../../../core/providers/bills_provider.dart';
+import '../../../core/services/api_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../profile/presentation/side_panel.dart';
@@ -113,6 +114,7 @@ class _BillsScreenState extends State<BillsScreen> {
   void initState() {
     super.initState();
     Provider.of<BillsProvider>(context, listen: false).getCurrentMonthBill();
+    ApiService.getTransactionHistory('1');
   }
 
   @override
