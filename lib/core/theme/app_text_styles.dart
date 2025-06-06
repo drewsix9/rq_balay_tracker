@@ -6,16 +6,16 @@ class AppTextStyles {
   static const heading = TextStyle(
     fontSize: 28,
     fontWeight: FontWeight.bold,
-    color: AppColors.textDark,
+    color: AppColors.textPrimary,
   );
 
   static const subheading = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.bold,
-    color: AppColors.textDark,
+    color: AppColors.textPrimary,
   );
 
-  static const body = TextStyle(fontSize: 14, color: AppColors.textDark);
+  static const body = TextStyle(fontSize: 14, color: AppColors.textPrimary);
 
   static const muted = TextStyle(fontSize: 14, color: AppColors.textMuted);
 

@@ -74,10 +74,11 @@ class _BillsScreenState extends State<BillsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
         title: Text(
           'My Bills',
           style: AppTextStyles.subheading.copyWith(
-            color: Colors.white,
+            color: AppColors.surface,
             fontSize: 20.sp,
           ),
         ),
@@ -155,6 +156,8 @@ class _BillsScreenState extends State<BillsScreen> {
                           itemBuilder: (context, index) {
                             final transaction = BillsScreen.transactions[index];
                             return Card(
+                              elevation: 0,
+                              color: AppColors.surface,
                               margin: EdgeInsets.only(bottom: 8.h),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8.r),
@@ -240,9 +243,10 @@ class BuildMonthBillCard extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.all(16.w),
       child: Card(
+        elevation: 0,
+        color: AppColors.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.r),
-          side: BorderSide(color: Colors.black, width: 1.5),
         ),
         child: Padding(
           padding: EdgeInsets.all(16.w),
