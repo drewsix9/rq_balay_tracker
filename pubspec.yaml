@@ -44,6 +44,7 @@ dependencies:
   fluttertoast: ^8.2.12
   shimmer: ^3.0.0
   money_formatter: ^0.0.5
+  flutter_screenutil: ^5.9.3
 
 dev_dependencies:
   flutter_test:

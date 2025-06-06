@@ -1,9 +1,11 @@
 // lib/features/profile/presentation/side_panel.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:rq_balay_tracker/core/logger/app_logger.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/usecases/month_bill_shared_pref.dart';
 import '../../../core/usecases/unit_shared_pref.dart';
 import '../../../core/usecases/user_shared_pref.dart';
 import '../../auth/presentation/login_screen.dart';
@@ -20,7 +22,7 @@ class SidePanel extends StatelessWidget {
             // Header with room number
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
+              padding: EdgeInsets.fromLTRB(16.w, 48.h, 16.w, 16.h),
               color: AppColors.primaryBlue,
               child: FutureBuilder(
                 future: UserSharedPref.getCurrentUser(),
@@ -36,9 +38,10 @@ class SidePanel extends StatelessWidget {
                           'Room ${user.unit}',
                           style: AppTextStyles.heading.copyWith(
                             color: Colors.white,
+                            fontSize: 24.sp,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4.h),
                         // Text(
                         //   user.name,
                         //   style: AppTextStyles.body.copyWith(
@@ -55,7 +58,7 @@ class SidePanel extends StatelessWidget {
             // Profile Information
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(16.w),
                 children: [
                   FutureBuilder(
                     future: _buildProfileSection(),
@@ -66,7 +69,7 @@ class SidePanel extends StatelessWidget {
                       return snapshot.data ?? const SizedBox.shrink();
                     },
                   ),
-                  const Divider(height: 32),
+                  Divider(height: 32.h),
                   _buildLogoutButton(context),
                 ],
               ),
@@ -88,8 +91,11 @@ class SidePanel extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Profile Information', style: AppTextStyles.subheading),
-              const SizedBox(height: 16),
+              Text(
+                'Profile Information',
+                style: AppTextStyles.subheading.copyWith(fontSize: 20.sp),
+              ),
+              SizedBox(height: 16.h),
               _buildInfoRow('Name', (user.name)),
               _buildInfoRow(
                 'Phone',
@@ -128,18 +134,24 @@ class SidePanel extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.only(bottom: 16.h),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: AppColors.primaryBlue),
-          const SizedBox(width: 12),
+          Icon(icon, size: 24.sp, color: AppColors.primaryBlue),
+          SizedBox(width: 12.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: AppTextStyles.muted),
-                const SizedBox(height: 4),
-                Text(value, style: AppTextStyles.body),
+                Text(
+                  label,
+                  style: AppTextStyles.muted.copyWith(fontSize: 14.sp),
+                ),
+                SizedBox(height: 4.h),
+                Text(
+                  value,
+                  style: AppTextStyles.body.copyWith(fontSize: 16.sp),
+                ),
               ],
             ),
           ),
@@ -154,15 +166,16 @@ class SidePanel extends StatelessWidget {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.red,
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: EdgeInsets.symmetric(vertical: 16.h),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(12.r),
           ),
         ),
         onPressed: () {
           // Handle logout
           UnitSharedPref.clearUnit();
           UserSharedPref.clearCurrentUser();
+          MonthBillSharedPref.clearMonthBill();
           AppLogger.i("Unit and User cleared from SharedPreferences");
           Navigator.push(
             context,
@@ -170,7 +183,10 @@ class SidePanel extends StatelessWidget {
           ); // Close drawer
           // Add your logout logic here
         },
-        child: Text('Logout', style: AppTextStyles.buttonText),
+        child: Text(
+          'Logout',
+          style: AppTextStyles.buttonText.copyWith(fontSize: 16.sp),
+        ),
       ),
     );
   }

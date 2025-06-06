@@ -1,5 +1,6 @@
 // lib/features/auth/presentation/login_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../../core/global/current_user.dart';
@@ -28,39 +29,53 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('RQ Balay Tracker', style: AppTextStyles.heading),
-                const SizedBox(height: 32),
-                AppInputField(
-                  hint: 'Username / Room Number',
-                  controller: _userNameController,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Please enter a username or room number';
-                    }
-                    return null;
-                  },
+        child: Center(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.all(16.w),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: 400.w),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'RQ Balay Tracker',
+                        style: AppTextStyles.heading.copyWith(fontSize: 32.sp),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 24.h),
+                      AppInputField(
+                        hint: 'Username / Room Number',
+                        controller: _userNameController,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Please enter a username or room number';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 18.h),
+                      SizedBox(
+                        width: double.infinity,
+                        child: AppButton(
+                          label: 'Login',
+                          isLoading: _isLoading,
+                          onPressed: () async {
+                            if (_formKey.currentState?.validate() ?? false) {
+                              setState(() => _isLoading = true);
+                              await _handleLogin(context);
+                              setState(() => _isLoading = false);
+                            }
+                            _userNameController.clear();
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 16),
-                AppButton(
-                  label: 'Login',
-                  isLoading: _isLoading,
-                  onPressed: () async {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      setState(() => _isLoading = true);
-                      await _handleLogin(context);
-                      setState(() => _isLoading = false);
-                    }
-                    _userNameController.clear();
-                  },
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -96,7 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
         timeInSecForIosWeb: 1,
         backgroundColor: Colors.red,
         textColor: Colors.white,
-        fontSize: 16.0,
+        fontSize: 16.sp,
       );
     }
   }

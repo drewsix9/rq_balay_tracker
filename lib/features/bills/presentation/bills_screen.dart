@@ -1,5 +1,6 @@
 // lib/features/bills/presentation/bills_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:money_formatter/money_formatter.dart';
 
@@ -47,6 +48,14 @@ class _BillsScreenState extends State<BillsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize screen_util
+    ScreenUtil.init(
+      context,
+      designSize: const Size(375, 812), // iPhone X design size
+      minTextAdapt: true,
+      splitScreenMode: true,
+    );
+
     final transactions = [
       {
         'date': DateTime.now().subtract(const Duration(days: 30)),
@@ -96,14 +105,16 @@ class _BillsScreenState extends State<BillsScreen> {
       appBar: AppBar(
         title: Text(
           'My Bills',
-          style: AppTextStyles.subheading.copyWith(color: Colors.white),
+          style: AppTextStyles.subheading.copyWith(
+            color: Colors.white,
+            fontSize: 20.sp,
+          ),
         ),
-
         backgroundColor: AppColors.primaryBlue,
         leading: Builder(
           builder: (context) {
             return IconButton(
-              icon: const Icon(Icons.menu, color: Colors.white),
+              icon: Icon(Icons.menu, color: Colors.white, size: 24.sp),
               onPressed: () {
                 Scaffold.of(context).openDrawer();
               },
@@ -115,28 +126,26 @@ class _BillsScreenState extends State<BillsScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Latest Bill Card (Fixed at top)
             BuildMonthBillCard(
               currentUnit: currentUnit,
               currentUser: currentUser,
             ),
-            // Transaction History (Scrollable)
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Transaction History',
-                      style: AppTextStyles.subheading,
+                      style: AppTextStyles.subheading.copyWith(fontSize: 18.sp),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 12.h),
                     if (transactions.isEmpty)
                       Center(
                         child: Text(
                           'No pending payments',
-                          style: AppTextStyles.muted,
+                          style: AppTextStyles.muted.copyWith(fontSize: 14.sp),
                         ),
                       )
                     else
@@ -146,9 +155,9 @@ class _BillsScreenState extends State<BillsScreen> {
                           itemBuilder: (context, index) {
                             final transaction = transactions[index];
                             return Card(
-                              margin: const EdgeInsets.only(bottom: 8),
+                              margin: EdgeInsets.only(bottom: 8.h),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(8.r),
                               ),
                               child: ListTile(
                                 title: Text(
@@ -158,7 +167,7 @@ class _BillsScreenState extends State<BillsScreen> {
                                     ),
                                   ),
                                   style: AppTextStyles.caption.copyWith(
-                                    fontSize: 12,
+                                    fontSize: 14.sp,
                                     color: Colors.grey[600],
                                   ),
                                 ),
@@ -167,20 +176,24 @@ class _BillsScreenState extends State<BillsScreen> {
                                   children: [
                                     Text(
                                       '₱${MoneyFormatter(amount: double.parse(transaction['amount'].toString())).output.nonSymbol}',
-                                      style: AppTextStyles.body,
+                                      style: AppTextStyles.body.copyWith(
+                                        fontSize: 14.sp,
+                                      ),
                                     ),
-                                    const SizedBox(width: 8),
+                                    SizedBox(width: 8.w),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 4.w,
+                                        vertical: 2.h,
                                       ),
                                       decoration: BoxDecoration(
                                         color:
                                             transaction['isPaid'] != null
                                                 ? AppColors.success
                                                 : AppColors.warning,
-                                        borderRadius: BorderRadius.circular(4),
+                                        borderRadius: BorderRadius.circular(
+                                          4.r,
+                                        ),
                                       ),
                                       child: Text(
                                         transaction['isPaid'] != null
@@ -188,6 +201,7 @@ class _BillsScreenState extends State<BillsScreen> {
                                             : 'Pending',
                                         style: AppTextStyles.body.copyWith(
                                           color: Colors.white,
+                                          fontSize: 14.sp,
                                         ),
                                       ),
                                     ),
@@ -222,10 +236,10 @@ class BuildMonthBillCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: EdgeInsets.all(16.w),
       child: Card(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(12.r),
           side: BorderSide(color: Colors.black, width: 1.5),
         ),
         child: FutureBuilder<Map<String, dynamic>?>(
@@ -252,267 +266,246 @@ class BuildMonthBillCard extends StatelessWidget {
               AppLogger.d('Error saving month bill: $e');
             }
             return Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Row(
+              padding: EdgeInsets.all(16.w),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Left side: Date, Amount, Button
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Month/Year
-                        Text(
-                          DateFormat(
-                            'MMMM yyyy',
-                          ).format(DateTime.parse(data['date'])),
-                          style: AppTextStyles.subheading.copyWith(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primaryBlue,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            DateFormat(
+                              'MMMM yyyy',
+                            ).format(DateTime.parse(data['date'])),
+                            style: AppTextStyles.subheading.copyWith(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primaryBlue,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 12),
-                        // Amount label
-                        Text(
-                          'Total Due',
-                          style: AppTextStyles.caption.copyWith(
-                            fontSize: 12,
-                            color: Colors.grey[700],
+                          SizedBox(height: 8.h),
+                          Text(
+                            'Total Due',
+                            style: AppTextStyles.caption.copyWith(
+                              fontSize: 14.sp,
+                              color: Colors.grey[700],
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 4),
-                        // Amount
-                        Text(
-                          'PHP ${MoneyFormatter(amount: double.parse(data['totalDue'])).output.nonSymbol}',
-                          style: AppTextStyles.heading.copyWith(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                          SizedBox(height: 4.h),
+                          Text(
+                            'PHP ${MoneyFormatter(amount: double.parse(data['totalDue'])).output.nonSymbol}',
+                            style: AppTextStyles.heading.copyWith(
+                              fontSize: 24.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 16),
-
-                        // (Optional) Due date
-                        SizedBox(height: 24),
-                        // Pay GCash Button
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: SizedBox(
-                            width: 120,
-                            height: 38,
-                            child: ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primaryBlue,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                elevation: 2,
-                                padding: EdgeInsets.symmetric(horizontal: 8),
-                              ),
-                              onPressed: () {
-                                // Handle Gcash payment
-                              },
-                              icon: Icon(
-                                Icons.account_balance_wallet,
-                                size: 16,
-                                color: Colors.white,
-                              ), // GCash-like icon
-                              label: Text(
-                                'Pay GCash',
-                                style: AppTextStyles.buttonText.copyWith(
-                                  fontSize: 13,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
+                        ],
+                      ),
+                      SizedBox(
+                        width: 120.w,
+                        height: 48.h,
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primaryBlue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            elevation: 2,
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          ),
+                          onPressed: () {
+                            // Handle Gcash payment
+                          },
+                          icon: Icon(
+                            Icons.account_balance_wallet,
+                            size: 20.sp,
+                            color: Colors.white,
+                          ),
+                          label: Text(
+                            'Pay GCash',
+                            style: AppTextStyles.buttonText.copyWith(
+                              fontSize: 14.sp,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
-                        // Text(
-                        //   'Due: ${DateFormat('MMMM d, yyyy').format(DateTime.parse(data['date']))}',
-                        //   style: AppTextStyles.caption.copyWith(
-                        //     fontSize: 12,
-                        //     color: Colors.red[400],
-                        //   ),
-                        // ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  SizedBox(width: 16),
-                  // Right side: kWh, Water, Wifi
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Electricity Section
-                        Text(
-                          'Electricity',
-                          style: AppTextStyles.subheading.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Column(
-                            children: [
-                              Row(
+                  SizedBox(height: 16.h),
+                  Divider(color: Colors.grey[300], thickness: 1),
+                  SizedBox(height: 16.h),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              height: 60.h,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Expanded(
-                                    child: Text(
-                                      'Rate:',
-                                      style: AppTextStyles.caption,
+                                  Text(
+                                    'Electricity',
+                                    style: AppTextStyles.subheading.copyWith(
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
+                                  SizedBox(height: 4.h),
                                   Text(
                                     '₱${data['eRate']}/kWh',
-                                    style: AppTextStyles.body.copyWith(
-                                      fontWeight: FontWeight.bold,
+                                    style: AppTextStyles.caption.copyWith(
+                                      fontSize: 14.sp,
+                                      color: Colors.grey[600],
                                     ),
                                   ),
                                 ],
                               ),
-                              Row(
+                            ),
+                            SizedBox(
+                              height: 60.h,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Expanded(
-                                    child: Text(
-                                      'Total:',
-                                      style: AppTextStyles.caption,
-                                    ),
-                                  ),
                                   Text(
-                                    '₱${MoneyFormatter(amount: double.parse(data['eTotal'])).output.nonSymbol}',
-                                    style: AppTextStyles.body.copyWith(
+                                    'Water',
+                                    style: AppTextStyles.subheading.copyWith(
+                                      fontSize: 16.sp,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 12),
-
-                        // Water Section
-                        Text(
-                          'Water',
-                          style: AppTextStyles.subheading.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      'Rate:',
-                                      style: AppTextStyles.caption,
-                                    ),
-                                  ),
+                                  SizedBox(height: 4.h),
                                   Text(
                                     '₱${MoneyFormatter(amount: double.parse(data['wRate'])).output.nonSymbol}/m³',
-                                    style: AppTextStyles.body.copyWith(
-                                      fontWeight: FontWeight.bold,
+                                    style: AppTextStyles.caption.copyWith(
+                                      fontSize: 14.sp,
+                                      color: Colors.grey[600],
                                     ),
                                   ),
                                 ],
                               ),
-                              Row(
+                            ),
+                            if (currentUser?.wifi == '1')
+                              SizedBox(
+                                height: 60.h,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'WiFi',
+                                      style: AppTextStyles.subheading.copyWith(
+                                        fontSize: 16.sp,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    SizedBox(height: 4.h),
+                                    Text(
+                                      'Monthly',
+                                      style: AppTextStyles.caption.copyWith(
+                                        fontSize: 14.sp,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            SizedBox(
+                              height: 60.h,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Expanded(
-                                    child: Text(
-                                      'Total:',
-                                      style: AppTextStyles.caption,
+                                  Text(
+                                    'Rent',
+                                    style: AppTextStyles.subheading.copyWith(
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
+                                  SizedBox(height: 4.h),
                                   Text(
-                                    '₱${MoneyFormatter(amount: double.parse(data['wTotal'])).output.nonSymbol}',
-                                    style: AppTextStyles.body.copyWith(
-                                      fontWeight: FontWeight.bold,
+                                    'Monthly',
+                                    style: AppTextStyles.caption.copyWith(
+                                      fontSize: 14.sp,
+                                      color: Colors.grey[600],
                                     ),
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                        SizedBox(height: 12),
-
-                        // WiFi Section
-                        (currentUser?.wifi == '1'
-                            ? Text(
-                              'WiFi',
-                              style: AppTextStyles.subheading.copyWith(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            )
-                            : SizedBox.shrink()),
-                        (currentUser?.wifi == '1'
-                            ? SizedBox(height: 4)
-                            : SizedBox.shrink()),
-                        (currentUser?.wifi == '1'
-                            ? Padding(
-                              padding: const EdgeInsets.only(left: 8.0),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      'Total:',
-                                      style: AppTextStyles.caption,
-                                    ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            SizedBox(
+                              height: 60.h,
+                              child: Center(
+                                child: Text(
+                                  '₱${MoneyFormatter(amount: double.parse(data['eTotal'])).output.nonSymbol}',
+                                  style: AppTextStyles.body.copyWith(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  Text(
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 60.h,
+                              child: Center(
+                                child: Text(
+                                  '₱${MoneyFormatter(amount: double.parse(data['wTotal'])).output.nonSymbol}',
+                                  style: AppTextStyles.body.copyWith(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            if (currentUser?.wifi == '1')
+                              SizedBox(
+                                height: 60.h,
+                                child: Center(
+                                  child: Text(
                                     '₱${MoneyFormatter(amount: double.parse(data['wifi'])).output.nonSymbol}',
                                     style: AppTextStyles.body.copyWith(
+                                      fontSize: 16.sp,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                ],
+                                ),
                               ),
-                            )
-                            : SizedBox.shrink()),
-                        (currentUser?.wifi == '1'
-                            ? SizedBox(height: 12)
-                            : SizedBox.shrink()),
-
-                        // Monthly Rate Section
-                        Text(
-                          'Rent',
-                          style: AppTextStyles.subheading.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Row(
-                            children: [
-                              Expanded(
+                            SizedBox(
+                              height: 60.h,
+                              child: Center(
                                 child: Text(
-                                  'Total:',
-                                  style: AppTextStyles.caption,
+                                  '₱${MoneyFormatter(amount: double.parse(data['monthlyRate'])).output.nonSymbol}',
+                                  style: AppTextStyles.body.copyWith(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
-                              Text(
-                                '₱${MoneyFormatter(amount: double.parse(data['monthlyRate'])).output.nonSymbol}',
-                                style: AppTextStyles.body.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
