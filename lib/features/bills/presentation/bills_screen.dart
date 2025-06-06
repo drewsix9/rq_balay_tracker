@@ -5,105 +5,16 @@ import 'package:intl/intl.dart';
 import 'package:money_formatter/money_formatter.dart';
 import 'package:provider/provider.dart';
 
-import '../../../core/global/current_user.dart';
+import '../../../core/global/current_user_model.dart';
 import '../../../core/providers/bills_provider.dart';
-import '../../../core/services/api_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../profile/presentation/side_panel.dart';
-import '../data/month_bill.dart';
+import '../data/month_bill_model.dart';
 import 'widgets/shimmer_card.dart';
 
 class BillsScreen extends StatefulWidget {
   const BillsScreen({super.key});
-
-  static final List<Map<String, dynamic>> transactions = [
-    {
-      "unit": "1",
-      "id": "27",
-      "rMonth": "6",
-      "rYear": "2025",
-      "eTotal": "1160.59",
-      "eRate": "17.00",
-      "wTotal": "102.00",
-      "wRate": "17.00",
-      "paid": "Y",
-      "monthlyRate": "4000.00",
-      "wifi": "500.00",
-      "date": "2025-06-01",
-      "balance": "",
-      "date_paid": "2025-06-01",
-      "totalDue": "5762.59",
-    },
-    {
-      "unit": "1",
-      "id": "27",
-      "rMonth": "6",
-      "rYear": "2025",
-      "eTotal": "1160.59",
-      "eRate": "17.00",
-      "wTotal": "102.00",
-      "wRate": "17.00",
-      "paid": "Y",
-      "monthlyRate": "4000.00",
-      "wifi": "500.00",
-      "date": "2025-06-01",
-      "balance": "",
-      "date_paid": "2025-06-01",
-      "totalDue": "5762.59",
-    },
-    {
-      "unit": "1",
-      "id": "27",
-      "rMonth": "6",
-      "rYear": "2025",
-      "eTotal": "1160.59",
-      "eRate": "17.00",
-      "wTotal": "102.00",
-      "wRate": "17.00",
-      "paid": "Y",
-      "monthlyRate": "4000.00",
-      "wifi": "500.00",
-      "date": "2025-06-01",
-      "balance": "",
-      "date_paid": "2025-06-01",
-      "totalDue": "5762.59",
-    },
-    {
-      "unit": "1",
-      "id": "27",
-      "rMonth": "6",
-      "rYear": "2025",
-      "eTotal": "1160.59",
-      "eRate": "17.00",
-      "wTotal": "102.00",
-      "wRate": "17.00",
-      "paid": "Y",
-      "monthlyRate": "4000.00",
-      "wifi": "500.00",
-      "date": "2025-06-01",
-      "balance": "",
-      "date_paid": "2025-06-01",
-      "totalDue": "5762.59",
-    },
-    {
-      "unit": "1",
-      "id": "27",
-      "rMonth": "6",
-      "rYear": "2025",
-      "eTotal": "1160.59",
-      "eRate": "17.00",
-      "wTotal": "102.00",
-      "wRate": "17.00",
-      "paid": "Y",
-      "monthlyRate": "4000.00",
-      "wifi": "500.00",
-      "date": "2025-06-01",
-      "balance": "",
-      "date_paid": "2025-06-01",
-      "totalDue": "5762.59",
-    },
-  ];
 
   @override
   State<BillsScreen> createState() => _BillsScreenState();
@@ -113,8 +24,7 @@ class _BillsScreenState extends State<BillsScreen> {
   @override
   void initState() {
     super.initState();
-    Provider.of<BillsProvider>(context, listen: false).getCurrentMonthBill();
-    ApiService.getTransactionHistory('1');
+    // Provider.of<BillsProvider>(context, listen: false).getCurrentMonthBill();
   }
 
   @override
@@ -178,14 +88,14 @@ class _BillsScreenState extends State<BillsScreen> {
                 );
               },
             ),
-            _buildTransactionList(BillsScreen.transactions),
+            _buildTransactionList(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTransactionList(List<Map<String, dynamic>> transactions) {
+  Widget _buildTransactionList() {
     return Expanded(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -197,118 +107,144 @@ class _BillsScreenState extends State<BillsScreen> {
               style: AppTextStyles.subheading.copyWith(fontSize: 18.sp),
             ),
             SizedBox(height: 12.h),
-            if (BillsScreen.transactions.isEmpty)
-              Center(
-                child: Text(
-                  'No pending payments',
-                  style: AppTextStyles.muted.copyWith(fontSize: 14.sp),
-                ),
-              )
-            else
-              Expanded(
-                child: ListView.builder(
-                  itemCount: BillsScreen.transactions.length,
-                  itemBuilder: (context, index) {
-                    final transaction = BillsScreen.transactions[index];
-                    return Card(
-                      elevation: 0,
-                      color: AppColors.surface,
-                      margin: EdgeInsets.only(bottom: 8.h),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                      child: ExpansionTile(
+            Consumer<BillsProvider>(
+              builder: (context, provider, child) {
+                if (provider.isLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final transactions =
+                    provider.transactionHistory?.transactionHistory ?? [];
+
+                if (transactions.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'No transaction history',
+                      style: AppTextStyles.muted.copyWith(fontSize: 14.sp),
+                    ),
+                  );
+                }
+
+                return Expanded(
+                  child: ListView.builder(
+                    itemCount: transactions.length,
+                    itemBuilder: (context, index) {
+                      final transaction = transactions[index];
+                      return Card(
+                        elevation: 0,
+                        color: AppColors.surface,
+                        margin: EdgeInsets.only(bottom: 8.h),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.r),
                         ),
-                        tilePadding: EdgeInsets.symmetric(horizontal: 16.w),
-                        backgroundColor: AppColors.surface,
-                        collapsedBackgroundColor: AppColors.surface,
-                        collapsedIconColor: AppColors.textMuted,
-                        iconColor: AppColors.textMuted,
-                        collapsedTextColor: AppColors.textMuted,
-                        textColor: AppColors.textMuted,
-                        title: Text(
-                          DateFormat('MMMM d, yyyy').format(
-                            DateTime.parse(transaction['date'].toString()),
+                        child: ExpansionTile(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.r),
                           ),
-                          style: AppTextStyles.caption.copyWith(
-                            fontSize: 14.sp,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              '₱${transaction['totalDue'] ?? '0.00'}',
-                              style: AppTextStyles.body.copyWith(
-                                fontSize: 14.sp,
+                          tilePadding: EdgeInsets.symmetric(horizontal: 16.w),
+                          backgroundColor: AppColors.surface,
+                          collapsedBackgroundColor: AppColors.surface,
+                          collapsedIconColor: AppColors.textMuted,
+                          iconColor: AppColors.textMuted,
+                          collapsedTextColor: AppColors.textMuted,
+                          textColor: AppColors.textMuted,
+                          title: Text(
+                            DateFormat('MMMM d, yyyy').format(
+                              DateTime.parse(
+                                transaction.date ?? DateTime.now().toString(),
                               ),
                             ),
-                            SizedBox(width: 8.w),
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 4.w,
-                                vertical: 2.h,
-                              ),
-                              decoration: BoxDecoration(
-                                color:
-                                    transaction['paid'] == 'Y'
-                                        ? AppColors.success
-                                        : AppColors.warning,
-                                borderRadius: BorderRadius.circular(4.r),
-                              ),
-                              child: Text(
-                                transaction['paid'] == 'Y' ? 'Paid' : 'Pending',
+                            style: AppTextStyles.caption.copyWith(
+                              fontSize: 14.sp,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                '₱${transaction.totalDue}',
                                 style: AppTextStyles.body.copyWith(
-                                  color: Colors.white,
                                   fontSize: 14.sp,
                                 ),
+                              ),
+                              SizedBox(width: 8.w),
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 4.w,
+                                  vertical: 2.h,
+                                ),
+                                decoration: BoxDecoration(
+                                  color:
+                                      transaction.paid == 'Y'
+                                          ? AppColors.success
+                                          : AppColors.warning,
+                                  borderRadius: BorderRadius.circular(4.r),
+                                ),
+                                child: Text(
+                                  transaction.paid == 'Y' ? 'Paid' : 'Pending',
+                                  style: AppTextStyles.body.copyWith(
+                                    color: Colors.white,
+                                    fontSize: 14.sp,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.all(16.w),
+                              child: Column(
+                                children: [
+                                  _buildBillDetailRow(
+                                    'Electricity',
+                                    '₱${transaction.eTotal}',
+                                    '₱${transaction.eRate}/kWh',
+                                  ),
+                                  SizedBox(height: 12.h),
+                                  _buildBillDetailRow(
+                                    'Water',
+                                    '₱${transaction.wTotal}',
+                                    '₱${transaction.wRate}/m³',
+                                  ),
+                                  if (transaction.wifi != null &&
+                                      transaction.wifi != '0.00') ...[
+                                    SizedBox(height: 12.h),
+                                    _buildBillDetailRow(
+                                      'WiFi',
+                                      '₱${transaction.wifi}',
+                                      'Monthly',
+                                    ),
+                                  ],
+                                  SizedBox(height: 12.h),
+                                  _buildBillDetailRow(
+                                    'Rent',
+                                    '₱${transaction.monthlyRate}',
+                                    'Monthly',
+                                  ),
+                                  SizedBox(height: 12.h),
+                                  Container(
+                                    height: 1,
+                                    color: AppColors.divider,
+                                  ),
+                                  SizedBox(height: 12.h),
+                                  _buildBillDetailRow(
+                                    'Total Due',
+                                    '₱${transaction.totalDue}',
+                                    '',
+                                    isTotal: true,
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.all(16.w),
-                            child: Column(
-                              children: [
-                                _buildBillDetailRow(
-                                  'Electricity',
-                                  '₱${transaction['eTotal'] ?? '0.00'}',
-                                  '₱${transaction['eRate'] ?? '0.00'}/kWh',
-                                ),
-                                SizedBox(height: 12.h),
-                                _buildBillDetailRow(
-                                  'Water',
-                                  '₱${transaction['wTotal'] ?? '0.00'}',
-                                  '₱${transaction['wRate'] ?? '0.00'}/m³',
-                                ),
-                                if (transaction['wifi'] != null &&
-                                    transaction['wifi'] != '0.00') ...[
-                                  SizedBox(height: 12.h),
-                                  _buildBillDetailRow(
-                                    'WiFi',
-                                    '₱${transaction['wifi'] ?? '0.00'}',
-                                    'Monthly',
-                                  ),
-                                ],
-                                SizedBox(height: 12.h),
-                                _buildBillDetailRow(
-                                  'Rent',
-                                  '₱${transaction['monthlyRate'] ?? '0.00'}',
-                                  'Monthly',
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),

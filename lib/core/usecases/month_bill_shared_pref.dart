@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../features/bills/data/month_bill.dart';
+import '../../features/bills/data/month_bill_model.dart';
 import '../logger/app_logger.dart';
 
 class MonthBillSharedPref {

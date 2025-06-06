@@ -5,6 +5,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import '../../features/bills/data/transaction_history_model.dart';
 import '../logger/app_logger.dart';
 
 class ApiService {
@@ -84,7 +85,7 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>?> getTransactionHistory(
+  static Future<TransactionHistoryModel> getTransactionHistory(
     String unit,
   ) async {
     try {
@@ -108,7 +109,7 @@ class ApiService {
 
       try {
         if (response.statusCode == 200) {
-          return jsonResponse;
+          return TransactionHistoryModel.fromJson(response.body);
         } else {
           AppLogger.e("Login failed: $jsonResponse");
           throw Exception('Login failed: $jsonResponse');
