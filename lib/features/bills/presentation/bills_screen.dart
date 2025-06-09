@@ -144,7 +144,7 @@ class _BillsScreenState extends State<BillsScreen> {
   Widget _buildTransactionList() {
     return Expanded(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 12.w),
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -227,8 +227,9 @@ class _BillsScreenState extends State<BillsScreen> {
                                         DateTime.now().toString(),
                                   ),
                                 ),
-                                style: AppTextStyles.caption.copyWith(
-                                  fontSize: 14.sp,
+                                style: AppTextStyles.subheading.copyWith(
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.bold,
                                   color: AppColors.textPrimary,
                                 ),
                               ),
@@ -236,9 +237,11 @@ class _BillsScreenState extends State<BillsScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    '₱${transaction.totalDue}',
+                                    '₱${MoneyFormatter(amount: double.tryParse(transaction.totalDue ?? '0') ?? 0).output.nonSymbol}',
                                     style: AppTextStyles.body.copyWith(
-                                      fontSize: 14.sp,
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.textPrimary,
                                     ),
                                   ),
                                   SizedBox(width: 8.w),
@@ -258,9 +261,10 @@ class _BillsScreenState extends State<BillsScreen> {
                                       transaction.paid == 'Y'
                                           ? 'Paid'
                                           : 'Pending',
-                                      style: AppTextStyles.body.copyWith(
+                                      style: AppTextStyles.caption.copyWith(
                                         color: Colors.white,
-                                        fontSize: 14.sp,
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                   ),
@@ -273,13 +277,13 @@ class _BillsScreenState extends State<BillsScreen> {
                                     children: [
                                       _buildBillDetailRow(
                                         'Electricity',
-                                        '₱${transaction.eTotal}',
+                                        '${transaction.eTotal}',
                                         '₱${transaction.eRate}/kWh',
                                       ),
                                       SizedBox(height: 12.h),
                                       _buildBillDetailRow(
                                         'Water',
-                                        '₱${transaction.wTotal}',
+                                        '${transaction.wTotal}',
                                         '₱${transaction.wRate}/m³',
                                       ),
                                       if (transaction.wifi != null &&
@@ -287,14 +291,14 @@ class _BillsScreenState extends State<BillsScreen> {
                                         SizedBox(height: 12.h),
                                         _buildBillDetailRow(
                                           'WiFi',
-                                          '₱${transaction.wifi}',
+                                          '${transaction.wifi}',
                                           'Monthly',
                                         ),
                                       ],
                                       SizedBox(height: 12.h),
                                       _buildBillDetailRow(
                                         'Rent',
-                                        '₱${transaction.monthlyRate}',
+                                        '${transaction.monthlyRate}',
                                         'Monthly',
                                       ),
                                       SizedBox(height: 12.h),
@@ -305,7 +309,7 @@ class _BillsScreenState extends State<BillsScreen> {
                                       SizedBox(height: 12.h),
                                       _buildBillDetailRow(
                                         'Total Due',
-                                        '₱${transaction.totalDue}',
+                                        '${transaction.totalDue}',
                                         '',
                                         isTotal: true,
                                       ),
@@ -342,25 +346,30 @@ class _BillsScreenState extends State<BillsScreen> {
           children: [
             Text(
               title,
-              style: AppTextStyles.body.copyWith(
+              style: AppTextStyles.subheading.copyWith(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.bold,
                 color: AppColors.textSecondary,
-                fontWeight: isTotal ? FontWeight.w600 : FontWeight.w500,
               ),
             ),
             Text(
-              amount,
+              '₱${MoneyFormatter(amount: double.tryParse(amount) ?? 0).output.nonSymbol}',
               style: AppTextStyles.body.copyWith(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
-                fontWeight: isTotal ? FontWeight.w600 : FontWeight.w500,
               ),
             ),
           ],
         ),
         if (subtitle.isNotEmpty) ...[
-          SizedBox(height: 4.h),
+          SizedBox(height: 2.h),
           Text(
             subtitle,
-            style: AppTextStyles.caption.copyWith(color: AppColors.textMuted),
+            style: AppTextStyles.caption.copyWith(
+              fontSize: 12.sp,
+              color: Colors.grey[600],
+            ),
           ),
         ],
       ],
@@ -403,85 +412,93 @@ class BuildMonthBillCard extends StatelessWidget {
           child: Card(
             // elevation: 20,
             color: AppColors.surface,
-            child: Padding(
-              padding: EdgeInsets.all(16.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            child: ExpansionTile(
+              initiallyExpanded: true,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              collapsedShape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              // showTrailingIcon: false,
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            DateFormat('MMMM yyyy').format(
-                              DateTime.parse(
-                                currentBill.date ??
-                                    DateTime.now().toIso8601String(),
-                              ),
-                            ),
-                            style: AppTextStyles.subheading.copyWith(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.primaryBlue,
+                  Expanded(
+                    flex: 2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          DateFormat('MMMM yyyy').format(
+                            DateTime.parse(
+                              currentBill.date ??
+                                  DateTime.now().toIso8601String(),
                             ),
                           ),
-                          SizedBox(height: 8.h),
-                          Text(
-                            'Total Due',
-                            style: AppTextStyles.caption.copyWith(
-                              fontSize: 14.sp,
-                              color: Colors.grey[700],
-                            ),
-                          ),
-                          SizedBox(height: 2.h),
-                          Text(
-                            'PHP ${MoneyFormatter(amount: double.tryParse(currentBill.totalDue ?? '0') ?? 0).output.nonSymbol}',
-                            style: AppTextStyles.heading.copyWith(
-                              fontSize: 24.sp,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        width: 120.w,
-                        height: 48.h,
-                        child: ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primaryBlue,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            elevation: 0,
-                            padding: EdgeInsets.symmetric(horizontal: 16.w),
-                          ),
-                          onPressed: () {
-                            // Handle Gcash payment
-                          },
-                          icon: Icon(
-                            Icons.account_balance_wallet,
-                            size: 20.sp,
-                            color: Colors.white,
-                          ),
-                          label: Text(
-                            'Pay GCash',
-                            style: AppTextStyles.buttonText.copyWith(
-                              fontSize: 14.sp,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          style: AppTextStyles.subheading.copyWith(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primaryBlue,
                           ),
                         ),
-                      ),
-                    ],
+                        SizedBox(height: 4.h),
+                        Text(
+                          'Total Due',
+                          style: AppTextStyles.caption.copyWith(
+                            fontSize: 12.sp,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        SizedBox(height: 2.h),
+                        Text(
+                          'PHP ${MoneyFormatter(amount: double.tryParse(currentBill.totalDue ?? '0') ?? 0).output.nonSymbol}',
+                          style: AppTextStyles.heading.copyWith(
+                            fontSize: 20.sp,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  SizedBox(height: 12.h),
-                  Divider(color: Colors.grey[300], thickness: 1),
-                  SizedBox(height: 12.h),
-                  Row(
+                  SizedBox(width: 8.w),
+                  SizedBox(
+                    width: 100.w,
+                    height: 48.h,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryBlue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        elevation: 0,
+                        padding: EdgeInsets.symmetric(horizontal: 8.w),
+                      ),
+                      onPressed: () {
+                        // Handle Gcash payment
+                      },
+                      icon: Icon(
+                        Icons.account_balance_wallet,
+                        size: 18.sp,
+                        color: Colors.white,
+                      ),
+                      label: Text(
+                        'Pay GCash',
+                        style: AppTextStyles.buttonText.copyWith(
+                          fontSize: 12.sp,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(16.w),
+                  child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
@@ -648,8 +665,8 @@ class BuildMonthBillCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
