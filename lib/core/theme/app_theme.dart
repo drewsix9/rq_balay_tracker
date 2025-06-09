@@ -27,8 +27,8 @@ class AppTheme {
 
       // Card Theme
       cardTheme: CardTheme(
-        color: AppColors.surface,
-        elevation: 2,
+        color: AppColors.success,
+        elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.r),
         ),
@@ -39,20 +39,38 @@ class AppTheme {
       textTheme: TextTheme(
         displayLarge: AppTextStyles.heading.copyWith(
           color: AppColors.textPrimary,
-          fontWeight: FontWeight.bold,
+          fontSize: 24.sp,
+          fontWeight: FontWeight.w700,
         ),
         titleLarge: AppTextStyles.subheading.copyWith(
           color: AppColors.textPrimary,
+          fontSize: 18.sp,
+          fontWeight: FontWeight.w600,
+        ),
+        titleMedium: AppTextStyles.subheading.copyWith(
+          color: AppColors.textPrimary,
+          fontSize: 16.sp,
           fontWeight: FontWeight.w600,
         ),
         bodyLarge: AppTextStyles.body.copyWith(
-          color: AppColors.textSecondary,
+          color: AppColors.textPrimary,
+          fontSize: 15.sp,
           fontWeight: FontWeight.w500,
         ),
-        bodyMedium: AppTextStyles.body.copyWith(color: AppColors.textMuted),
+        bodyMedium: AppTextStyles.body.copyWith(
+          color: AppColors.textSecondary,
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w500,
+        ),
         labelLarge: AppTextStyles.buttonText.copyWith(
           color: Colors.white,
+          fontSize: 13.sp,
           fontWeight: FontWeight.w600,
+        ),
+        bodySmall: AppTextStyles.caption.copyWith(
+          color: AppColors.textMuted,
+          fontSize: 12.sp,
+          fontWeight: FontWeight.w500,
         ),
       ),
 
