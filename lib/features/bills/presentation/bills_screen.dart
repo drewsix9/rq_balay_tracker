@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:money_formatter/money_formatter.dart';
 import 'package:provider/provider.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../core/global/current_user_model.dart';
@@ -185,137 +186,157 @@ class _BillsScreenState extends State<BillsScreen> {
                           context,
                           listen: false,
                         ).isLoading,
-                    child: ListView.separated(
-                      separatorBuilder:
-                          (context, index) => SizedBox(height: 12.h),
+                    child: Scrollbar(
+                      child: SmartRefresher(
+                        controller: RefreshController(initialRefresh: false),
+                        onRefresh: () async {
+                          await Provider.of<BillsProvider>(
+                            context,
+                            listen: false,
+                          ).reload();
+                        },
+                        header: ClassicHeader(
+                          refreshStyle: RefreshStyle.Follow,
+                        ),
+                        child: ListView.separated(
+                          separatorBuilder:
+                              (context, index) => SizedBox(height: 12.h),
 
-                      itemCount: trimmedTransactions.length,
-                      itemBuilder: (context, index) {
-                        final transaction = trimmedTransactions[index];
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12.r),
-                            boxShadow: [
-                              BoxShadow(
-                                offset: const Offset(0, 4),
-                                blurRadius: 6,
-                                spreadRadius: -1,
-                                color: Colors.black.withValues(alpha: 0.1),
-                              ),
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12.r),
-                            child: ExpansionTile(
-                              childrenPadding: EdgeInsets.symmetric(
-                                horizontal: 16.w,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                  color: AppColors.navActive,
-                                  width: 1,
-                                ),
+                          itemCount: trimmedTransactions.length,
+                          itemBuilder: (context, index) {
+                            final transaction = trimmedTransactions[index];
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
                                 borderRadius: BorderRadius.circular(12.r),
-                              ),
-                              tilePadding: EdgeInsets.symmetric(
-                                horizontal: 16.w,
-                              ),
-                              backgroundColor: Colors.white,
-                              collapsedBackgroundColor: AppColors.surface,
-                              collapsedIconColor: AppColors.textMuted,
-                              iconColor: AppColors.textMuted,
-                              collapsedTextColor: AppColors.textMuted,
-                              textColor: AppColors.textMuted,
-                              title: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    DateFormat('MMMM d, yyyy').format(
-                                      DateTime.parse(
-                                        transaction.date ??
-                                            DateTime.now().toString(),
-                                      ),
-                                    ),
-                                    style:
-                                        Theme.of(context).textTheme.titleMedium,
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 4.w,
-                                      vertical: 2.h,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          transaction.paid == 'Y'
-                                              ? AppColors.success
-                                              : AppColors.warning,
-                                      borderRadius: BorderRadius.circular(4.r),
-                                    ),
-                                    child: Text(
-                                      transaction.paid == 'Y'
-                                          ? 'Paid'
-                                          : 'Pending',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.copyWith(color: Colors.white),
-                                    ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    offset: const Offset(0, 4),
+                                    blurRadius: 6,
+                                    spreadRadius: -1,
+                                    color: Colors.black.withValues(alpha: 0.1),
                                   ),
                                 ],
                               ),
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.all(16.w),
-                                  child: Column(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12.r),
+                                child: ExpansionTile(
+                                  childrenPadding: EdgeInsets.symmetric(
+                                    horizontal: 16.w,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                      color: AppColors.navActive.withValues(
+                                        alpha: 0.3,
+                                      ),
+                                      width: 1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12.r),
+                                  ),
+                                  tilePadding: EdgeInsets.symmetric(
+                                    horizontal: 16.w,
+                                  ),
+                                  backgroundColor: Colors.white,
+                                  collapsedBackgroundColor: AppColors.surface,
+                                  collapsedIconColor: AppColors.textMuted,
+                                  iconColor: AppColors.textMuted,
+                                  collapsedTextColor: AppColors.textMuted,
+                                  textColor: AppColors.textMuted,
+                                  title: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      _buildBillDetailRow(
-                                        'Electricity',
-                                        '${transaction.eTotal}',
-                                        '₱${transaction.eRate}/kWh',
-                                      ),
-                                      SizedBox(height: 12.h),
-                                      _buildBillDetailRow(
-                                        'Water',
-                                        '${transaction.wTotal}',
-                                        '₱${transaction.wRate}/m³',
-                                      ),
-                                      if (transaction.wifi != null &&
-                                          transaction.wifi != '0.00') ...[
-                                        SizedBox(height: 12.h),
-                                        _buildBillDetailRow(
-                                          'WiFi',
-                                          '${transaction.wifi}',
-                                          'Monthly',
+                                      Text(
+                                        DateFormat('MMMM d, yyyy').format(
+                                          DateTime.parse(
+                                            transaction.date ??
+                                                DateTime.now().toString(),
+                                          ),
                                         ),
-                                      ],
-                                      SizedBox(height: 12.h),
-                                      _buildBillDetailRow(
-                                        'Rent',
-                                        '${transaction.monthlyRate}',
-                                        'Monthly',
+                                        style:
+                                            Theme.of(
+                                              context,
+                                            ).textTheme.titleMedium,
                                       ),
-                                      SizedBox(height: 12.h),
                                       Container(
-                                        height: 1,
-                                        color: AppColors.divider,
-                                      ),
-                                      SizedBox(height: 12.h),
-                                      _buildBillDetailRow(
-                                        'Total Due',
-                                        '${transaction.totalDue}',
-                                        '',
-                                        isTotal: true,
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 4.w,
+                                          vertical: 2.h,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color:
+                                              transaction.paid == 'Y'
+                                                  ? AppColors.success
+                                                  : AppColors.warning,
+                                          borderRadius: BorderRadius.circular(
+                                            4.r,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          transaction.paid == 'Y'
+                                              ? 'Paid'
+                                              : 'Pending',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(color: Colors.white),
+                                        ),
                                       ),
                                     ],
                                   ),
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsets.all(16.w),
+                                      child: Column(
+                                        children: [
+                                          _buildBillDetailRow(
+                                            'Electricity',
+                                            '${transaction.eTotal}',
+                                            '₱${transaction.eRate}/kWh',
+                                          ),
+                                          SizedBox(height: 12.h),
+                                          _buildBillDetailRow(
+                                            'Water',
+                                            '${transaction.wTotal}',
+                                            '₱${transaction.wRate}/m³',
+                                          ),
+                                          if (transaction.wifi != null &&
+                                              transaction.wifi != '0.00') ...[
+                                            SizedBox(height: 12.h),
+                                            _buildBillDetailRow(
+                                              'WiFi',
+                                              '${transaction.wifi}',
+                                              'Monthly',
+                                            ),
+                                          ],
+                                          SizedBox(height: 12.h),
+                                          _buildBillDetailRow(
+                                            'Rent',
+                                            '${transaction.monthlyRate}',
+                                            'Monthly',
+                                          ),
+                                          SizedBox(height: 12.h),
+                                          Container(
+                                            height: 1,
+                                            color: AppColors.divider,
+                                          ),
+                                          SizedBox(height: 12.h),
+                                          _buildBillDetailRow(
+                                            'Total Due',
+                                            '${transaction.totalDue}',
+                                            '',
+                                            isTotal: true,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                     ),
                   ),
                 );

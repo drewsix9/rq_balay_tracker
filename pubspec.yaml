@@ -46,6 +46,7 @@ dependencies:
   money_formatter: ^0.0.5
   flutter_screenutil: ^5.9.3
   skeletonizer: ^1.4.3
+  pull_to_refresh_flutter3: ^2.0.2
 
 dev_dependencies:
   flutter_test:
