@@ -464,8 +464,10 @@ class BuildMonthBillCard extends StatelessWidget {
                           ),
                           SizedBox(height: 2.h),
                           Text(
-                            '₱${MoneyFormatter(amount: double.tryParse(currentBill.totalDue ?? '0') ?? 0).output.nonSymbol}',
-                            style: Theme.of(context).textTheme.displayLarge,
+                            '₱ ${MoneyFormatter(amount: double.tryParse(currentBill.totalDue ?? '0') ?? 0).output.nonSymbol}',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.displayLarge?.copyWith(fontSize: 28.sp),
                           ),
                         ],
                       ),
@@ -513,7 +515,7 @@ class BuildMonthBillCard extends StatelessWidget {
                       Expanded(
                         flex: 2,
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             SizedBox(
                               height: 60.h,
@@ -624,7 +626,7 @@ class BuildMonthBillCard extends StatelessWidget {
                               height: 60.h,
                               child: Center(
                                 child: Text(
-                                  '₱${MoneyFormatter(amount: double.tryParse(currentBill.eTotal ?? '0') ?? 0).output.nonSymbol}',
+                                  '₱ ${MoneyFormatter(amount: double.tryParse(currentBill.eTotal ?? '0') ?? 0).output.nonSymbol}',
                                   style: AppTextStyles.body.copyWith(
                                     fontSize: 16.sp,
                                     fontWeight: FontWeight.bold,
@@ -636,7 +638,7 @@ class BuildMonthBillCard extends StatelessWidget {
                               height: 60.h,
                               child: Center(
                                 child: Text(
-                                  '₱${MoneyFormatter(amount: double.tryParse(currentBill.wTotal ?? '0') ?? 0).output.nonSymbol}',
+                                  '₱ ${MoneyFormatter(amount: double.tryParse(currentBill.wTotal ?? '0') ?? 0).output.nonSymbol}',
                                   style: AppTextStyles.body.copyWith(
                                     fontSize: 16.sp,
                                     fontWeight: FontWeight.bold,
@@ -649,7 +651,7 @@ class BuildMonthBillCard extends StatelessWidget {
                                 height: 60.h,
                                 child: Center(
                                   child: Text(
-                                    '₱${MoneyFormatter(amount: double.parse(currentBill.wifi ?? '0')).output.nonSymbol}',
+                                    '₱ ${MoneyFormatter(amount: double.parse(currentBill.wifi ?? '0')).output.nonSymbol}',
                                     style: AppTextStyles.body.copyWith(
                                       fontSize: 16.sp,
                                       fontWeight: FontWeight.bold,
@@ -661,7 +663,7 @@ class BuildMonthBillCard extends StatelessWidget {
                               height: 60.h,
                               child: Center(
                                 child: Text(
-                                  '₱${MoneyFormatter(amount: double.parse(currentBill.monthlyRate ?? '0')).output.nonSymbol}',
+                                  '₱ ${MoneyFormatter(amount: double.parse(currentBill.monthlyRate ?? '0')).output.nonSymbol}',
                                   style: AppTextStyles.body.copyWith(
                                     fontSize: 16.sp,
                                     fontWeight: FontWeight.bold,

@@ -37,40 +37,104 @@ class AppTheme {
 
       // Text Theme
       textTheme: TextTheme(
-        displayLarge: AppTextStyles.heading.copyWith(
+        // Display styles - for large, prominent text
+        displayLarge: TextStyle(
+          fontSize: 32.sp,
+          fontWeight: FontWeight.w700,
           color: AppColors.textPrimary,
+          height: 1.2,
+        ),
+        displayMedium: TextStyle(
+          fontSize: 28.sp,
+          fontWeight: FontWeight.w700,
+          color: AppColors.textPrimary,
+          height: 1.2,
+        ),
+        displaySmall: TextStyle(
           fontSize: 24.sp,
           fontWeight: FontWeight.w700,
-        ),
-        titleLarge: AppTextStyles.subheading.copyWith(
           color: AppColors.textPrimary,
+          height: 1.2,
+        ),
+
+        // Heading styles - for section titles and important headers
+        headlineLarge: TextStyle(
+          fontSize: 22.sp,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+          height: 1.3,
+        ),
+        headlineMedium: TextStyle(
+          fontSize: 20.sp,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+          height: 1.3,
+        ),
+        headlineSmall: TextStyle(
           fontSize: 18.sp,
           fontWeight: FontWeight.w600,
-        ),
-        titleMedium: AppTextStyles.subheading.copyWith(
           color: AppColors.textPrimary,
+          height: 1.3,
+        ),
+
+        // Title styles - for card titles and list headers
+        titleLarge: TextStyle(
+          fontSize: 17.sp,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+          height: 1.4,
+        ),
+        titleMedium: TextStyle(
           fontSize: 16.sp,
           fontWeight: FontWeight.w600,
-        ),
-        bodyLarge: AppTextStyles.body.copyWith(
           color: AppColors.textPrimary,
+          height: 1.4,
+        ),
+        titleSmall: TextStyle(
+          fontSize: 15.sp,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+          height: 1.4,
+        ),
+
+        // Body styles - for main content text
+        bodyLarge: TextStyle(
+          fontSize: 16.sp,
+          fontWeight: FontWeight.w400,
+          color: AppColors.textPrimary,
+          height: 1.5,
+        ),
+        bodyMedium: TextStyle(
+          fontSize: 15.sp,
+          fontWeight: FontWeight.w400,
+          color: AppColors.textSecondary,
+          height: 1.5,
+        ),
+        bodySmall: TextStyle(
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w400,
+          color: AppColors.textMuted,
+          height: 1.5,
+        ),
+
+        // Label styles - for buttons and form labels
+        labelLarge: TextStyle(
           fontSize: 15.sp,
           fontWeight: FontWeight.w500,
+          color: AppColors.textPrimary,
+          height: 1.4,
         ),
-        bodyMedium: AppTextStyles.body.copyWith(
-          color: AppColors.textSecondary,
+        labelMedium: TextStyle(
           fontSize: 14.sp,
           fontWeight: FontWeight.w500,
+          color: AppColors.textPrimary,
+          height: 1.4,
         ),
-        labelLarge: AppTextStyles.buttonText.copyWith(
-          color: Colors.white,
+        labelSmall: TextStyle(
           fontSize: 13.sp,
-          fontWeight: FontWeight.w600,
-        ),
-        bodySmall: AppTextStyles.caption.copyWith(
-          color: AppColors.textMuted,
-          fontSize: 12.sp,
           fontWeight: FontWeight.w500,
+          color: AppColors.textPrimary,
+          height: 1.4,
         ),
       ),
 
