@@ -212,6 +212,10 @@ class _BillsScreenState extends State<BillsScreen> {
                                 horizontal: 16.w,
                               ),
                               shape: RoundedRectangleBorder(
+                                side: BorderSide(
+                                  color: AppColors.navActive,
+                                  width: 1,
+                                ),
                                 borderRadius: BorderRadius.circular(12.r),
                               ),
                               tilePadding: EdgeInsets.symmetric(
@@ -488,7 +492,7 @@ class BuildMonthBillCard extends StatelessWidget {
                       Expanded(
                         flex: 2,
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             SizedBox(
                               height: 60.h,
