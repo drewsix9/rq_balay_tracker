@@ -159,9 +159,6 @@ class _BillsScreenState extends State<BillsScreen> {
             SizedBox(height: 12.h),
             Consumer<BillsProvider>(
               builder: (context, provider, child) {
-                // if (provider.isLoading) {
-                //   return const Expanded(child: TransactionShimmer());
-                // }
                 final transactions =
                     provider.transactionHistory?.transactionHistory ?? [];
 
@@ -173,6 +170,12 @@ class _BillsScreenState extends State<BillsScreen> {
                     ),
                   );
                 }
+
+                // Trim the last object from the list
+                final trimmedTransactions =
+                    transactions.length > 1
+                        ? transactions.sublist(0, transactions.length - 1)
+                        : transactions;
 
                 return Expanded(
                   child: Skeletonizer(
@@ -186,9 +189,9 @@ class _BillsScreenState extends State<BillsScreen> {
                       separatorBuilder:
                           (context, index) => SizedBox(height: 12.h),
 
-                      itemCount: transactions.length,
+                      itemCount: trimmedTransactions.length,
                       itemBuilder: (context, index) {
-                        final transaction = transactions[index];
+                        final transaction = trimmedTransactions[index];
                         return Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
