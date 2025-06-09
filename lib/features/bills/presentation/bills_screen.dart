@@ -220,24 +220,20 @@ class _BillsScreenState extends State<BillsScreen> {
                               iconColor: AppColors.textMuted,
                               collapsedTextColor: AppColors.textMuted,
                               textColor: AppColors.textMuted,
-                              title: Text(
-                                DateFormat('MMMM d, yyyy').format(
-                                  DateTime.parse(
-                                    transaction.date ??
-                                        DateTime.now().toString(),
-                                  ),
-                                ),
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
+                              title: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    '₱${MoneyFormatter(amount: double.tryParse(transaction.totalDue ?? '0') ?? 0).output.nonSymbol}',
+                                    DateFormat('MMMM d, yyyy').format(
+                                      DateTime.parse(
+                                        transaction.date ??
+                                            DateTime.now().toString(),
+                                      ),
+                                    ),
                                     style:
-                                        Theme.of(context).textTheme.bodyLarge,
+                                        Theme.of(context).textTheme.titleMedium,
                                   ),
-                                  SizedBox(width: 8.w),
                                   Container(
                                     padding: EdgeInsets.symmetric(
                                       horizontal: 4.w,
@@ -256,7 +252,7 @@ class _BillsScreenState extends State<BillsScreen> {
                                           : 'Pending',
                                       style: Theme.of(context)
                                           .textTheme
-                                          .bodySmall
+                                          .bodyMedium
                                           ?.copyWith(color: Colors.white),
                                     ),
                                   ),
@@ -433,14 +429,14 @@ class BuildMonthBillCard extends StatelessWidget {
                             style: Theme.of(context).textTheme.titleLarge
                                 ?.copyWith(color: AppColors.primaryBlue),
                           ),
-                          SizedBox(height: 4.h),
+                          SizedBox(height: 8.h),
                           Text(
                             'Total Due',
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           SizedBox(height: 2.h),
                           Text(
-                            'PHP ${MoneyFormatter(amount: double.tryParse(currentBill.totalDue ?? '0') ?? 0).output.nonSymbol}',
+                            '₱${MoneyFormatter(amount: double.tryParse(currentBill.totalDue ?? '0') ?? 0).output.nonSymbol}',
                             style: Theme.of(context).textTheme.displayLarge,
                           ),
                         ],
