@@ -11,7 +11,7 @@ import '../../../core/usecases/unit_shared_pref.dart';
 import '../../../core/usecases/user_shared_pref.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_input_field.dart';
-import '../../bills/presentation/bills_screen.dart';
+import '../../../home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -28,52 +28,50 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.all(16.w),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: 400.w),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'RQ Balay Tracker',
-                        style: AppTextStyles.heading.copyWith(fontSize: 32.sp),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 24.h),
-                      AppInputField(
-                        hint: 'Username / Room Number',
-                        controller: _userNameController,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter a username or room number';
+      body: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.all(16.w),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: 400.w),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'RQ Balay Tracker',
+                      style: AppTextStyles.heading.copyWith(fontSize: 32.sp),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 24.h),
+                    AppInputField(
+                      hint: 'Username / Room Number',
+                      controller: _userNameController,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Please enter a username or room number';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 18.h),
+                    SizedBox(
+                      width: double.infinity,
+                      child: AppButton(
+                        label: 'Login',
+                        isLoading: _isLoading,
+                        onPressed: () async {
+                          if (_formKey.currentState?.validate() ?? false) {
+                            setState(() => _isLoading = true);
+                            await _handleLogin(context);
+                            setState(() => _isLoading = false);
                           }
-                          return null;
+                          _userNameController.clear();
                         },
                       ),
-                      SizedBox(height: 18.h),
-                      SizedBox(
-                        width: double.infinity,
-                        child: AppButton(
-                          label: 'Login',
-                          isLoading: _isLoading,
-                          onPressed: () async {
-                            if (_formKey.currentState?.validate() ?? false) {
-                              setState(() => _isLoading = true);
-                              await _handleLogin(context);
-                              setState(() => _isLoading = false);
-                            }
-                            _userNameController.clear();
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -100,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (context.mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => BillsScreen()),
+          MaterialPageRoute(builder: (context) => HomeScreen()),
         );
       }
     } else {

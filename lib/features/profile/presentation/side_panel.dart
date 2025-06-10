@@ -18,66 +18,64 @@ class SidePanel extends StatelessWidget {
     return Drawer(
       backgroundColor: AppColors.surface,
       elevation: 0,
-      child: SafeArea(
-        child: Column(
-          children: [
-            // Header with room number
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.fromLTRB(16.w, 48.h, 16.w, 16.h),
-              color: AppColors.primaryBlue,
-              child: FutureBuilder(
-                future: UserSharedPref.getCurrentUser(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  } else if (snapshot.hasData && snapshot.data != null) {
-                    final user = snapshot.data!;
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Room ${user.unit}',
-                          style: AppTextStyles.heading.copyWith(
-                            color: Colors.white,
-                            fontSize: 24.sp,
-                          ),
+      child: Column(
+        children: [
+          // Header with room number
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.fromLTRB(16.w, 48.h, 16.w, 16.h),
+            color: AppColors.primaryBlue,
+            child: FutureBuilder(
+              future: UserSharedPref.getCurrentUser(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasData && snapshot.data != null) {
+                  final user = snapshot.data!;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Room ${user.unit}',
+                        style: AppTextStyles.heading.copyWith(
+                          color: Colors.white,
+                          fontSize: 24.sp,
                         ),
-                        SizedBox(height: 4.h),
-                        // Text(
-                        //   user.name,
-                        //   style: AppTextStyles.body.copyWith(
-                        //     color: Colors.white.withOpacity(0.8),
-                        //   ),
-                        // ),
-                      ],
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
-              ),
+                      ),
+                      SizedBox(height: 4.h),
+                      // Text(
+                      //   user.name,
+                      //   style: AppTextStyles.body.copyWith(
+                      //     color: Colors.white.withOpacity(0.8),
+                      //   ),
+                      // ),
+                    ],
+                  );
+                }
+                return const SizedBox.shrink();
+              },
             ),
-            // Profile Information
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.all(16.w),
-                children: [
-                  FutureBuilder(
-                    future: _buildProfileSection(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const CircularProgressIndicator();
-                      }
-                      return snapshot.data ?? const SizedBox.shrink();
-                    },
-                  ),
-                  Divider(height: 32.h),
-                  LogoutButton(),
-                ],
-              ),
+          ),
+          // Profile Information
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.all(16.w),
+              children: [
+                FutureBuilder(
+                  future: _buildProfileSection(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    }
+                    return snapshot.data ?? const SizedBox.shrink();
+                  },
+                ),
+                Divider(height: 32.h),
+                LogoutButton(),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -193,9 +191,9 @@ class LogoutButton extends StatelessWidget {
           UserSharedPref.clearCurrentUser();
           MonthBillSharedPref.clearMonthBill();
           AppLogger.i("Unit and User cleared from SharedPreferences");
-          Navigator.push(
-            context,
+          Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => LoginScreen()),
+            (route) => false,
           );
         },
         child: Text(

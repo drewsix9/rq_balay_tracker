@@ -128,7 +128,7 @@ class _BillsScreenState extends State<BillsScreen> {
   Widget _buildTransactionList() {
     return Expanded(
       child: Padding(
-        padding: EdgeInsets.fromLTRB(16.w, 0.h, 16.w, 16.h),
+        padding: EdgeInsets.fromLTRB(16.w, 0.h, 16.w, 0.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
