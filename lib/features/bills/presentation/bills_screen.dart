@@ -55,29 +55,12 @@ class _BillsScreenState extends State<BillsScreen> {
             );
           },
         ),
-        actions: [
-          Consumer<BillsProvider>(
-            builder: (context, billsProvider, child) {
-              return IconButton(
-                icon: Icon(Icons.refresh, color: Colors.white, size: 24.sp),
-                onPressed:
-                    billsProvider.isLoading
-                        ? null
-                        : () => billsProvider.reload(),
-              );
-            },
-          ),
-        ],
       ),
       drawer: SidePanel(),
       body: Column(
         children: [
           Consumer<BillsProvider>(
             builder: (context, billsProvider, child) {
-              // if (billsProvider.isLoading) {
-              //   return Center(child: ShimmerCard());
-              // }
-
               final currentBill = billsProvider.currentBill;
               if (currentBill == null) {
                 return const Expanded(
