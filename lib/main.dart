@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'core/providers/bills_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/login_screen.dart';
+import 'features/charts/viewmodel/charts_viewmodel.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +27,10 @@ class MyApp extends StatelessWidget {
       splitScreenMode: true,
       builder: (context, child) {
         return MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => BillsProvider())],
+          providers: [
+            ChangeNotifierProvider(create: (_) => BillsProvider()),
+            ChangeNotifierProvider(create: (_) => ChartsViewModel()),
+          ],
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'RQ Balay Tracker',

@@ -35,6 +35,12 @@ class _BillsScreenState extends State<BillsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     Provider.of<BillsProvider>(context, listen: false).testLoading();
+      //   },
+      //   child: Icon(Icons.refresh),
+      // ),
       appBar: AppBar(
         elevation: 0,
         title: Text(

@@ -33,3 +33,47 @@ class AppColors {
   // Shadow Colors
   static const shadow = Color(0x1A000000); // shadow with 10% opacity
 }
+
+class AppGradients {
+  static const primaryBlueGradient = LinearGradient(
+    colors: [Color(0xFF1E7DEA), Color(0xFF64B6FF)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const bluePurpleGradient = LinearGradient(
+    colors: [
+      Color(0xFF1E7DEA), // AppColors.primaryBlue
+      Color(0xFF7F53AC), // Soft purple
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const softGrayGradient = LinearGradient(
+    colors: [
+      Color(0xFFF7FAFC), // AppColors.background
+      Color(0xFFE5E7EB), // AppColors.divider
+    ],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  static const successGradient = LinearGradient(
+    colors: [
+      Color(0xFF4CAF50), // AppColors.success
+      Color(0xFF81C784), // Lighter green
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const warningGradient = LinearGradient(
+    colors: [
+      Color(0xFFF59E0B), // AppColors.warning
+      Color(0xFFFFE082), // Soft yellow
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+}

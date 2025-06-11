@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 import '../../features/bills/data/month_bill_model.dart';
 import '../../features/bills/data/transaction_history_model.dart';
@@ -6,6 +7,7 @@ import '../global/current_user_model.dart';
 import '../logger/app_logger.dart';
 import '../services/api_service.dart';
 import '../usecases/month_bill_shared_pref.dart';
+import '../usecases/transaction_history_shared_pref.dart';
 import '../usecases/unit_shared_pref.dart';
 import '../usecases/user_shared_pref.dart';
 
@@ -83,10 +85,38 @@ class BillsProvider with ChangeNotifier {
       _transactionHistory = await ApiService.getTransactionHistory(
         _currentUnit!,
       );
+      await _saveTransactionHistory();
     } catch (e) {
       AppLogger.e('Error fetching transaction history: $e');
     } finally {
       _setLoading(false);
+    }
+  }
+
+  /// Save transaction history to shared preferences
+  Future<void> _saveTransactionHistory() async {
+    try {
+      if (_transactionHistory != null) {
+        await TransactionHistorySharedPref.saveTransactionHistory(
+          _transactionHistory!,
+        );
+      }
+    } catch (e) {
+      AppLogger.e('Error saving transaction history: $e');
+    }
+  }
+
+  /// Load transaction history from shared preferences
+  Future<void> loadTransactionHistory() async {
+    try {
+      final history =
+          await TransactionHistorySharedPref.getTransactionHistory();
+      if (history != null) {
+        _transactionHistory = history;
+        notifyListeners();
+      }
+    } catch (e) {
+      AppLogger.e('Error loading transaction history: $e');
     }
   }
 
@@ -99,5 +129,14 @@ class BillsProvider with ChangeNotifier {
   /// Reload all data
   Future<void> reload() async {
     await initialize();
+  }
+
+  void testLoading() {
+    _isLoading = true;
+    notifyListeners();
+    Future.delayed(const Duration(seconds: 2), () {
+      _isLoading = false;
+      notifyListeners();
+    });
   }
 }
