@@ -76,4 +76,21 @@ class AppGradients {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
+
+  static const electricityGradient = LinearGradient(
+    colors: [
+      Color(0xFF2B6CB0), // Deep blue
+      Color(0xFF4299E1), // Electric blue
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+  static const electricityGradientPastel = LinearGradient(
+    colors: [
+      Color(0xFF90CDF4), // Pastel blue
+      Color(0xFFBEE3F8), // Lighter pastel blue
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 }

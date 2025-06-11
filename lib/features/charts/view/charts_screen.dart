@@ -336,7 +336,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
       return makeGroupData(
         int.parse(months[index]),
         limitedConsumption[index],
-        10.w,
+        12.w,
         10.h,
         AppColors.primaryBlue,
       );
@@ -357,7 +357,8 @@ class _ChartsScreenState extends State<ChartsScreen> {
           toY: y,
           color: color,
           width: width,
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(6.r),
+          gradient: AppGradients.electricityGradient,
         ),
       ],
     );
