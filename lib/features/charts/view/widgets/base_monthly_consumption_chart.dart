@@ -8,7 +8,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../viewmodel/charts_viewmodel.dart';
 
-abstract class BaseMonthlyConsumptionChart extends StatelessWidget {
+abstract class BaseMonthlyConsumptionChart extends StatefulWidget {
   final Key? chartKey;
   final Gradient chartGradient;
 
@@ -19,6 +19,18 @@ abstract class BaseMonthlyConsumptionChart extends StatelessWidget {
   });
 
   @override
+  State<BaseMonthlyConsumptionChart> createState() =>
+      _BaseMonthlyConsumptionChartState();
+
+  // Abstract methods to be implemented by child classes
+  List<double> getConsumptionData(ChartsViewModel provider);
+
+  List<String> getMonthsData(ChartsViewModel provider);
+}
+
+class _BaseMonthlyConsumptionChartState
+    extends State<BaseMonthlyConsumptionChart> {
+  @override
   Widget build(BuildContext context) {
     return AspectRatio(
       aspectRatio: 1.5,
@@ -27,7 +39,7 @@ abstract class BaseMonthlyConsumptionChart extends StatelessWidget {
           return BarChart(
             _buildBarChartData(context),
             duration: Duration(milliseconds: 250),
-            key: chartKey,
+            key: widget.chartKey,
           );
         },
       ),
@@ -36,7 +48,7 @@ abstract class BaseMonthlyConsumptionChart extends StatelessWidget {
 
   BarChartData _buildBarChartData(BuildContext context) {
     var provider = Provider.of<ChartsViewModel>(context, listen: false);
-    var consumption = getConsumptionData(provider);
+    var consumption = widget.getConsumptionData(provider);
     final limitedConsumption =
         consumption.length > 12 ? consumption.sublist(0, 12) : consumption;
 
@@ -143,8 +155,8 @@ abstract class BaseMonthlyConsumptionChart extends StatelessWidget {
 
   List<BarChartGroupData> _buildBarChartGroupData(BuildContext context) {
     var provider = Provider.of<ChartsViewModel>(context, listen: false);
-    var consumption = getConsumptionData(provider);
-    var months = getMonthsData(provider);
+    var consumption = widget.getConsumptionData(provider);
+    var months = widget.getMonthsData(provider);
 
     final limitedConsumption =
         consumption.length > 12 ? consumption.sublist(0, 12) : consumption;
@@ -178,13 +190,9 @@ abstract class BaseMonthlyConsumptionChart extends StatelessWidget {
           color: color,
           width: width,
           borderRadius: BorderRadius.circular(6.r),
-          gradient: chartGradient,
+          gradient: widget.chartGradient,
         ),
       ],
     );
   }
-
-  // Abstract methods to be implemented by child classes
-  List<double> getConsumptionData(ChartsViewModel provider);
-  List<String> getMonthsData(ChartsViewModel provider);
 }

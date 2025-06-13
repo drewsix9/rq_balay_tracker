@@ -87,8 +87,8 @@ class _ChartsScreenState extends State<ChartsScreen> {
             Padding(
               padding: EdgeInsets.all(16.w),
               child: _buildChartSection(
-                title: 'Monthly Water Consumption (m3)',
-                // description: 'Actual resource consumption in m3',
+                title: 'Monthly Water Consumption (m³)',
+                // description: 'Actual resource consumption in m³',
               ),
             ),
             // Vertical spacing before chart
