@@ -280,13 +280,13 @@ class _BillsScreenState extends State<BillsScreen> {
                                         children: [
                                           _buildBillDetailRow(
                                             'Electricity',
-                                            '${transaction.eTotal}',
+                                            transaction.eTotal ?? '0',
                                             '₱${transaction.eRate}/kWh',
                                           ),
                                           SizedBox(height: 12.h),
                                           _buildBillDetailRow(
                                             'Water',
-                                            '${transaction.wTotal}',
+                                            transaction.wTotal ?? '0',
                                             '₱${transaction.wRate}/m³',
                                           ),
                                           if (transaction.wifi != null &&
@@ -294,14 +294,14 @@ class _BillsScreenState extends State<BillsScreen> {
                                             SizedBox(height: 12.h),
                                             _buildBillDetailRow(
                                               'WiFi',
-                                              '${transaction.wifi}',
+                                              transaction.wifi ?? '0',
                                               'Monthly',
                                             ),
                                           ],
                                           SizedBox(height: 12.h),
                                           _buildBillDetailRow(
                                             'Rent',
-                                            '${transaction.monthlyRate}',
+                                            transaction.monthlyRate ?? '0',
                                             'Monthly',
                                           ),
                                           SizedBox(height: 12.h),
@@ -340,9 +340,22 @@ class _BillsScreenState extends State<BillsScreen> {
   Widget _buildBillDetailRow(
     String title,
     String amount,
-    String subtitle, {
+    String rate, {
     bool isTotal = false,
   }) {
+    // Calculate consumption if rate is available
+    String consumptionText = '';
+    if (rate.contains('/kWh') || rate.contains('/m³')) {
+      final total = double.tryParse(amount) ?? 0;
+      final rateValue =
+          double.tryParse(rate.replaceAll(RegExp(r'[₱/kWhm³]'), '')) ?? 1;
+      if (rateValue > 0) {
+        final consumption = total / rateValue;
+        final unit = rate.contains('/kWh') ? 'kWh' : 'm³';
+        consumptionText = '${consumption.toStringAsFixed(2)} $unit';
+      }
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -367,16 +380,27 @@ class _BillsScreenState extends State<BillsScreen> {
             ),
           ],
         ),
-        if (subtitle.isNotEmpty) ...[
-          SizedBox(height: 2.h),
-          Text(
-            subtitle,
-            style: AppTextStyles.caption.copyWith(
-              fontSize: 12.sp,
-              color: Colors.grey[600],
+        SizedBox(height: 2.h),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              rate,
+              style: AppTextStyles.caption.copyWith(
+                fontSize: 12.sp,
+                color: Colors.grey[600],
+              ),
             ),
-          ),
-        ],
+            if (consumptionText.isNotEmpty)
+              Text(
+                consumptionText,
+                style: AppTextStyles.caption.copyWith(
+                  fontSize: 12.sp,
+                  color: Colors.grey[600],
+                ),
+              ),
+          ],
+        ),
       ],
     );
   }
@@ -501,164 +525,66 @@ class BuildMonthBillCard extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Left column - Labels and Rates
                       Expanded(
                         flex: 2,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SizedBox(
-                              height: 60.h,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Electricity',
-                                    style: AppTextStyles.subheading.copyWith(
-                                      fontSize: 16.sp,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SizedBox(height: 2.h),
-                                  Text(
-                                    '₱${currentBill.eRate ?? '0'}/kWh',
-                                    style: AppTextStyles.caption.copyWith(
-                                      fontSize: 14.sp,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                ],
-                              ),
+                            _buildUtilityLabel(
+                              title: 'Electricity',
+                              rate: '₱${currentBill.eRate ?? '0'}/kWh',
                             ),
-                            SizedBox(
-                              height: 60.h,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Water',
-                                    style: AppTextStyles.subheading.copyWith(
-                                      fontSize: 16.sp,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SizedBox(height: 2.h),
-                                  Text(
-                                    '₱${MoneyFormatter(amount: double.tryParse(currentBill.wRate ?? '0') ?? 0).output.nonSymbol}/m³',
-                                    style: AppTextStyles.caption.copyWith(
-                                      fontSize: 14.sp,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                ],
-                              ),
+                            _buildUtilityLabel(
+                              title: 'Water',
+                              rate:
+                                  '₱${MoneyFormatter(amount: double.tryParse(currentBill.wRate ?? '0') ?? 0).output.nonSymbol}/m³',
                             ),
                             if (currentUser?.wifi == 'Y')
-                              SizedBox(
-                                height: 60.h,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'WiFi',
-                                      style: AppTextStyles.subheading.copyWith(
-                                        fontSize: 16.sp,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    SizedBox(height: 2.h),
-                                    Text(
-                                      'Monthly',
-                                      style: AppTextStyles.caption.copyWith(
-                                        fontSize: 14.sp,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                              _buildUtilityLabel(
+                                title: 'WiFi',
+                                rate: 'Monthly',
                               ),
-                            SizedBox(
-                              height: 60.h,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Rent',
-                                    style: AppTextStyles.subheading.copyWith(
-                                      fontSize: 16.sp,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SizedBox(height: 2.h),
-                                  Text(
-                                    'Monthly',
-                                    style: AppTextStyles.caption.copyWith(
-                                      fontSize: 14.sp,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            _buildUtilityLabel(title: 'Rent', rate: 'Monthly'),
                           ],
                         ),
                       ),
+                      // Right column - Amounts and Consumption
                       Expanded(
                         flex: 3,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            SizedBox(
-                              height: 60.h,
-                              child: Center(
-                                child: Text(
-                                  '₱ ${MoneyFormatter(amount: double.tryParse(currentBill.eTotal ?? '0') ?? 0).output.nonSymbol}',
-                                  style: AppTextStyles.body.copyWith(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
+                            _buildUtilityAmount(
+                              amount: currentBill.eTotal ?? '0',
+                              showConsumption: true,
+                              total:
+                                  double.tryParse(currentBill.eTotal ?? '0') ??
+                                  0,
+                              rate:
+                                  double.tryParse(currentBill.eRate ?? '1') ??
+                                  1,
+                              unit: 'kWh',
                             ),
-                            SizedBox(
-                              height: 60.h,
-                              child: Center(
-                                child: Text(
-                                  '₱ ${MoneyFormatter(amount: double.tryParse(currentBill.wTotal ?? '0') ?? 0).output.nonSymbol}',
-                                  style: AppTextStyles.body.copyWith(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
+                            _buildUtilityAmount(
+                              amount: currentBill.wTotal ?? '0',
+                              showConsumption: true,
+                              total:
+                                  double.tryParse(currentBill.wTotal ?? '0') ??
+                                  0,
+                              rate:
+                                  double.tryParse(currentBill.wRate ?? '1') ??
+                                  1,
+                              unit: 'm³',
                             ),
                             if (currentUser?.wifi == 'Y')
-                              SizedBox(
-                                height: 60.h,
-                                child: Center(
-                                  child: Text(
-                                    '₱ ${MoneyFormatter(amount: double.parse(currentBill.wifi ?? '0')).output.nonSymbol}',
-                                    style: AppTextStyles.body.copyWith(
-                                      fontSize: 16.sp,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
+                              _buildUtilityAmount(
+                                amount: currentBill.wifi ?? '0',
+                                showConsumption: false,
                               ),
-                            SizedBox(
-                              height: 60.h,
-                              child: Center(
-                                child: Text(
-                                  '₱ ${MoneyFormatter(amount: double.parse(currentBill.monthlyRate ?? '0')).output.nonSymbol}',
-                                  style: AppTextStyles.body.copyWith(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
+                            _buildUtilityAmount(
+                              amount: currentBill.monthlyRate ?? '0',
+                              showConsumption: false,
                             ),
                           ],
                         ),
@@ -670,6 +596,74 @@ class BuildMonthBillCard extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildUtilityLabel({required String title, required String rate}) {
+    return SizedBox(
+      height: 60.h,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            title,
+            style: AppTextStyles.subheading.copyWith(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 2.h),
+          Text(
+            rate,
+            style: AppTextStyles.caption.copyWith(
+              fontSize: 14.sp,
+              color: Colors.grey[600],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUtilityAmount({
+    required String amount,
+    required bool showConsumption,
+    double total = 0,
+    double rate = 1,
+    String unit = '',
+  }) {
+    return SizedBox(
+      height: 60.h,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            '₱ ${MoneyFormatter(amount: double.tryParse(amount) ?? 0).output.nonSymbol}',
+            style: AppTextStyles.body.copyWith(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          if (showConsumption) ...[
+            SizedBox(height: 2.h),
+            Text(
+              () {
+                if (rate > 0) {
+                  final consumption = total / rate;
+                  return '${consumption.toStringAsFixed(2)} $unit';
+                }
+                return '0.00 $unit';
+              }(),
+              style: AppTextStyles.caption.copyWith(
+                fontSize: 12.sp,
+                color: Colors.grey[600],
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

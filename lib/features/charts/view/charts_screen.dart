@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:rq_balay_tracker/features/charts/model/month_total_model.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../core/providers/bills_provider.dart';
 import '../../../core/theme/app_colors.dart';
@@ -150,59 +151,63 @@ class _ChartsScreenState extends State<ChartsScreen> {
     required bool isPositive,
     IconData? icon,
   }) {
-    return Container(
-      padding: EdgeInsets.all(8.w),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            title,
-            style: AppTextStyles.body.copyWith(
-              color: AppColors.textSecondary,
-              fontSize: 14.sp,
+    return Skeletonizer(
+      enabled: Provider.of<ChartsViewModel>(context, listen: false).isLoading,
+      child: Container(
+        padding: EdgeInsets.all(8.w),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(12.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
-          ),
-          SizedBox(height: 8.h),
-          Row(
-            children: [
-              if (icon != null) ...[
-                Icon(
-                  icon,
-                  color: isPositive ? Colors.green : Colors.red,
-                  size: 20.sp,
-                ),
-                SizedBox(width: 4.w),
-              ],
-              Text(
-                value,
-                style: AppTextStyles.heading.copyWith(
-                  fontSize: 24.sp,
-                  color: isPositive ? Colors.green : Colors.red,
-                ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              title,
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.textSecondary,
+                fontSize: 14.sp,
               ),
-            ],
-          ),
-          SizedBox(height: 4.h),
-          Text(
-            trend,
-            style: AppTextStyles.body.copyWith(
-              color: AppColors.textSecondary,
-              fontSize: 12.sp,
             ),
-          ),
-        ],
+            SizedBox(height: 8.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (icon != null) ...[
+                  Icon(
+                    icon,
+                    color: isPositive ? Colors.green : Colors.red,
+                    size: 20.sp,
+                  ),
+                  SizedBox(width: 4.w),
+                ],
+                Text(
+                  value,
+                  style: AppTextStyles.heading.copyWith(
+                    fontSize: 24.sp,
+                    color: isPositive ? Colors.green : Colors.red,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 4.h),
+            Text(
+              trend,
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.textSecondary,
+                fontSize: 12.sp,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
