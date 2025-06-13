@@ -8,10 +8,10 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../viewmodel/charts_viewmodel.dart';
 
-class MonthlyElectricityConsumptionWidget extends StatelessWidget {
+class MonthlyWaterConsumptionWidget extends StatelessWidget {
   final Key? chartKey;
 
-  const MonthlyElectricityConsumptionWidget.MonthlyElectricityConsumptionChart({
+  const MonthlyWaterConsumptionWidget.MonthlyWaterConsumptionChart({
     super.key,
     this.chartKey,
   });
@@ -34,7 +34,7 @@ class MonthlyElectricityConsumptionWidget extends StatelessWidget {
 
   BarChartData _buildBarChartData(BuildContext context) {
     var provider = Provider.of<ChartsViewModel>(context, listen: false);
-    var consumption = provider.electricityChartModel!.consumptions;
+    var consumption = provider.waterChartModel!.consumptions;
     final limitedConsumption =
         consumption.length > 12 ? consumption.sublist(0, 12) : consumption;
 
@@ -154,8 +154,8 @@ class MonthlyElectricityConsumptionWidget extends StatelessWidget {
 
   List<BarChartGroupData> _buildBarChartGroupData(BuildContext context) {
     var provider = Provider.of<ChartsViewModel>(context, listen: false);
-    var consumption = provider.electricityChartModel!.consumptions;
-    var months = provider.electricityChartModel!.rMonth;
+    var consumption = provider.waterChartModel!.consumptions;
+    var months = provider.waterChartModel!.rMonth;
 
     // Limit to last 12 months
     final limitedConsumption =
@@ -190,7 +190,7 @@ class MonthlyElectricityConsumptionWidget extends StatelessWidget {
           color: color,
           width: width,
           borderRadius: BorderRadius.circular(6.r),
-          gradient: AppGradients.warningGradient,
+          gradient: AppGradients.primaryBlueGradient,
         ),
       ],
     );

@@ -1,15 +1,15 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:rq_balay_tracker/features/charts/model/month_total_model.dart';
 
-import '../../../core/logger/app_logger.dart';
 import '../../../core/providers/bills_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../model/usage_trend_model.dart';
 import '../viewmodel/charts_viewmodel.dart';
+import 'widgets/monthly_elec_consump_widget.dart';
+import 'widgets/monthly_water_consump_chart.dart';
 
 class ChartsScreen extends StatefulWidget {
   const ChartsScreen({super.key});
@@ -35,12 +35,12 @@ class _ChartsScreenState extends State<ChartsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Provider.of<ChartsViewModel>(context, listen: false).testLoading();
-        },
-        child: Icon(Icons.refresh),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     Provider.of<ChartsViewModel>(context, listen: false).testLoading();
+      //   },
+      //   child: Icon(Icons.refresh),
+      // ),
       appBar: AppBar(
         title: Text(
           'Utility Analytics',
@@ -61,48 +61,26 @@ class _ChartsScreenState extends State<ChartsScreen> {
             ),
             // Padded chart section title/description
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              padding: EdgeInsets.all(16.w),
               child: _buildChartSection(
-                title: 'Monthly Electricity Consumption',
-                description: 'Actual resource consumption in kWh',
+                title: 'Monthly Electricity Consumption (kWh)',
               ),
             ),
             // Vertical spacing before chart
             SizedBox(height: 12.h),
             // NO padding here: AspectRatio fills the width
-            AspectRatio(
-              aspectRatio: 1.5,
-              child: Consumer<ChartsViewModel>(
-                builder: (context, chartsViewModel, child) {
-                  return BarChart(
-                    _buildBarChartData(),
-                    duration: Duration(milliseconds: 250),
-                  );
-                },
-              ),
-            ),
-            // Vertical spacing after chart
-            SizedBox(height: 24.h),
-            // Padded next section
+            MonthlyElectricityConsumptionWidget.MonthlyElectricityConsumptionChart(),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              padding: EdgeInsets.all(16.w),
               child: _buildChartSection(
-                title: 'Budget Tracking',
-                description: 'Track your monthly budget vs actual spending',
+                title: 'Monthly Water Consumption (m3)',
+                // description: 'Actual resource consumption in m3',
               ),
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Container(
-                height: 200.h,
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                child: const Center(child: Text('Budget Gauge Placeholder')),
-              ),
-            ),
-            SizedBox(height: 24.h),
+            // Vertical spacing before chart
+            SizedBox(height: 12.h),
+            // NO padding here: AspectRatio fills the width
+            MonthlyWaterConsumptionWidget.MonthlyWaterConsumptionChart(),
           ],
         ),
       ),
@@ -211,155 +189,11 @@ class _ChartsScreenState extends State<ChartsScreen> {
     );
   }
 
-  Widget _buildChartSection({
-    required String title,
-    required String description,
-  }) {
+  Widget _buildChartSection({required String title}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(title, style: AppTextStyles.subheading.copyWith(fontSize: 18.sp)),
-        SizedBox(height: 4.h),
-        Text(
-          description,
-          style: AppTextStyles.body.copyWith(
-            color: AppColors.textSecondary,
-            fontSize: 14.sp,
-          ),
-        ),
-        SizedBox(height: 16.h),
-      ],
-    );
-  }
-
-  BarChartData _buildBarChartData() {
-    var provider = Provider.of<ChartsViewModel>(context, listen: false);
-    var consumption = provider.electricityChartModel!.consumptions;
-    final limitedConsumption =
-        consumption.length > 12 ? consumption.sublist(0, 12) : consumption;
-
-    // Find the max value for spacing
-    final maxValue =
-        limitedConsumption.isNotEmpty
-            ? limitedConsumption.reduce((a, b) => a > b ? a : b)
-            : 0;
-
-    return BarChartData(
-      // minY:
-      //     0, // You can set this to a small positive value for more bottom space, e.g., 20
-      // maxY: maxValue * 1.15, // 15% more space at the top
-      barTouchData: BarTouchData(),
-      alignment: BarChartAlignment.spaceEvenly,
-      titlesData: FlTitlesData(
-        leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        bottomTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            getTitlesWidget: getTitles,
-            reservedSize: 38.w,
-          ),
-        ),
-      ),
-      gridData: FlGridData(show: false),
-      borderData: FlBorderData(show: false),
-      backgroundColor: AppColors.background,
-      barGroups: _buildBarChartGroupData(),
-    );
-  }
-
-  Widget getTitles(double value, TitleMeta meta) {
-    var style = AppTextStyles.body.copyWith(
-      color: AppColors.textSecondary,
-      fontSize: 14.sp,
-    );
-    Widget text;
-    switch (value.toInt()) {
-      case 1:
-        text = Text('J', style: style);
-        break;
-      case 2:
-        text = Text('F', style: style);
-        break;
-      case 3:
-        text = Text('M', style: style);
-        break;
-      case 4:
-        text = Text('A', style: style);
-        break;
-      case 5:
-        text = Text('M', style: style);
-        break;
-      case 6:
-        text = Text('J', style: style);
-        break;
-      case 7:
-        text = Text('J', style: style);
-        break;
-      case 8:
-        text = Text('A', style: style);
-        break;
-      case 9:
-        text = Text('S', style: style);
-        break;
-      case 10:
-        text = Text('O', style: style);
-        break;
-      case 11:
-        text = Text('N', style: style);
-      case 12:
-        text = Text('D', style: style);
-      default:
-        text = Text('', style: style);
-        break;
-    }
-    return SideTitleWidget(
-      meta: meta,
-      space: 8, // Space from the axis
-      child: text,
-    );
-  }
-
-  List<BarChartGroupData> _buildBarChartGroupData() {
-    var provider = Provider.of<ChartsViewModel>(context, listen: false);
-    var consumption = provider.electricityChartModel!.consumptions;
-    var months = provider.electricityChartModel!.rMonth;
-
-    // Limit to last 12 months
-    final limitedConsumption =
-        consumption.length > 12 ? consumption.sublist(0, 12) : consumption;
-
-    return List.generate(limitedConsumption.length, (index) {
-      AppLogger.d('Value to be passed: ${int.parse(months[index])}  ');
-
-      return makeGroupData(
-        int.parse(months[index]),
-        limitedConsumption[index],
-        12.w,
-        10.h,
-        AppColors.primaryBlue,
-      );
-    });
-  }
-
-  BarChartGroupData makeGroupData(
-    int x,
-    double y,
-    double width,
-    double height,
-    Color color,
-  ) {
-    return BarChartGroupData(
-      x: x,
-      barRods: [
-        BarChartRodData(
-          toY: y,
-          color: color,
-          width: width,
-          borderRadius: BorderRadius.circular(6.r),
-          gradient: AppGradients.electricityGradient,
-        ),
       ],
     );
   }

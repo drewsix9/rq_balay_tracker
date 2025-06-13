@@ -37,8 +37,8 @@ class AppColors {
 class AppGradients {
   static const primaryBlueGradient = LinearGradient(
     colors: [Color(0xFF1E7DEA), Color(0xFF64B6FF)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
+    begin: Alignment.bottomRight,
+    end: Alignment.topLeft,
   );
 
   static const bluePurpleGradient = LinearGradient(
@@ -73,8 +73,8 @@ class AppGradients {
       Color(0xFFF59E0B), // AppColors.warning
       Color(0xFFFFE082), // Soft yellow
     ],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
+    begin: Alignment.bottomRight,
+    end: Alignment.topLeft,
   );
 
   static const electricityGradient = LinearGradient(
@@ -82,15 +82,15 @@ class AppGradients {
       Color(0xFF2B6CB0), // Deep blue
       Color(0xFF4299E1), // Electric blue
     ],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
+    begin: Alignment.bottomRight,
+    end: Alignment.topLeft,
   );
   static const electricityGradientPastel = LinearGradient(
     colors: [
       Color(0xFF90CDF4), // Pastel blue
       Color(0xFFBEE3F8), // Lighter pastel blue
     ],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
+    begin: Alignment.bottomRight,
+    end: Alignment.topLeft,
   );
 }
