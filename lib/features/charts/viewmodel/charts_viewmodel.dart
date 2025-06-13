@@ -72,6 +72,10 @@ class ChartsViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> reload(List<MonthBillModel> bills) async {
+    await initialize(bills);
+  }
+
   Future<void> _saveElectricityChartModel() async {
     try {
       if (_electricityChartModel != null) {

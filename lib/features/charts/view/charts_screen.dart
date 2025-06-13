@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:rq_balay_tracker/features/charts/model/month_total_model.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -21,6 +22,10 @@ class ChartsScreen extends StatefulWidget {
 }
 
 class _ChartsScreenState extends State<ChartsScreen> {
+  final RefreshController _refreshController = RefreshController(
+    initialRefresh: false,
+  );
+
   @override
   void initState() {
     super.initState();
@@ -32,6 +37,27 @@ class _ChartsScreenState extends State<ChartsScreen> {
         ).transactionHistory!.transactionHistory!,
       );
     });
+  }
+
+  @override
+  void dispose() {
+    _refreshController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _onRefresh() async {
+    try {
+      await Future.delayed(const Duration(milliseconds: 500));
+      await Provider.of<ChartsViewModel>(context, listen: false).reload(
+        Provider.of<BillsProvider>(
+          context,
+          listen: false,
+        ).transactionHistory!.transactionHistory!,
+      );
+      _refreshController.refreshCompleted();
+    } catch (e) {
+      _refreshController.refreshFailed();
+    }
   }
 
   @override
@@ -65,37 +91,46 @@ class _ChartsScreenState extends State<ChartsScreen> {
         ),
       ),
       drawer: SidePanel(),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Padded summary cards
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-              child: _buildSummaryCards(),
-            ),
-            // Padded chart section title/description
-            Padding(
-              padding: EdgeInsets.all(16.w),
-              child: _buildChartSection(
-                title: 'Monthly Electricity Consumption (kWh)',
+      body: SmartRefresher(
+        controller: _refreshController,
+        onRefresh: _onRefresh,
+        header: ClassicHeader(refreshStyle: RefreshStyle.Follow),
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                child: _buildSummaryCards(),
               ),
             ),
-            // Vertical spacing before chart
-            SizedBox(height: 24.h),
-            // NO padding here: AspectRatio fills the width
-            MonthlyElectricityConsumptionWidget.MonthlyElectricityConsumptionChart(),
-            Padding(
-              padding: EdgeInsets.all(16.w),
-              child: _buildChartSection(
-                title: 'Monthly Water Consumption (m³)',
-                // description: 'Actual resource consumption in m³',
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.all(16.w),
+                child: _buildChartSection(
+                  title: 'Monthly Electricity Consumption (kWh)',
+                ),
               ),
             ),
-            // Vertical spacing before chart
-            SizedBox(height: 24.h),
-            // NO padding here: AspectRatio fills the width
-            MonthlyWaterConsumptionWidget.MonthlyWaterConsumptionChart(),
+            SliverToBoxAdapter(child: SizedBox(height: 24.h)),
+            SliverToBoxAdapter(
+              child:
+                  MonthlyElectricityConsumptionWidget.MonthlyElectricityConsumptionChart(),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.all(16.w),
+                child: _buildChartSection(
+                  title: 'Monthly Water Consumption (m³)',
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(child: SizedBox(height: 24.h)),
+            SliverToBoxAdapter(
+              child:
+                  MonthlyWaterConsumptionWidget.MonthlyWaterConsumptionChart(),
+            ),
+            // Add some bottom padding
+            SliverToBoxAdapter(child: SizedBox(height: 16.h)),
           ],
         ),
       ),
@@ -111,34 +146,37 @@ class _ChartsScreenState extends State<ChartsScreen> {
         }
         MonthTotalModel monthTotal = chartsViewModel.monthTotal!;
         UsageTrendModel usageTrend = chartsViewModel.usageTrend!;
-        return GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 16.h,
-          crossAxisSpacing: 16.w,
-          childAspectRatio: 1.5,
-          children: [
-            _buildSummaryCard(
-              title: 'This Month\'s Total',
-              value: monthTotal.formattedTotal,
-              trend: "Last month: ${monthTotal.formattedLastMonthTotal}",
-              isPositive: monthTotal.isPositive,
-            ),
-            _buildSummaryCard(
-              title: 'Usage Trend',
-              value: usageTrend.formattedTrend,
-              trend:
-                  usageTrend.isPositive
-                      ? "Lower than last month"
-                      : "Higher than last month",
-              isPositive: usageTrend.isPositive,
-              icon:
-                  usageTrend.isPositive
-                      ? Icons.trending_up
-                      : Icons.trending_down,
-            ),
-          ],
+        return Skeletonizer(
+          enabled: chartsViewModel.isLoading,
+          child: GridView.count(
+            crossAxisCount: 2,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 16.h,
+            crossAxisSpacing: 16.w,
+            childAspectRatio: 1.5,
+            children: [
+              _buildSummaryCard(
+                title: 'This Month\'s Total',
+                value: monthTotal.formattedTotal,
+                trend: "Last month: ${monthTotal.formattedLastMonthTotal}",
+                isPositive: monthTotal.isPositive,
+              ),
+              _buildSummaryCard(
+                title: 'Usage Trend',
+                value: usageTrend.formattedTrend,
+                trend:
+                    usageTrend.isPositive
+                        ? "Lower than last month"
+                        : "Higher than last month",
+                isPositive: usageTrend.isPositive,
+                icon:
+                    usageTrend.isPositive
+                        ? Icons.trending_up
+                        : Icons.trending_down,
+              ),
+            ],
+          ),
         );
       },
     );
