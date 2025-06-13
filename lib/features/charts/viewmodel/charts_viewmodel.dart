@@ -28,21 +28,40 @@ class ChartsViewModel extends ChangeNotifier {
       _isLoading = true;
       notifyListeners();
 
-      // Calculate all models first
+      // First try to load cached chart data for immediate display
+      final cachedElectricityModel =
+          await ElectricityConsumptionSharedPref.getElectricityChartModel();
+      final cachedWaterModel =
+          await WaterConsumptionSharedPref.getWaterChartModel();
+
+      // Use cached data initially if available
+      if (cachedElectricityModel != null) {
+        _electricityChartModel = cachedElectricityModel;
+        notifyListeners();
+      }
+      if (cachedWaterModel != null) {
+        _waterChartModel = cachedWaterModel;
+        notifyListeners();
+      }
+
+      // Calculate models that always need fresh data
       _monthTotal = MonthTotalModel.fromMonthBills(bills);
       _usageTrend = UsageTrendModel.fromMonthBills(bills);
-      _electricityChartModel = ElectricityConsumptionChartModel.fromMonthBills(
-        bills,
-      );
-      _waterChartModel = WaterConsumptionChartModel.fromMonthBills(bills);
 
-      // Then save them
-      if (_electricityChartModel != null) {
-        await _saveElectricityChartModel();
-      }
-      if (_waterChartModel != null) {
-        await _saveWaterChartModel();
-      }
+      // Calculate fresh chart data
+      final freshElectricityModel =
+          ElectricityConsumptionChartModel.fromMonthBills(bills);
+      final freshWaterModel = WaterConsumptionChartModel.fromMonthBills(bills);
+
+      // Update models with fresh data
+      _electricityChartModel = freshElectricityModel;
+      _waterChartModel = freshWaterModel;
+
+      // Save fresh data to SharedPreferences
+      await _saveElectricityChartModel();
+      await _saveWaterChartModel();
+
+      notifyListeners();
     } catch (e) {
       debugPrint('Error calculating month total: $e');
       // Re-throw the error to be handled by the caller

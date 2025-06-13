@@ -13,9 +13,11 @@ class ElectricityConsumptionChartModel {
 
   factory ElectricityConsumptionChartModel.fromJson(Map<String, dynamic> json) {
     return ElectricityConsumptionChartModel(
-      json['consumptions'],
-      json['rYear'],
-      json['rMonth'],
+      (json['consumptions'] as List)
+          .map((e) => double.parse(e.toString()))
+          .toList(),
+      (json['rYear'] as List).map((e) => e.toString()).toList(),
+      (json['rMonth'] as List).map((e) => e.toString()).toList(),
     );
   }
 

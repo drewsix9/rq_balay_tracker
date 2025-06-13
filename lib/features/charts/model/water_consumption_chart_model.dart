@@ -13,9 +13,11 @@ class WaterConsumptionChartModel {
 
   factory WaterConsumptionChartModel.fromJson(Map<String, dynamic> json) {
     return WaterConsumptionChartModel(
-      json['consumptions'],
-      json['rYear'],
-      json['rMonth'],
+      (json['consumptions'] as List)
+          .map((e) => double.parse(e.toString()))
+          .toList(),
+      (json['rYear'] as List).map((e) => e.toString()).toList(),
+      (json['rMonth'] as List).map((e) => e.toString()).toList(),
     );
   }
 

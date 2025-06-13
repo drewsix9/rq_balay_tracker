@@ -10,11 +10,11 @@ class MonthlyElectricityConsumptionWidget extends BaseMonthlyConsumptionChart {
 
   @override
   List<double> getConsumptionData(ChartsViewModel provider) {
-    return provider.electricityChartModel!.consumptions!;
+    return provider.electricityChartModel!.consumptions;
   }
 
   @override
   List<String> getMonthsData(ChartsViewModel provider) {
-    return provider.electricityChartModel!.rMonth!;
+    return provider.electricityChartModel!.rMonth;
   }
 }

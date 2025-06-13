@@ -188,21 +188,26 @@ class LogoutButton extends StatelessWidget {
         ),
         onPressed: () {
           // Handle logout
-          UnitSharedPref.clearUnit();
-          UserSharedPref.clearCurrentUser();
-          MonthBillSharedPref.clearMonthBill();
-          TransactionHistorySharedPref.clearTransactionHistory();
-          AppLogger.i("Unit and User cleared from SharedPreferences");
-          Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => LoginScreen()),
-            (route) => false,
-          );
+          handleLogout(context);
         },
         child: Text(
           'Logout',
           style: AppTextStyles.buttonText.copyWith(fontSize: 16.sp),
         ),
       ),
+    );
+  }
+
+  void handleLogout(BuildContext context) {
+    // Handle logout
+    UnitSharedPref.clearUnit();
+    UserSharedPref.clearCurrentUser();
+    MonthBillSharedPref.clearMonthBill();
+    TransactionHistorySharedPref.clearTransactionHistory();
+    AppLogger.i("Unit and User cleared from SharedPreferences");
+    Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => LoginScreen()),
+      (route) => false,
     );
   }
 }
