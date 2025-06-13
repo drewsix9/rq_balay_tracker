@@ -9,7 +9,7 @@ import '../../../core/theme/app_text_styles.dart';
 import '../../profile/presentation/side_panel.dart';
 import '../model/usage_trend_model.dart';
 import '../viewmodel/charts_viewmodel.dart';
-import 'widgets/monthly_elec_consump_widget.dart';
+import 'widgets/monthly_elec_consump_chart.dart';
 import 'widgets/monthly_water_consump_chart.dart';
 
 class ChartsScreen extends StatefulWidget {
@@ -81,7 +81,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
               ),
             ),
             // Vertical spacing before chart
-            SizedBox(height: 12.h),
+            SizedBox(height: 24.h),
             // NO padding here: AspectRatio fills the width
             MonthlyElectricityConsumptionWidget.MonthlyElectricityConsumptionChart(),
             Padding(
@@ -92,7 +92,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
               ),
             ),
             // Vertical spacing before chart
-            SizedBox(height: 12.h),
+            SizedBox(height: 24.h),
             // NO padding here: AspectRatio fills the width
             MonthlyWaterConsumptionWidget.MonthlyWaterConsumptionChart(),
           ],

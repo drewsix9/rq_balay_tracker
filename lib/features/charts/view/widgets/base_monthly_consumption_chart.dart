@@ -8,12 +8,14 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../viewmodel/charts_viewmodel.dart';
 
-class MonthlyElectricityConsumptionWidget extends StatelessWidget {
+abstract class BaseMonthlyConsumptionChart extends StatelessWidget {
   final Key? chartKey;
+  final Gradient chartGradient;
 
-  const MonthlyElectricityConsumptionWidget.MonthlyElectricityConsumptionChart({
+  const BaseMonthlyConsumptionChart({
     super.key,
     this.chartKey,
+    required this.chartGradient,
   });
 
   @override
@@ -34,20 +36,11 @@ class MonthlyElectricityConsumptionWidget extends StatelessWidget {
 
   BarChartData _buildBarChartData(BuildContext context) {
     var provider = Provider.of<ChartsViewModel>(context, listen: false);
-    var consumption = provider.electricityChartModel!.consumptions;
+    var consumption = getConsumptionData(provider);
     final limitedConsumption =
         consumption.length > 12 ? consumption.sublist(0, 12) : consumption;
 
-    // Find the max value for spacing
-    final maxValue =
-        limitedConsumption.isNotEmpty
-            ? limitedConsumption.reduce((a, b) => a > b ? a : b)
-            : 0;
-
     return BarChartData(
-      // minY:
-      //     0, // You can set this to a small positive value for more bottom space, e.g., 20
-      // maxY: maxValue * 1.15, // 15% more space at the top
       alignment: BarChartAlignment.spaceEvenly,
       titlesData: FlTitlesData(
         leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -71,9 +64,7 @@ class MonthlyElectricityConsumptionWidget extends StatelessWidget {
           getTooltipColor: (group) => Colors.transparent,
           tooltipPadding: EdgeInsets.zero,
           tooltipMargin: 2.h,
-
           getTooltipItem: getBarTooltipItem(context),
-          // direction: TooltipDirection.bottom,
         ),
       ),
       barGroups: _buildBarChartGroupData(context),
@@ -103,7 +94,7 @@ class MonthlyElectricityConsumptionWidget extends StatelessWidget {
   Widget getTitles(double value, TitleMeta meta) {
     var style = AppTextStyles.body.copyWith(
       color: AppColors.textSecondary,
-      fontSize: 14.sp,
+      fontSize: 12.sp,
     );
     Widget text;
     switch (value.toInt()) {
@@ -139,25 +130,22 @@ class MonthlyElectricityConsumptionWidget extends StatelessWidget {
         break;
       case 11:
         text = Text('N', style: style);
+        break;
       case 12:
         text = Text('D', style: style);
+        break;
       default:
         text = Text('', style: style);
         break;
     }
-    return SideTitleWidget(
-      meta: meta,
-      space: 8, // Space from the axis
-      child: text,
-    );
+    return SideTitleWidget(meta: meta, space: 8, child: text);
   }
 
   List<BarChartGroupData> _buildBarChartGroupData(BuildContext context) {
     var provider = Provider.of<ChartsViewModel>(context, listen: false);
-    var consumption = provider.electricityChartModel!.consumptions;
-    var months = provider.electricityChartModel!.rMonth;
+    var consumption = getConsumptionData(provider);
+    var months = getMonthsData(provider);
 
-    // Limit to last 12 months
     final limitedConsumption =
         consumption.length > 12 ? consumption.sublist(0, 12) : consumption;
 
@@ -190,9 +178,13 @@ class MonthlyElectricityConsumptionWidget extends StatelessWidget {
           color: color,
           width: width,
           borderRadius: BorderRadius.circular(6.r),
-          gradient: AppGradients.warningGradient,
+          gradient: chartGradient,
         ),
       ],
     );
   }
+
+  // Abstract methods to be implemented by child classes
+  List<double> getConsumptionData(ChartsViewModel provider);
+  List<String> getMonthsData(ChartsViewModel provider);
 }
