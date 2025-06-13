@@ -40,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'RQ Balay Tracker',
+                      'Balay RQ',
                       style: AppTextStyles.heading.copyWith(fontSize: 32.sp),
                       textAlign: TextAlign.center,
                     ),
@@ -82,9 +82,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLogin(BuildContext context) async {
-    String userName = _userNameController.text.trim();
-    AppLogger.w("User Name Controller: $userName");
-    final response = await ApiService.login(userName);
+    String password = _userNameController.text.trim();
+    AppLogger.w("User Name Controller: $password");
+    final response = await ApiService.login(password);
 
     if (response!['unit'].toString().isNotEmpty) {
       UnitSharedPref.saveUnit(response['unit']);

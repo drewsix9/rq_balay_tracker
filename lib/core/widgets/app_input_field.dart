@@ -19,6 +19,7 @@ class AppInputField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      obscureText: true,
       controller: controller,
       validator: validator,
       decoration: InputDecoration(

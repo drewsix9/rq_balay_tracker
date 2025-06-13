@@ -105,14 +105,14 @@ class _BaseMonthlyConsumptionChartState
       BarChartRodData rod,
       int rodIndex,
     ) {
-      final color = rod.gradient?.colors.first ?? rod.color;
+      final color = rod.color;
       final theme = Theme.of(context);
 
       return BarTooltipItem(
         rod.toY.round().toString(),
         theme.textTheme.bodySmall!.copyWith(
           color: color,
-          fontWeight: FontWeight.w300,
+          fontWeight: FontWeight.w400,
         ),
       );
     };

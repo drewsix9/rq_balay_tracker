@@ -11,12 +11,12 @@ import '../logger/app_logger.dart';
 class ApiService {
   static const String baseUrl = 'https://epostalhub.shop';
 
-  static Future<Map<String, dynamic>?> login(String userName) async {
+  static Future<Map<String, dynamic>?> login(String password) async {
     try {
       var url = Uri.http('balay.quisumbing.net', 'app/mobile.cf');
       var response = await http.post(
         url,
-        body: {'tpl': 'app_login', 'userName': userName},
+        body: {'tpl': 'app_login', 'password': password},
       );
 
       AppLogger.d("Response (http) status: ${response.statusCode}");
