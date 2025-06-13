@@ -1,0 +1,10 @@
+icons_launcher:
+  image_path: "lib/core/logo/logo2.png"
+  platforms:
+    android:
+      enable: true
+      adaptive_icon_background: "#FFFFFF"
+      adaptive_icon_foreground: "lib/core/logo/logo2.png"
+    ios:
+      enable: false
+      remove_alpha_ios: true
