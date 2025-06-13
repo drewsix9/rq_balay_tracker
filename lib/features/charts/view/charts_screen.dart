@@ -6,6 +6,7 @@ import 'package:rq_balay_tracker/features/charts/model/month_total_model.dart';
 import '../../../core/providers/bills_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../profile/presentation/side_panel.dart';
 import '../model/usage_trend_model.dart';
 import '../viewmodel/charts_viewmodel.dart';
 import 'widgets/monthly_elec_consump_widget.dart';
@@ -42,6 +43,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
       //   child: Icon(Icons.refresh),
       // ),
       appBar: AppBar(
+        elevation: 0,
         title: Text(
           'Utility Analytics',
           style: AppTextStyles.subheading.copyWith(
@@ -49,7 +51,19 @@ class _ChartsScreenState extends State<ChartsScreen> {
             fontSize: 20.sp,
           ),
         ),
+        backgroundColor: AppColors.primaryBlue,
+        leading: Builder(
+          builder: (context) {
+            return IconButton(
+              icon: Icon(Icons.menu, color: Colors.white, size: 24.sp),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
+        ),
       ),
+      drawer: SidePanel(),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
