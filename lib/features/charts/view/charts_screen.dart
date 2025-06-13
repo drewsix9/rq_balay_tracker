@@ -23,8 +23,8 @@ class _ChartsScreenState extends State<ChartsScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<ChartsViewModel>(context, listen: false).initialize(
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Provider.of<ChartsViewModel>(context, listen: false).initialize(
         Provider.of<BillsProvider>(
           context,
           listen: false,
@@ -104,6 +104,10 @@ class _ChartsScreenState extends State<ChartsScreen> {
   Widget _buildSummaryCards() {
     return Consumer<ChartsViewModel>(
       builder: (context, chartsViewModel, child) {
+        if (chartsViewModel.monthTotal == null ||
+            chartsViewModel.usageTrend == null) {
+          return const Center(child: SizedBox.shrink());
+        }
         MonthTotalModel monthTotal = chartsViewModel.monthTotal!;
         UsageTrendModel usageTrend = chartsViewModel.usageTrend!;
         return GridView.count(

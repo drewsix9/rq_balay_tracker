@@ -36,8 +36,24 @@ class _BaseMonthlyConsumptionChartState
       aspectRatio: 1.5,
       child: Consumer<ChartsViewModel>(
         builder: (context, chartsViewModel, child) {
+          AppLogger.w('Building chart');
+          var consumption = widget.getConsumptionData(chartsViewModel);
+          bool allZeros = consumption.every((element) => element == 0);
+          AppLogger.w('All consumption values are zero');
+          if (allZeros) {
+            return Center(
+              child: Text(
+                'No data available',
+                style: AppTextStyles.body.copyWith(
+                  color: AppColors.textSecondary,
+                  fontSize: 16.sp,
+                ),
+              ),
+            );
+          }
+
           return BarChart(
-            _buildBarChartData(context),
+            _buildBarChartData(context, consumption),
             duration: Duration(milliseconds: 250),
             key: widget.chartKey,
           );
@@ -46,12 +62,10 @@ class _BaseMonthlyConsumptionChartState
     );
   }
 
-  BarChartData _buildBarChartData(BuildContext context) {
-    var provider = Provider.of<ChartsViewModel>(context, listen: false);
-    var consumption = widget.getConsumptionData(provider);
-    final limitedConsumption =
-        consumption.length > 12 ? consumption.sublist(0, 12) : consumption;
-
+  BarChartData _buildBarChartData(
+    BuildContext context,
+    List<double> consumption,
+  ) {
     return BarChartData(
       alignment: BarChartAlignment.spaceEvenly,
       titlesData: FlTitlesData(
@@ -61,7 +75,8 @@ class _BaseMonthlyConsumptionChartState
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            getTitlesWidget: getTitles,
+            getTitlesWidget:
+                (value, meta) => getTitles(value, meta, consumption),
             reservedSize: 38.w,
           ),
         ),
@@ -103,11 +118,12 @@ class _BaseMonthlyConsumptionChartState
     };
   }
 
-  Widget getTitles(double value, TitleMeta meta) {
+  Widget getTitles(double value, TitleMeta meta, List<double> consumption) {
     var style = AppTextStyles.body.copyWith(
       color: AppColors.textSecondary,
       fontSize: 12.sp,
     );
+
     Widget text;
     switch (value.toInt()) {
       case 1:
@@ -147,6 +163,7 @@ class _BaseMonthlyConsumptionChartState
         text = Text('D', style: style);
         break;
       default:
+        AppLogger.w('Value in switch: $value');
         text = Text('', style: style);
         break;
     }
@@ -162,10 +179,8 @@ class _BaseMonthlyConsumptionChartState
         consumption.length > 12 ? consumption.sublist(0, 12) : consumption;
 
     return List.generate(limitedConsumption.length, (index) {
-      AppLogger.d('Value to be passed: ${int.parse(months[index])}  ');
-
       return makeGroupData(
-        int.parse(months[index]),
+        int.tryParse(months[index]) ?? 0,
         limitedConsumption[index],
         12.w,
         10.h,
@@ -182,15 +197,22 @@ class _BaseMonthlyConsumptionChartState
     Color color,
   ) {
     return BarChartGroupData(
-      showingTooltipIndicators: [0],
+      showingTooltipIndicators:
+          y > 0 ? [0] : [], // Only show tooltip if value > 0
       x: x,
       barRods: [
         BarChartRodData(
           toY: y,
-          color: color,
+          // color: y > 0 ? color : Colors.transparent, // Make rod transparent if value is 0
+          gradient:
+              y > 0 ? widget.chartGradient : AppGradients.primaryBlueGradient,
           width: width,
-          borderRadius: BorderRadius.circular(6.r),
-          gradient: widget.chartGradient,
+          borderRadius: BorderRadius.circular(4.r),
+          backDrawRodData: BackgroundBarChartRodData(
+            show: true,
+            toY: y > 0 ? y : 0, // Only show background if value > 0
+            color: Colors.transparent,
+          ),
         ),
       ],
     );

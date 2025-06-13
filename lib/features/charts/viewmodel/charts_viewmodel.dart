@@ -23,21 +23,30 @@ class ChartsViewModel extends ChangeNotifier {
       _electricityChartModel;
   WaterConsumptionChartModel? get waterChartModel => _waterChartModel;
 
-  void initialize(List<MonthBillModel> bills) async {
+  Future<void> initialize(List<MonthBillModel> bills) async {
     try {
       _isLoading = true;
       notifyListeners();
 
+      // Calculate all models first
       _monthTotal = MonthTotalModel.fromMonthBills(bills);
       _usageTrend = UsageTrendModel.fromMonthBills(bills);
       _electricityChartModel = ElectricityConsumptionChartModel.fromMonthBills(
         bills,
       );
       _waterChartModel = WaterConsumptionChartModel.fromMonthBills(bills);
-      await _saveElectricityChartModel();
-      await _saveWaterChartModel();
+
+      // Then save them
+      if (_electricityChartModel != null) {
+        await _saveElectricityChartModel();
+      }
+      if (_waterChartModel != null) {
+        await _saveWaterChartModel();
+      }
     } catch (e) {
       debugPrint('Error calculating month total: $e');
+      // Re-throw the error to be handled by the caller
+      throw Exception('Failed to initialize charts: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
