@@ -5,9 +5,11 @@ import 'dart:io'; // Import for SocketException
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 
 import '../../../core/global/current_user_model.dart';
 import '../../../core/logger/app_logger.dart';
+import '../../../core/providers/biometric_provider.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/usecases/unit_shared_pref.dart';
@@ -28,6 +30,14 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _userNameController = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<BiometricProvider>(context, listen: false).initialize();
+    });
+  }
+
   void _showErrorSnackBar(String title, String message) {
     if (!mounted) return;
 
@@ -45,6 +55,60 @@ class _LoginScreenState extends State<LoginScreen> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(snackBar);
+  }
+
+  Future<void> _handleBiometricLogin() async {
+    final biometricProvider = Provider.of<BiometricProvider>(
+      context,
+      listen: false,
+    );
+
+    if (!biometricProvider.isDeviceSupported) {
+      _showErrorSnackBar(
+        'Not Supported',
+        'Biometric authentication is not supported on this device.',
+      );
+      return;
+    }
+
+    if (!biometricProvider.canCheckBiometrics) {
+      _showErrorSnackBar(
+        'Not Available',
+        'No biometrics are available on this device.',
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final bool authenticated = await biometricProvider
+          .authenticateWithBiometrics(
+            localizedReason: 'Please authenticate to login',
+          );
+
+      if (authenticated && mounted) {
+        // Get the last used username from SharedPreferences
+        final lastUsername = await UnitSharedPref.getUnit();
+        if (lastUsername != null) {
+          _userNameController.text = lastUsername;
+          await _handleLogin(context);
+        } else {
+          _showErrorSnackBar(
+            'No Saved Credentials',
+            'Please login manually first to enable biometric login.',
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorSnackBar('Authentication Error', e.toString());
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
@@ -93,6 +157,24 @@ class _LoginScreenState extends State<LoginScreen> {
                             _userNameController.clear();
                           },
                         ),
+                      ),
+                      SizedBox(height: 12.h),
+                      Consumer<BiometricProvider>(
+                        builder: (context, biometricProvider, child) {
+                          if (!biometricProvider.isDeviceSupported ||
+                              !biometricProvider.canCheckBiometrics) {
+                            return const SizedBox.shrink();
+                          }
+
+                          return SizedBox(
+                            width: double.infinity,
+                            child: AppButton(
+                              label: 'Login with Biometrics',
+                              isLoading: _isLoading,
+                              onPressed: _handleBiometricLogin,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

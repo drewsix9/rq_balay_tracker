@@ -1,3 +1,4 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -25,6 +26,26 @@ class _ChartsScreenState extends State<ChartsScreen> {
   final RefreshController _refreshController = RefreshController(
     initialRefresh: false,
   );
+  String? _lastError;
+
+  void _showErrorSnackBar(String title, String message) {
+    if (!mounted) return;
+
+    final snackBar = SnackBar(
+      elevation: 0,
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: Colors.transparent,
+      content: AwesomeSnackbarContent(
+        title: title,
+        message: message,
+        contentType: ContentType.failure,
+      ),
+    );
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(snackBar);
+  }
 
   @override
   void initState() {
@@ -94,51 +115,64 @@ class _ChartsScreenState extends State<ChartsScreen> {
       ),
       drawer: SidePanel(),
       body: SafeArea(
-        child: SmartRefresher(
-          controller: _refreshController,
-          onRefresh: _onRefresh,
-          header: ClassicHeader(refreshStyle: RefreshStyle.Follow),
-          child: CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16.w,
-                    vertical: 16.h,
+        child: Consumer<ChartsViewModel>(
+          builder: (context, chartsViewModel, child) {
+            // Handle error state
+            if (chartsViewModel.error != null &&
+                chartsViewModel.error != _lastError) {
+              _lastError = chartsViewModel.error;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _showErrorSnackBar('Error', chartsViewModel.error!);
+              });
+            }
+
+            return SmartRefresher(
+              controller: _refreshController,
+              onRefresh: _onRefresh,
+              header: ClassicHeader(refreshStyle: RefreshStyle.Follow),
+              child: CustomScrollView(
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 16.h,
+                      ),
+                      child: _buildSummaryCards(),
+                    ),
                   ),
-                  child: _buildSummaryCards(),
-                ),
-              ),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.all(16.w),
-                  child: _buildChartSection(
-                    title: 'Monthly Electricity Consumption (kWh)',
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.all(16.w),
+                      child: _buildChartSection(
+                        title: 'Monthly Electricity Consumption (kWh)',
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              SliverToBoxAdapter(child: SizedBox(height: 24.h)),
-              SliverToBoxAdapter(
-                child:
-                    MonthlyElectricityConsumptionWidget.monthlyElectricityConsumptionChart(),
-              ),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.all(16.w),
-                  child: _buildChartSection(
-                    title: 'Monthly Water Consumption (m³)',
+                  SliverToBoxAdapter(child: SizedBox(height: 24.h)),
+                  SliverToBoxAdapter(
+                    child:
+                        MonthlyElectricityConsumptionWidget.monthlyElectricityConsumptionChart(),
                   ),
-                ),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.all(16.w),
+                      child: _buildChartSection(
+                        title: 'Monthly Water Consumption (m³)',
+                      ),
+                    ),
+                  ),
+                  SliverToBoxAdapter(child: SizedBox(height: 24.h)),
+                  SliverToBoxAdapter(
+                    child:
+                        MonthlyWaterConsumptionWidget.monthlyWaterConsumptionChart(),
+                  ),
+                  // Add some bottom padding
+                  SliverToBoxAdapter(child: SizedBox(height: 16.h)),
+                ],
               ),
-              SliverToBoxAdapter(child: SizedBox(height: 24.h)),
-              SliverToBoxAdapter(
-                child:
-                    MonthlyWaterConsumptionWidget.monthlyWaterConsumptionChart(),
-              ),
-              // Add some bottom padding
-              SliverToBoxAdapter(child: SizedBox(height: 16.h)),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );

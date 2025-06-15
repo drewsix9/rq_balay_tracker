@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 
 import '../../../core/logger/app_logger.dart';
@@ -13,18 +16,26 @@ class ChartsViewModel extends ChangeNotifier {
   MonthTotalModel? _monthTotal;
   UsageTrendModel? _usageTrend;
   bool _isLoading = false;
+  String? _error;
   ElectricityConsumptionChartModel? _electricityChartModel;
   WaterConsumptionChartModel? _waterChartModel;
 
   MonthTotalModel? get monthTotal => _monthTotal;
   UsageTrendModel? get usageTrend => _usageTrend;
   bool get isLoading => _isLoading;
+  String? get error => _error;
   ElectricityConsumptionChartModel? get electricityChartModel =>
       _electricityChartModel;
   WaterConsumptionChartModel? get waterChartModel => _waterChartModel;
 
+  void _setError(String? error) {
+    _error = error;
+    notifyListeners();
+  }
+
   Future<void> initialize(List<MonthBillModel> bills) async {
     try {
+      _setError(null);
       _isLoading = true;
       notifyListeners();
 
@@ -62,10 +73,13 @@ class ChartsViewModel extends ChangeNotifier {
       await _saveWaterChartModel();
 
       notifyListeners();
+    } on SocketException {
+      _setError('No internet connection. Please check your network settings.');
+    } on TimeoutException {
+      _setError('Connection timed out. Please check your internet connection.');
     } catch (e) {
-      debugPrint('Error calculating month total: $e');
-      // Re-throw the error to be handled by the caller
-      throw Exception('Failed to initialize charts: $e');
+      _setError('An error occurred: $e');
+      AppLogger.e('Error calculating month total: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -73,6 +87,7 @@ class ChartsViewModel extends ChangeNotifier {
   }
 
   Future<void> reload(List<MonthBillModel> bills) async {
+    _setError(null);
     await initialize(bills);
   }
 
@@ -110,6 +125,7 @@ class ChartsViewModel extends ChangeNotifier {
   void clear() {
     _monthTotal = null;
     _usageTrend = null;
+    _error = null;
     notifyListeners();
   }
 }
