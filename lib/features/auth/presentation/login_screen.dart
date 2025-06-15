@@ -2,9 +2,9 @@
 import 'dart:async';
 import 'dart:io'; // Import for SocketException
 
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../../core/global/current_user_model.dart';
 import '../../../core/logger/app_logger.dart';
@@ -28,53 +28,74 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _userNameController = TextEditingController();
 
+  void _showErrorSnackBar(String title, String message) {
+    if (!mounted) return;
+
+    final snackBar = SnackBar(
+      elevation: 0,
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: Colors.transparent,
+      content: AwesomeSnackbarContent(
+        title: title,
+        message: message,
+        contentType: ContentType.failure,
+      ),
+    );
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(snackBar);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.all(16.w),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 400.w),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Balay RQ',
-                      style: AppTextStyles.heading.copyWith(fontSize: 32.sp),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 24.h),
-                    AppInputField(
-                      hint: 'Username / Room Number',
-                      controller: _userNameController,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Please enter a username or room number';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 18.h),
-                    SizedBox(
-                      width: double.infinity,
-                      child: AppButton(
-                        label: 'Login',
-                        isLoading: _isLoading,
-                        onPressed: () async {
-                          if (_formKey.currentState?.validate() ?? false) {
-                            setState(() => _isLoading = true);
-                            await _handleLogin(context);
-                            setState(() => _isLoading = false);
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.all(16.w),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: 400.w),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Balay RQ',
+                        style: AppTextStyles.heading.copyWith(fontSize: 32.sp),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 24.h),
+                      AppInputField(
+                        hint: 'Username / Room Number',
+                        controller: _userNameController,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Please enter a username or room number';
                           }
-                          _userNameController.clear();
+                          return null;
                         },
                       ),
-                    ),
-                  ],
+                      SizedBox(height: 18.h),
+                      SizedBox(
+                        width: double.infinity,
+                        child: AppButton(
+                          label: 'Login',
+                          isLoading: _isLoading,
+                          onPressed: () async {
+                            if (_formKey.currentState?.validate() ?? false) {
+                              setState(() => _isLoading = true);
+                              await _handleLogin(context);
+                              setState(() => _isLoading = false);
+                            }
+                            _userNameController.clear();
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -107,49 +128,20 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         }
       } else {
-        Fluttertoast.showToast(
-          msg: "Incorrect Username / Room Number",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.sp,
-        );
+        _showErrorSnackBar('Login Failed', 'Incorrect Username / Room Number');
       }
     } on SocketException {
-      // Handle no internet connection
-      Fluttertoast.showToast(
-        msg: "No internet connection. Please check your network settings.",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.sp,
+      _showErrorSnackBar(
+        'Connection Error',
+        'No internet connection. Please check your network settings.',
       );
     } on TimeoutException {
-      // Handle connection timeout
-      Fluttertoast.showToast(
-        msg: "Connection timed out. Please check your internet connection.",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.sp,
+      _showErrorSnackBar(
+        'Timeout Error',
+        'Connection timed out. Please check your internet connection.',
       );
     } catch (e) {
-      // Handle other exceptions
-      Fluttertoast.showToast(
-        msg: "An error occurred: $e",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.sp,
-      );
+      _showErrorSnackBar('Error', 'An error occurred: $e');
     }
   }
 }

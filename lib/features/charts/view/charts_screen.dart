@@ -93,47 +93,52 @@ class _ChartsScreenState extends State<ChartsScreen> {
         ),
       ),
       drawer: SidePanel(),
-      body: SmartRefresher(
-        controller: _refreshController,
-        onRefresh: _onRefresh,
-        header: ClassicHeader(refreshStyle: RefreshStyle.Follow),
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-                child: _buildSummaryCards(),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.all(16.w),
-                child: _buildChartSection(
-                  title: 'Monthly Electricity Consumption (kWh)',
+      body: SafeArea(
+        child: SmartRefresher(
+          controller: _refreshController,
+          onRefresh: _onRefresh,
+          header: ClassicHeader(refreshStyle: RefreshStyle.Follow),
+          child: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 16.h,
+                  ),
+                  child: _buildSummaryCards(),
                 ),
               ),
-            ),
-            SliverToBoxAdapter(child: SizedBox(height: 24.h)),
-            SliverToBoxAdapter(
-              child:
-                  MonthlyElectricityConsumptionWidget.monthlyElectricityConsumptionChart(),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.all(16.w),
-                child: _buildChartSection(
-                  title: 'Monthly Water Consumption (m³)',
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(16.w),
+                  child: _buildChartSection(
+                    title: 'Monthly Electricity Consumption (kWh)',
+                  ),
                 ),
               ),
-            ),
-            SliverToBoxAdapter(child: SizedBox(height: 24.h)),
-            SliverToBoxAdapter(
-              child:
-                  MonthlyWaterConsumptionWidget.monthlyWaterConsumptionChart(),
-            ),
-            // Add some bottom padding
-            SliverToBoxAdapter(child: SizedBox(height: 16.h)),
-          ],
+              SliverToBoxAdapter(child: SizedBox(height: 24.h)),
+              SliverToBoxAdapter(
+                child:
+                    MonthlyElectricityConsumptionWidget.monthlyElectricityConsumptionChart(),
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(16.w),
+                  child: _buildChartSection(
+                    title: 'Monthly Water Consumption (m³)',
+                  ),
+                ),
+              ),
+              SliverToBoxAdapter(child: SizedBox(height: 24.h)),
+              SliverToBoxAdapter(
+                child:
+                    MonthlyWaterConsumptionWidget.monthlyWaterConsumptionChart(),
+              ),
+              // Add some bottom padding
+              SliverToBoxAdapter(child: SizedBox(height: 16.h)),
+            ],
+          ),
         ),
       ),
     );

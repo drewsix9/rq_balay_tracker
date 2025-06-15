@@ -1,5 +1,7 @@
 // lib/features/bills/presentation/bills_screen.dart
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:money_formatter/money_formatter.dart';
@@ -24,12 +26,44 @@ class BillsScreen extends StatefulWidget {
 }
 
 class _BillsScreenState extends State<BillsScreen> {
+  String? _lastError;
+
+  void _showErrorSnackBar(String title, String message) {
+    if (!mounted) return;
+
+    final snackBar = SnackBar(
+      elevation: 0,
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: Colors.transparent,
+      content: AwesomeSnackbarContent(
+        title: title,
+        message: message,
+        contentType: ContentType.failure,
+      ),
+    );
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(snackBar);
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<BillsProvider>(context, listen: false).initialize();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final billsProvider = Provider.of<BillsProvider>(context);
+    if (billsProvider.error != null) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _showErrorSnackBar('Error', billsProvider.error!);
+      });
+    }
   }
 
   @override
@@ -63,70 +97,81 @@ class _BillsScreenState extends State<BillsScreen> {
         ),
       ),
       drawer: SidePanel(),
-      body: Column(
-        children: [
-          Consumer<BillsProvider>(
-            builder: (context, billsProvider, child) {
-              final currentBill = billsProvider.currentBill;
-              if (currentBill == null) {
-                return const Expanded(
-                  child: Center(child: Text('No bill data available')),
-                );
-              }
-              AppLogger.d('currentBill.paid: ${currentBill.paid}');
-              if (currentBill.paid == 'Y') {
-                return Padding(
-                  padding: EdgeInsets.all(16.w),
-                  child: Skeletonizer(
-                    // ignoreContainers: true,
-                    enabled:
-                        Provider.of<BillsProvider>(
-                          context,
-                          listen: false,
-                        ).isLoading,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        // color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(12.r),
-                        boxShadow: [
-                          BoxShadow(
-                            offset: const Offset(0, 4),
-                            blurRadius: 6,
-                            spreadRadius: -1,
-                            color: Colors.black.withValues(alpha: 0.1),
-                          ),
-                        ],
-                      ),
-                      child: Card(
-                        // elevation: 20,
-                        color: AppColors.surface,
-                        child: Padding(
-                          padding: EdgeInsets.all(16.w),
-                          child: Center(
-                            child: Text(
-                              'No Pending Payment',
-                              style: AppTextStyles.subheading.copyWith(
-                                fontSize: 16.sp,
-                                color: AppColors.textPrimary,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Consumer<BillsProvider>(
+              builder: (context, billsProvider, child) {
+                // Handle error state
+                if (billsProvider.error != null &&
+                    billsProvider.error != _lastError) {
+                  _lastError = billsProvider.error;
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _showErrorSnackBar('Error', billsProvider.error!);
+                  });
+                }
+
+                final currentBill = billsProvider.currentBill;
+                if (currentBill == null) {
+                  return const Expanded(
+                    child: Center(child: Text('No bill data available')),
+                  );
+                }
+                AppLogger.d('currentBill.paid: ${currentBill.paid}');
+                if (currentBill.paid == 'Y') {
+                  return Padding(
+                    padding: EdgeInsets.all(16.w),
+                    child: Skeletonizer(
+                      // ignoreContainers: true,
+                      enabled:
+                          Provider.of<BillsProvider>(
+                            context,
+                            listen: false,
+                          ).isLoading,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          // color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(12.r),
+                          boxShadow: [
+                            BoxShadow(
+                              offset: const Offset(0, 4),
+                              blurRadius: 6,
+                              spreadRadius: -1,
+                              color: Colors.black.withValues(alpha: 0.1),
+                            ),
+                          ],
+                        ),
+                        child: Card(
+                          // elevation: 20,
+                          color: AppColors.surface,
+                          child: Padding(
+                            padding: EdgeInsets.all(16.w),
+                            child: Center(
+                              child: Text(
+                                'No Pending Payment',
+                                style: AppTextStyles.subheading.copyWith(
+                                  fontSize: 16.sp,
+                                  color: AppColors.textPrimary,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              }
+                  );
+                }
 
-              return BuildMonthBillCard(
-                currentUnit: billsProvider.currentUnit,
-                currentUser: billsProvider.currentUser,
-                currentBill: currentBill,
-              );
-            },
-          ),
-          _buildTransactionList(),
-        ],
+                return BuildMonthBillCard(
+                  currentUnit: billsProvider.currentUnit,
+                  currentUser: billsProvider.currentUser,
+                  currentBill: currentBill,
+                );
+              },
+            ),
+            _buildTransactionList(),
+          ],
+        ),
       ),
     );
   }

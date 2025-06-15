@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -17,21 +20,34 @@ class BillsProvider with ChangeNotifier {
   MonthBillModel? _currentBill;
   TransactionHistoryModel? _transactionHistory;
   bool _isLoading = false;
+  String? _error;
 
   String? get currentUnit => _currentUnit;
   CurrentUserModel? get currentUser => _currentUser;
   MonthBillModel? get currentBill => _currentBill;
   TransactionHistoryModel? get transactionHistory => _transactionHistory;
   bool get isLoading => _isLoading;
+  String? get error => _error;
+
+  void _setError(String? error) {
+    _error = error;
+    notifyListeners();
+  }
 
   /// Initialize the bills provider and fetch all necessary data
   Future<void> initialize() async {
     try {
+      _setError(null);
       await _loadUserData();
       if (_currentUnit == null) return;
 
       await Future.wait([_fetchCurrentMonthBill(), _fetchTransactionHistory()]);
+    } on SocketException {
+      _setError('No internet connection. Please check your network settings.');
+    } on TimeoutException {
+      _setError('Connection timed out. Please check your internet connection.');
     } catch (e) {
+      _setError('An error occurred: $e');
       AppLogger.e('Error initializing BillsProvider: $e');
     }
   }
@@ -58,7 +74,12 @@ class BillsProvider with ChangeNotifier {
         _currentBill = MonthBillModel.fromMap(data);
         await _saveCurrentMonthBill();
       }
+    } on SocketException {
+      _setError('No internet connection. Please check your network settings.');
+    } on TimeoutException {
+      _setError('Connection timed out. Please check your internet connection.');
     } catch (e) {
+      _setError('An error occurred: $e');
       AppLogger.e('Error fetching current month bill: $e');
     } finally {
       _setLoading(false);
@@ -86,7 +107,12 @@ class BillsProvider with ChangeNotifier {
         _currentUnit!,
       );
       await _saveTransactionHistory();
+    } on SocketException {
+      _setError('No internet connection. Please check your network settings.');
+    } on TimeoutException {
+      _setError('Connection timed out. Please check your internet connection.');
     } catch (e) {
+      _setError('An error occurred: $e');
       AppLogger.e('Error fetching transaction history: $e');
     } finally {
       _setLoading(false);
@@ -128,6 +154,7 @@ class BillsProvider with ChangeNotifier {
 
   /// Reload all data
   Future<void> reload() async {
+    _setError(null);
     await initialize();
   }
 
