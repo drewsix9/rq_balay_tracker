@@ -1,7 +1,9 @@
 // lib/core/services/api_service.dart
 // ignore_for_file: avoid_print
 
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
@@ -9,15 +11,19 @@ import '../../features/bills/data/transaction_history_model.dart';
 import '../logger/app_logger.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://epostalhub.shop';
+  static const String baseUrl = 'balay.quisumbing.net';
 
   static Future<Map<String, dynamic>?> login(String password) async {
     try {
-      var url = Uri.http('balay.quisumbing.net', 'app/mobile.cf');
-      var response = await http.post(
-        url,
-        body: {'tpl': 'app_login', 'password': password},
-      );
+      var url = Uri.http(baseUrl, 'app/mobile.cf');
+      var response = await http
+          .post(url, body: {'tpl': 'app_login', 'password': password})
+          .timeout(
+            const Duration(seconds: 10), // Add timeout
+            onTimeout: () {
+              throw TimeoutException('Connection timed out');
+            },
+          );
 
       AppLogger.d("Response (http) status: ${response.statusCode}");
       AppLogger.d("Response (http) body: ${response.body}");
@@ -31,17 +37,22 @@ class ApiService {
         throw Exception('Error decoding JSON: $e');
       }
 
-      try {
-        if (response.statusCode == 200) {
-          return jsonResponse;
-        } else {
-          AppLogger.e("Login failed: $jsonResponse");
-          throw Exception('Login failed: $jsonResponse');
-        }
-      } catch (e) {
-        AppLogger.e("Error processing user data: $e");
-        throw Exception('Error processing user data: $e');
+      if (response.statusCode == 200) {
+        return jsonResponse;
+      } else {
+        AppLogger.e("Login failed: $jsonResponse");
+        throw Exception('Login failed: $jsonResponse');
       }
+    } on TimeoutException {
+      AppLogger.e("Connection timed out");
+      throw Exception(
+        'Connection timed out. Please check your internet connection.',
+      );
+    } on SocketException {
+      AppLogger.e("No internet connection");
+      throw Exception(
+        'No internet connection. Please check your network settings.',
+      );
     } catch (e) {
       AppLogger.e("Network error: $e");
       throw Exception('Network error: $e');
@@ -50,7 +61,7 @@ class ApiService {
 
   static Future<Map<String, dynamic>?> getMonthBill(String unit) async {
     try {
-      var url = Uri.http('balay.quisumbing.net', 'app/mobile.cf');
+      var url = Uri.http(baseUrl, 'app/mobile.cf');
       var response = await http.post(
         url,
         body: {'tpl': 'app_month_bill', 'unit': unit},
@@ -89,7 +100,7 @@ class ApiService {
     String unit,
   ) async {
     try {
-      var url = Uri.http('balay.quisumbing.net', 'app/mobile.cf');
+      var url = Uri.http(baseUrl, 'app/mobile.cf');
       var response = await http.post(
         url,
         body: {'tpl': 'app_bill_history', 'unit': unit},

@@ -3,7 +3,7 @@ import '../../viewmodel/charts_viewmodel.dart';
 import 'base_monthly_consumption_chart.dart';
 
 class MonthlyElectricityConsumptionWidget extends BaseMonthlyConsumptionChart {
-  const MonthlyElectricityConsumptionWidget.MonthlyElectricityConsumptionChart({
+  const MonthlyElectricityConsumptionWidget.monthlyElectricityConsumptionChart({
     super.key,
     super.chartKey,
   }) : super(chartGradient: AppGradients.warningGradient);

@@ -1,4 +1,7 @@
 // lib/features/auth/presentation/login_screen.dart
+import 'dart:async';
+import 'dart:io'; // Import for SocketException
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -84,26 +87,62 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _handleLogin(BuildContext context) async {
     String password = _userNameController.text.trim();
     AppLogger.w("User Name Controller: $password");
-    final response = await ApiService.login(password);
 
-    if (response!['unit'].toString().isNotEmpty) {
-      UnitSharedPref.saveUnit(response['unit']);
-      UserSharedPref.saveCurrentUser(CurrentUserModel.fromMap(response));
+    try {
+      final response = await ApiService.login(password);
 
-      AppLogger.w("User saved to SharedPreferences: ${response['name']}");
-      AppLogger.w(
-        "Unit saved to SharedPreferences: ${response['unit']} and type is ${response['unit'].runtimeType}",
-      );
+      if (response!['unit'].toString().isNotEmpty) {
+        UnitSharedPref.saveUnit(response['unit']);
+        UserSharedPref.saveCurrentUser(CurrentUserModel.fromMap(response));
 
-      if (context.mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
+        AppLogger.w("User saved to SharedPreferences: ${response['name']}");
+        AppLogger.w(
+          "Unit saved to SharedPreferences: ${response['unit']} and type is ${response['unit'].runtimeType}",
+        );
+
+        if (context.mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+          );
+        }
+      } else {
+        Fluttertoast.showToast(
+          msg: "Incorrect Username / Room Number",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.sp,
         );
       }
-    } else {
+    } on SocketException {
+      // Handle no internet connection
       Fluttertoast.showToast(
-        msg: "Incorrect Username / Room Number",
+        msg: "No internet connection. Please check your network settings.",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.sp,
+      );
+    } on TimeoutException {
+      // Handle connection timeout
+      Fluttertoast.showToast(
+        msg: "Connection timed out. Please check your internet connection.",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.sp,
+      );
+    } catch (e) {
+      // Handle other exceptions
+      Fluttertoast.showToast(
+        msg: "An error occurred: $e",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER,
         timeInSecForIosWeb: 1,

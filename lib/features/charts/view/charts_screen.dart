@@ -48,12 +48,14 @@ class _ChartsScreenState extends State<ChartsScreen> {
   Future<void> _onRefresh() async {
     try {
       await Future.delayed(const Duration(milliseconds: 500));
-      await Provider.of<ChartsViewModel>(context, listen: false).reload(
-        Provider.of<BillsProvider>(
-          context,
-          listen: false,
-        ).transactionHistory!.transactionHistory!,
-      );
+      if (context.mounted) {
+        await Provider.of<ChartsViewModel>(context, listen: false).reload(
+          Provider.of<BillsProvider>(
+            context,
+            listen: false,
+          ).transactionHistory!.transactionHistory!,
+        );
+      }
       _refreshController.refreshCompleted();
     } catch (e) {
       _refreshController.refreshFailed();
@@ -114,7 +116,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
             SliverToBoxAdapter(child: SizedBox(height: 24.h)),
             SliverToBoxAdapter(
               child:
-                  MonthlyElectricityConsumptionWidget.MonthlyElectricityConsumptionChart(),
+                  MonthlyElectricityConsumptionWidget.monthlyElectricityConsumptionChart(),
             ),
             SliverToBoxAdapter(
               child: Padding(
@@ -127,7 +129,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
             SliverToBoxAdapter(child: SizedBox(height: 24.h)),
             SliverToBoxAdapter(
               child:
-                  MonthlyWaterConsumptionWidget.MonthlyWaterConsumptionChart(),
+                  MonthlyWaterConsumptionWidget.monthlyWaterConsumptionChart(),
             ),
             // Add some bottom padding
             SliverToBoxAdapter(child: SizedBox(height: 16.h)),
