@@ -5,12 +5,14 @@ import 'dart:io'; // Import for SocketException
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/global/current_user_model.dart';
 import '../../../core/logger/app_logger.dart';
 import '../../../core/providers/biometric_provider.dart';
 import '../../../core/services/api_service.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/usecases/unit_shared_pref.dart';
 import '../../../core/usecases/user_shared_pref.dart';
@@ -185,12 +187,53 @@ class _LoginScreenState extends State<LoginScreen> {
                             return const SizedBox.shrink();
                           }
 
-                          return SizedBox(
-                            width: double.infinity,
-                            child: AppButton(
-                              label: 'Login with Biometrics',
-                              isLoading: _isLoading,
-                              onPressed: _handleBiometricLogin,
+                          // Get the first available biometric type
+                          final biometricType =
+                              biometricProvider.availableBiometrics.isNotEmpty
+                                  ? biometricProvider.availableBiometrics.first
+                                  : null;
+
+                          return Center(
+                            child: Container(
+                              width: 64.w,
+                              height: 64.w,
+                              decoration: BoxDecoration(
+                                color: AppColors.surface,
+                                borderRadius: BorderRadius.circular(12.r),
+                                boxShadow: [
+                                  BoxShadow(
+                                    offset: const Offset(0, 4),
+                                    blurRadius: 6,
+                                    spreadRadius: -1,
+                                    color: Colors.black.withValues(alpha: 0.1),
+                                  ),
+                                ],
+                              ),
+                              child: IconButton(
+                                onPressed:
+                                    _isLoading ? null : _handleBiometricLogin,
+                                icon:
+                                    _isLoading
+                                        ? SizedBox(
+                                          width: 48.w,
+                                          height: 48.h,
+                                          child: CircularProgressIndicator(
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                  AppColors.primaryBlue,
+                                                ),
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                        : Image.asset(
+                                          biometricType == BiometricType.face
+                                              ? 'lib/core/images/face-id.png'
+                                              : 'lib/core/images/fingerprint.png',
+                                          width: 48.w,
+                                          height: 48.h,
+                                          color: AppColors.primaryBlue,
+                                        ),
+                              ),
                             ),
                           );
                         },

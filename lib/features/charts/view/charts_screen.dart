@@ -51,11 +51,16 @@ class _ChartsScreenState extends State<ChartsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Provider.of<ChartsViewModel>(context, listen: false).initialize(
-        Provider.of<BillsProvider>(
-          context,
-          listen: false,
-        ).transactionHistory!.transactionHistory!,
+      final billsProvider = Provider.of<BillsProvider>(context, listen: false);
+      final chartsViewModel = Provider.of<ChartsViewModel>(
+        context,
+        listen: false,
+      );
+
+      if (!mounted) return;
+
+      await chartsViewModel.initialize(
+        billsProvider.transactionHistory!.transactionHistory!,
       );
     });
   }
@@ -69,14 +74,19 @@ class _ChartsScreenState extends State<ChartsScreen> {
   Future<void> _onRefresh() async {
     try {
       await Future.delayed(const Duration(milliseconds: 500));
-      if (context.mounted) {
-        await Provider.of<ChartsViewModel>(context, listen: false).reload(
-          Provider.of<BillsProvider>(
-            context,
-            listen: false,
-          ).transactionHistory!.transactionHistory!,
-        );
-      }
+
+      if (!mounted) return;
+
+      final billsProvider = Provider.of<BillsProvider>(context, listen: false);
+      final chartsViewModel = Provider.of<ChartsViewModel>(
+        context,
+        listen: false,
+      );
+
+      await chartsViewModel.reload(
+        billsProvider.transactionHistory!.transactionHistory!,
+      );
+
       _refreshController.refreshCompleted();
     } catch (e) {
       _refreshController.refreshFailed();
@@ -169,6 +179,9 @@ class _ChartsScreenState extends State<ChartsScreen> {
                   ),
                   // Add some bottom padding
                   SliverToBoxAdapter(child: SizedBox(height: 16.h)),
+                  // TODO: Daily Usage Chart (15 minutes interval)
+
+                  // TODO: Monthly Usage Chart
                 ],
               ),
             );
