@@ -28,7 +28,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   final _formKey = GlobalKey<FormState>();
-  final _userNameController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   @override
   void initState() {
@@ -88,14 +88,33 @@ class _LoginScreenState extends State<LoginScreen> {
           );
 
       if (authenticated && mounted) {
-        // Get the last used username from SharedPreferences
-        final lastUsername = await UnitSharedPref.getUnit();
-        if (lastUsername != null) {
-          _userNameController.text = lastUsername;
-          await _handleLogin(context);
+        // Get the cached unit ID
+        final cachedUnitId = await UnitSharedPref.getUnit();
+        if (cachedUnitId != null) {
+          // Verify if the cached unit ID still exists in the database
+          final response = await ApiService.biometricLogin(cachedUnitId);
+          if (response != null && response['unit'].toString().isNotEmpty) {
+            // Update the current user data
+            UserSharedPref.saveCurrentUser(CurrentUserModel.fromMap(response));
+
+            if (mounted) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => HomeScreen()),
+              );
+            }
+          } else {
+            _showErrorSnackBar(
+              'Invalid Session',
+              'Your session has expired. Please login manually.',
+            );
+            // Clear invalid cached data
+            await UnitSharedPref.clearUnit();
+            await UserSharedPref.clearCurrentUser();
+          }
         } else {
           _showErrorSnackBar(
-            'No Saved Credentials',
+            'No Saved Session',
             'Please login manually first to enable biometric login.',
           );
         }
@@ -134,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       SizedBox(height: 24.h),
                       AppInputField(
                         hint: 'Username / Room Number',
-                        controller: _userNameController,
+                        controller: _passwordController,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return 'Please enter a username or room number';
@@ -154,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               await _handleLogin(context);
                               setState(() => _isLoading = false);
                             }
-                            _userNameController.clear();
+                            _passwordController.clear();
                           },
                         ),
                       ),
@@ -188,14 +207,16 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLogin(BuildContext context) async {
-    String password = _userNameController.text.trim();
+    String password = _passwordController.text.trim();
     AppLogger.w("User Name Controller: $password");
 
     try {
       final response = await ApiService.login(password);
 
       if (response!['unit'].toString().isNotEmpty) {
+        // Cache only the unit ID
         UnitSharedPref.saveUnit(response['unit']);
+        // Save current user data
         UserSharedPref.saveCurrentUser(CurrentUserModel.fromMap(response));
 
         AppLogger.w("User saved to SharedPreferences: ${response['name']}");
