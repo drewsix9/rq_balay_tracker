@@ -2,9 +2,12 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 import '../../../core/logger/app_logger.dart';
+import '../../../core/services/api_service.dart';
 import '../../../core/usecases/electricity_consumption_shared_pref.dart';
+import '../../../core/usecases/unit_shared_pref.dart';
 import '../../../core/usecases/water_consumption_shared_pref.dart';
 import '../../bills/data/month_bill_model.dart';
 import '../model/electricity_consumption.dart';
@@ -86,9 +89,15 @@ class ChartsViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> reload(List<MonthBillModel> bills) async {
+  Future<void> reload() async {
     _setError(null);
-    await initialize(bills);
+    try {
+      String unit = await UnitSharedPref.getUnit() ?? '';
+      final transactionHistory = await ApiService.getTransactionHistory(unit);
+      await initialize(transactionHistory.transactionHistory!);
+    } catch (e) {
+      _setError(e.toString());
+    }
   }
 
   Future<void> _saveElectricityChartModel() async {

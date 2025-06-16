@@ -241,7 +241,7 @@ class _BillsScreenState extends State<BillsScreen> {
                             final transaction = trimmedTransactions[index];
                             return Container(
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: AppColors.surface,
                                 borderRadius: BorderRadius.circular(12.r),
                                 boxShadow: [
                                   BoxShadow(
@@ -416,7 +416,7 @@ class _BillsScreenState extends State<BillsScreen> {
               ),
             ),
             Text(
-              '₱${MoneyFormatter(amount: double.tryParse(amount) ?? 0).output.nonSymbol}',
+              '₱ ${MoneyFormatter(amount: double.tryParse(amount) ?? 0).output.nonSymbol}',
               style: AppTextStyles.body.copyWith(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.bold,
@@ -472,7 +472,7 @@ class BuildMonthBillCard extends StatelessWidget {
         enabled: Provider.of<BillsProvider>(context, listen: false).isLoading,
         child: Container(
           decoration: BoxDecoration(
-            // color: AppColors.surface,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(12.r),
             boxShadow: [
               BoxShadow(
@@ -483,162 +483,152 @@ class BuildMonthBillCard extends StatelessWidget {
               ),
             ],
           ),
-          child: Card(
-            // elevation: 20,
-            color: AppColors.surface,
-            child: ExpansionTile(
-              initiallyExpanded: true,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.r),
+          // Before it was wrapped in a Card, now it is not
+          child: ExpansionTile(
+            initiallyExpanded: true,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            collapsedShape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            // showTrailingIcon: false,
+            title: Padding(
+              padding: EdgeInsets.fromLTRB(8.w, 8.h, 0.w, 8.h),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          DateFormat('MMMM yyyy').format(
+                            DateTime.parse(
+                              currentBill.date ??
+                                  DateTime.now().toIso8601String(),
+                            ),
+                          ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(color: AppColors.primaryBlue),
+                        ),
+                        SizedBox(height: 8.h),
+                        Text(
+                          'Total Due',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        SizedBox(height: 2.h),
+                        Text(
+                          '₱ ${MoneyFormatter(amount: double.tryParse(currentBill.totalDue ?? '0') ?? 0).output.nonSymbol}',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.displayLarge?.copyWith(fontSize: 28.sp),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  SizedBox(
+                    width: 100.w,
+                    height: 48.h,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryBlue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        elevation: 0,
+                        padding: EdgeInsets.symmetric(horizontal: 8.w),
+                      ),
+                      onPressed: () {
+                        // Handle Gcash payment
+                      },
+                      icon: Icon(
+                        Icons.account_balance_wallet,
+                        size: 18.sp,
+                        color: Colors.white,
+                      ),
+                      label: Text(
+                        'Pay GCash',
+                        style: AppTextStyles.buttonText.copyWith(
+                          fontSize: 12.sp,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              collapsedShape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              // showTrailingIcon: false,
-              title: Padding(
-                padding: EdgeInsets.fromLTRB(8.w, 8.h, 0.w, 8.h),
+            ),
+            children: [
+              Padding(
+                padding: EdgeInsets.all(16.w),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Left column - Labels and Rates
                     Expanded(
                       flex: 2,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            DateFormat('MMMM yyyy').format(
-                              DateTime.parse(
-                                currentBill.date ??
-                                    DateTime.now().toIso8601String(),
-                              ),
-                            ),
-                            style: Theme.of(context).textTheme.titleLarge
-                                ?.copyWith(color: AppColors.primaryBlue),
+                          _buildUtilityLabel(
+                            title: 'Electricity',
+                            rate: '₱ ${currentBill.eRate ?? '0'}/kWh',
                           ),
-                          SizedBox(height: 8.h),
-                          Text(
-                            'Total Due',
-                            style: Theme.of(context).textTheme.bodyMedium,
+                          _buildUtilityLabel(
+                            title: 'Water',
+                            rate:
+                                '₱ ${MoneyFormatter(amount: double.tryParse(currentBill.wRate ?? '0') ?? 0).output.nonSymbol}/m³',
                           ),
-                          SizedBox(height: 2.h),
-                          Text(
-                            '₱ ${MoneyFormatter(amount: double.tryParse(currentBill.totalDue ?? '0') ?? 0).output.nonSymbol}',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.displayLarge?.copyWith(fontSize: 28.sp),
-                          ),
+                          if (currentUser?.wifi == 'Y')
+                            _buildUtilityLabel(title: 'WiFi', rate: 'Monthly'),
+                          _buildUtilityLabel(title: 'Rent', rate: 'Monthly'),
                         ],
                       ),
                     ),
-                    SizedBox(width: 8.w),
-                    SizedBox(
-                      width: 100.w,
-                      height: 48.h,
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryBlue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.r),
+                    // Right column - Amounts and Consumption
+                    Expanded(
+                      flex: 3,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          _buildUtilityAmount(
+                            amount: currentBill.eTotal ?? '0',
+                            showConsumption: true,
+                            total:
+                                double.tryParse(currentBill.eTotal ?? '0') ?? 0,
+                            rate:
+                                double.tryParse(currentBill.eRate ?? '1') ?? 1,
+                            unit: 'kWh',
                           ),
-                          elevation: 0,
-                          padding: EdgeInsets.symmetric(horizontal: 8.w),
-                        ),
-                        onPressed: () {
-                          // Handle Gcash payment
-                        },
-                        icon: Icon(
-                          Icons.account_balance_wallet,
-                          size: 18.sp,
-                          color: Colors.white,
-                        ),
-                        label: Text(
-                          'Pay GCash',
-                          style: AppTextStyles.buttonText.copyWith(
-                            fontSize: 12.sp,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
+                          _buildUtilityAmount(
+                            amount: currentBill.wTotal ?? '0',
+                            showConsumption: true,
+                            total:
+                                double.tryParse(currentBill.wTotal ?? '0') ?? 0,
+                            rate:
+                                double.tryParse(currentBill.wRate ?? '1') ?? 1,
+                            unit: 'm³',
                           ),
-                        ),
+                          if (currentUser?.wifi == 'Y')
+                            _buildUtilityAmount(
+                              amount: currentBill.wifi ?? '0',
+                              showConsumption: false,
+                            ),
+                          _buildUtilityAmount(
+                            amount: currentBill.monthlyRate ?? '0',
+                            showConsumption: false,
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(16.w),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Left column - Labels and Rates
-                      Expanded(
-                        flex: 2,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildUtilityLabel(
-                              title: 'Electricity',
-                              rate: '₱${currentBill.eRate ?? '0'}/kWh',
-                            ),
-                            _buildUtilityLabel(
-                              title: 'Water',
-                              rate:
-                                  '₱${MoneyFormatter(amount: double.tryParse(currentBill.wRate ?? '0') ?? 0).output.nonSymbol}/m³',
-                            ),
-                            if (currentUser?.wifi == 'Y')
-                              _buildUtilityLabel(
-                                title: 'WiFi',
-                                rate: 'Monthly',
-                              ),
-                            _buildUtilityLabel(title: 'Rent', rate: 'Monthly'),
-                          ],
-                        ),
-                      ),
-                      // Right column - Amounts and Consumption
-                      Expanded(
-                        flex: 3,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            _buildUtilityAmount(
-                              amount: currentBill.eTotal ?? '0',
-                              showConsumption: true,
-                              total:
-                                  double.tryParse(currentBill.eTotal ?? '0') ??
-                                  0,
-                              rate:
-                                  double.tryParse(currentBill.eRate ?? '1') ??
-                                  1,
-                              unit: 'kWh',
-                            ),
-                            _buildUtilityAmount(
-                              amount: currentBill.wTotal ?? '0',
-                              showConsumption: true,
-                              total:
-                                  double.tryParse(currentBill.wTotal ?? '0') ??
-                                  0,
-                              rate:
-                                  double.tryParse(currentBill.wRate ?? '1') ??
-                                  1,
-                              unit: 'm³',
-                            ),
-                            if (currentUser?.wifi == 'Y')
-                              _buildUtilityAmount(
-                                amount: currentBill.wifi ?? '0',
-                                showConsumption: false,
-                              ),
-                            _buildUtilityAmount(
-                              amount: currentBill.monthlyRate ?? '0',
-                              showConsumption: false,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+            ],
           ),
         ),
       ),

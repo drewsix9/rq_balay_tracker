@@ -39,8 +39,8 @@ class _BaseMonthlyConsumptionChartState
           AppLogger.w('Building chart');
           var consumption = widget.getConsumptionData(chartsViewModel);
           bool allZeros = consumption.every((element) => element == 0);
-          AppLogger.w('All consumption values are zero');
           if (allZeros) {
+            AppLogger.w('All consumption values are zero');
             return Center(
               child: Text(
                 'No data available',

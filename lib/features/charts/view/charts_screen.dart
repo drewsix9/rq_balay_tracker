@@ -77,15 +77,12 @@ class _ChartsScreenState extends State<ChartsScreen> {
 
       if (!mounted) return;
 
-      final billsProvider = Provider.of<BillsProvider>(context, listen: false);
       final chartsViewModel = Provider.of<ChartsViewModel>(
         context,
         listen: false,
       );
 
-      await chartsViewModel.reload(
-        billsProvider.transactionHistory!.transactionHistory!,
-      );
+      await chartsViewModel.reload();
 
       _refreshController.refreshCompleted();
     } catch (e) {

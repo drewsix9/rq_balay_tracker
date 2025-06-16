@@ -4,6 +4,7 @@ import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
 import 'features/bills/presentation/bills_screen.dart';
 import 'features/charts/view/charts_screen.dart';
+import 'features/landing_page/view/landing_page_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,6 +18,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return PersistentTabView(
       tabs: [
+        PersistentTabConfig(
+          screen: LandingPageScreen(),
+          item: ItemConfig(icon: Icon(Icons.home), title: "Home"),
+        ),
         PersistentTabConfig(
           screen: BillsScreen(),
           item: ItemConfig(icon: Icon(Icons.receipt_long), title: "Bills"),
