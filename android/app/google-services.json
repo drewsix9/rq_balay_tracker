@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "432854778925",
+    "project_id": "balay-rq",
+    "storage_bucket": "balay-rq.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:432854778925:android:826c13401c263e7efa64a4",
+        "android_client_info": {
+          "package_name": "com.example.rq_balay_tracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVhnamW8sFpV2H_77TzDeo7OhYU3NJB-c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
