@@ -60,7 +60,6 @@ class ApiService {
   }
 
   static Future<Map<String, dynamic>?> biometricLogin(String unit) async {
-    // TODO: Create a new endpoint for this
     try {
       var url = Uri.http(baseUrl, 'app/mobile.cf');
       var response = await http
@@ -176,6 +175,66 @@ class ApiService {
         AppLogger.e("Error processing user data: $e");
         throw Exception('Error processing user data: $e');
       }
+    } catch (e) {
+      AppLogger.e("Network error: $e");
+      throw Exception('Network error: $e');
+    }
+  }
+
+  static Future<Map<String, dynamic>?> insertFcmToken({
+    required String unit,
+    required String token,
+    required String deviceUuid,
+    String? deviceName,
+  }) async {
+    try {
+      var url = Uri.http(baseUrl, 'app/mobile.cf');
+      var response = await http
+          .post(
+            url,
+            body: {
+              'tpl': 'app_fcm_token',
+              'unit': unit,
+              'token': token,
+              'device_uuid': deviceUuid,
+              'device_name': deviceName,
+            },
+          )
+          .timeout(
+            const Duration(seconds: 10), // Add timeout
+            onTimeout: () {
+              throw TimeoutException('Connection timed out');
+            },
+          );
+
+      AppLogger.d("Response (http) status: ${response.statusCode}");
+      AppLogger.d("Response (http) body: ${response.body}");
+
+      Map<String, dynamic> jsonResponse;
+      try {
+        jsonResponse = jsonDecode(response.body);
+        AppLogger.d("Decoded response: $jsonResponse");
+      } catch (e) {
+        AppLogger.e("Error decoding JSON: $e");
+        throw Exception('Error decoding JSON: $e');
+      }
+
+      if (response.statusCode == 200) {
+        return jsonResponse;
+      } else {
+        AppLogger.e("Save FCM Token failed: $jsonResponse");
+        throw Exception('Save FCM Token failed: $jsonResponse');
+      }
+    } on TimeoutException {
+      AppLogger.e("Connection timed out");
+      throw Exception(
+        'Connection timed out. Please check your internet connection.',
+      );
+    } on SocketException {
+      AppLogger.e("No internet connection");
+      throw Exception(
+        'No internet connection. Please check your network settings.',
+      );
     } catch (e) {
       AppLogger.e("Network error: $e");
       throw Exception('Network error: $e');

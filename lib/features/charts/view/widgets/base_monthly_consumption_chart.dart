@@ -38,6 +38,9 @@ class _BaseMonthlyConsumptionChartState
         builder: (context, chartsViewModel, child) {
           AppLogger.w('Building chart');
           var consumption = widget.getConsumptionData(chartsViewModel);
+          if (consumption.isEmpty) {
+            return const Center(child: Text('No data available'));
+          }
           bool allZeros = consumption.every((element) => element == 0);
           if (allZeros) {
             AppLogger.w('All consumption values are zero');
@@ -174,6 +177,10 @@ class _BaseMonthlyConsumptionChartState
     var provider = Provider.of<ChartsViewModel>(context, listen: false);
     var consumption = widget.getConsumptionData(provider);
     var months = widget.getMonthsData(provider);
+    if (consumption.isEmpty || months.isEmpty) {
+      AppLogger.w('No consumption or months data available');
+      return [];
+    }
 
     final limitedConsumption =
         consumption.length > 12 ? consumption.sublist(0, 12) : consumption;

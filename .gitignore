@@ -43,3 +43,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+balay-rq-firebase-adminsdk-fbsvc-ad45fec5ce.json
+
+# Dependencies
+node_modules/

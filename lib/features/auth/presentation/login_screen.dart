@@ -13,8 +13,10 @@ import '../../../core/global/current_user_model.dart';
 import '../../../core/logger/app_logger.dart';
 import '../../../core/providers/biometric_provider.dart';
 import '../../../core/services/api_service.dart';
+import '../../../core/services/device_info_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/usecases/fcm_token_shared_pref.dart';
 import '../../../core/usecases/unit_shared_pref.dart';
 import '../../../core/usecases/user_shared_pref.dart';
 import '../../../core/widgets/app_button.dart';
@@ -255,12 +257,24 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await ApiService.login(password);
-
-      if (response!['unit'].toString().isNotEmpty) {
+      var unit = response!['unit'];
+      if (unit != null && unit.toString().isNotEmpty) {
         // Cache only the unit ID
-        UnitSharedPref.saveUnit(response['unit']);
+        UnitSharedPref.saveUnit(unit);
         // Save current user data
         UserSharedPref.saveCurrentUser(CurrentUserModel.fromMap(response));
+        // Save FCM Token to database
+        final deviceInfo = await getDeviceInfo();
+        AppLogger.w("Device Info: $deviceInfo");
+        final token = await FCMTokenSharedPref.getFCMToken();
+        if (token != null && token.toString().isNotEmpty) {
+          await ApiService.insertFcmToken(
+            unit: unit,
+            token: token,
+            deviceUuid: deviceInfo['device_uuid'] ?? '.',
+            deviceName: deviceInfo['device_name'] ?? '',
+          );
+        }
 
         AppLogger.w("User saved to SharedPreferences: ${response['name']}");
         AppLogger.w(
