@@ -1,12 +1,14 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/usecases/unit_shared_pref.dart';
+import '../../../core/usecases/user_shared_pref.dart';
 import '../../profile/presentation/side_panel.dart';
 import '../viewmodel/landing_page_viewmodel.dart';
 
@@ -38,8 +40,6 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.read<LandingPageViewModel>().user;
-
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -89,151 +89,178 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                   ),
                   padding: EdgeInsets.all(24.w),
                   margin: EdgeInsets.symmetric(vertical: 8.h, horizontal: 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        user.name,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
-                          fontSize: 20.sp,
-                        ),
-                      ),
-                      SizedBox(height: 4.h),
-                      Text(
-                        'Unit: ${user.unit}',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textMuted,
-                          fontSize: 14.sp,
-                        ),
-                      ),
-                      SizedBox(height: 16.h),
-                      Column(
+                  child: FutureBuilder(
+                    future: UserSharedPref.getCurrentUser(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      var user = snapshot.data;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Monthly Rate:',
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium?.copyWith(
-                                  color: AppColors.textMuted,
-                                  fontSize: 15.sp,
-                                ),
-                              ),
-                              Text(
-                                '₱${user.monthlyRate}',
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.textPrimary,
-                                  fontSize: 16.sp,
-                                ),
-                              ),
-                            ],
+                          Text(
+                            user?.name ?? '',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
+                              fontSize: 20.sp,
+                            ),
                           ),
-                          SizedBox(height: 10.h),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          SizedBox(height: 4.h),
+                          Text(
+                            'Unit: ${user?.unit}',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodySmall?.copyWith(
+                              color: AppColors.textMuted,
+                              fontSize: 14.sp,
+                            ),
+                          ),
+                          SizedBox(height: 16.h),
+                          Column(
                             children: [
-                              Text(
-                                'WiFi:',
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium?.copyWith(
-                                  color: AppColors.textMuted,
-                                  fontSize: 15.sp,
-                                ),
-                              ),
-                              if (user.wifi == 'Y')
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 12.w,
-                                    vertical: 4.h,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFD1FADF),
-                                    borderRadius: BorderRadius.circular(999.r),
-                                  ),
-                                  child: Text(
-                                    'Available',
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Monthly Rate:',
                                     style: Theme.of(
                                       context,
-                                    ).textTheme.labelMedium?.copyWith(
-                                      color: const Color(0xFF039855),
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 13.sp,
+                                    ).textTheme.bodyMedium?.copyWith(
+                                      color: AppColors.textMuted,
+                                      fontSize: 15.sp,
                                     ),
                                   ),
-                                )
-                              else
-                                Text(
-                                  'Not Available',
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.labelMedium?.copyWith(
-                                    color: AppColors.textMuted,
-                                    fontSize: 13.sp,
+                                  Text(
+                                    NumberFormat.currency(
+                                      symbol: '₱',
+                                      decimalDigits: 2,
+                                    ).format(
+                                      double.tryParse(
+                                            user?.monthlyRate ?? '0',
+                                          ) ??
+                                          0,
+                                    ),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textPrimary,
+                                      fontSize: 16.sp,
+                                    ),
                                   ),
-                                ),
-                            ],
-                          ),
-                          SizedBox(height: 10.h),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Mobile:',
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium?.copyWith(
-                                  color: AppColors.textMuted,
-                                  fontSize: 15.sp,
-                                ),
+                                ],
                               ),
-                              Text(
-                                user.mobileNo,
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.textPrimary,
-                                  fontSize: 16.sp,
-                                ),
+                              SizedBox(height: 10.h),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'WiFi:',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.copyWith(
+                                      color: AppColors.textMuted,
+                                      fontSize: 15.sp,
+                                    ),
+                                  ),
+                                  if (user?.wifi == 'Y')
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 12.w,
+                                        vertical: 4.h,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFD1FADF),
+                                        borderRadius: BorderRadius.circular(
+                                          999.r,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Available',
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.labelMedium?.copyWith(
+                                          color: const Color(0xFF039855),
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 13.sp,
+                                        ),
+                                      ),
+                                    )
+                                  else
+                                    Text(
+                                      'Not Available',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.labelMedium?.copyWith(
+                                        color: AppColors.textMuted,
+                                        fontSize: 13.sp,
+                                      ),
+                                    ),
+                                ],
                               ),
-                            ],
-                          ),
-                          SizedBox(height: 10.h),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Start Date:',
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium?.copyWith(
-                                  color: AppColors.textMuted,
-                                  fontSize: 15.sp,
-                                ),
+                              SizedBox(height: 10.h),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Mobile:',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.copyWith(
+                                      color: AppColors.textMuted,
+                                      fontSize: 15.sp,
+                                    ),
+                                  ),
+                                  Text(
+                                    user?.mobileno ?? '',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textPrimary,
+                                      fontSize: 16.sp,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              Text(
-                                user.startDate,
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.textPrimary,
-                                  fontSize: 16.sp,
-                                ),
+                              SizedBox(height: 10.h),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Start Date:',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.copyWith(
+                                      color: AppColors.textMuted,
+                                      fontSize: 15.sp,
+                                    ),
+                                  ),
+                                  Text(
+                                    user?.startDate ?? '',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textPrimary,
+                                      fontSize: 16.sp,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                         ],
-                      ),
-                    ],
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(height: 24),

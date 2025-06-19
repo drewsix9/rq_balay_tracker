@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import '../../../core/logger/app_logger.dart';
 import '../../../core/services/api_service.dart';
 import '../model/kwh_consump_model/kwh_consump_model.dart';
-import '../model/user_landing_model.dart';
 
 class LandingPageViewModel extends ChangeNotifier {
   bool _isLoading = false;
@@ -24,17 +23,6 @@ class LandingPageViewModel extends ChangeNotifier {
       AppLogger.d("Element: ${element.timeDisplay}\n${element.consumptionKwh}");
     }
   }
-
-  // Fake user data
-  final UserLandingModel user = UserLandingModel(
-    unit: '3',
-    name: 'Tita Caryl',
-    monthlyRate: '3800.00',
-    wifi: 'Y',
-    mobileNo: '09287708266',
-    email: '',
-    startDate: '2022-11-03',
-  );
 
   // Generate fake chart data for 15-min intervals (96 points for 24 hours)
   List<FlSpot> get chartData {

@@ -1,20 +1,20 @@
 class UserLandingModel {
-  final String unit;
-  final String name;
-  final String monthlyRate;
-  final String wifi;
-  final String mobileNo;
-  final String email;
-  final String startDate;
+  String? unit;
+  String? name;
+  String? monthlyRate;
+  String? wifi;
+  String? mobileNo;
+  String? email;
+  String? startDate;
 
   UserLandingModel({
-    required this.unit,
-    required this.name,
-    required this.monthlyRate,
-    required this.wifi,
-    required this.mobileNo,
-    required this.email,
-    required this.startDate,
+    this.unit,
+    this.name,
+    this.monthlyRate,
+    this.wifi,
+    this.mobileNo,
+    this.email,
+    this.startDate,
   });
 
   factory UserLandingModel.fromJson(Map<String, dynamic> json) {
