@@ -19,6 +19,9 @@ class LandingPageViewModel extends ChangeNotifier {
     _todayKWhConsumpList = KwhConsumpModel.fromMap(todayKWhConsump!);
     _isLoading = false;
     notifyListeners();
+    AppLogger.d(
+      "Today KWh Consumption: ${_todayKWhConsumpList.todayKWhConsump.toString()}",
+    );
     for (var element in _todayKWhConsumpList.todayKWhConsump ?? []) {
       AppLogger.d("Element: ${element.timeDisplay}\n${element.consumptionKwh}");
     }
@@ -27,7 +30,7 @@ class LandingPageViewModel extends ChangeNotifier {
   // Generate fake chart data for 15-min intervals (96 points for 24 hours)
   List<FlSpot> get chartData {
     List<FlSpot> spots = [];
-    for (int i = 0; i < _todayKWhConsumpList.todayKWhConsump!.length; i++) {
+    for (int i = 0; i < _todayKWhConsumpList.todayKWhConsump!.length - 1; i++) {
       double y = double.parse(
         _todayKWhConsumpList.todayKWhConsump?[i].consumptionKwh ?? '0',
       );

@@ -9,12 +9,12 @@ class MonthlyWaterConsumptionWidget extends BaseMonthlyConsumptionChart {
   }) : super(chartGradient: AppGradients.primaryBlueGradient);
 
   @override
-  List<double> getConsumptionData(ChartsViewModel provider) {
+  Future<List<double>> getConsumptionData(ChartsViewModel provider) async {
     return provider.waterChartModel!.consumptions;
   }
 
   @override
-  List<String> getMonthsData(ChartsViewModel provider) {
+  Future<List<String>> getMonthsData(ChartsViewModel provider) async {
     return provider.waterChartModel!.rMonth;
   }
 }

@@ -9,12 +9,12 @@ class MonthlyElectricityConsumptionWidget extends BaseMonthlyConsumptionChart {
   }) : super(chartGradient: AppGradients.warningGradient);
 
   @override
-  List<double> getConsumptionData(ChartsViewModel provider) {
+  Future<List<double>> getConsumptionData(ChartsViewModel provider) async {
     return provider.electricityChartModel?.consumptions ?? [];
   }
 
   @override
-  List<String> getMonthsData(ChartsViewModel provider) {
+  Future<List<String>> getMonthsData(ChartsViewModel provider) async {
     return provider.electricityChartModel?.rMonth ?? [];
   }
 }

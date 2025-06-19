@@ -23,9 +23,9 @@ abstract class BaseMonthlyConsumptionChart extends StatefulWidget {
       _BaseMonthlyConsumptionChartState();
 
   // Abstract methods to be implemented by child classes
-  List<double> getConsumptionData(ChartsViewModel provider);
+  Future<List<double>> getConsumptionData(ChartsViewModel provider);
 
-  List<String> getMonthsData(ChartsViewModel provider);
+  Future<List<String>> getMonthsData(ChartsViewModel provider);
 }
 
 class _BaseMonthlyConsumptionChartState
@@ -34,41 +34,43 @@ class _BaseMonthlyConsumptionChartState
   Widget build(BuildContext context) {
     return AspectRatio(
       aspectRatio: 1.5,
-      child: Consumer<ChartsViewModel>(
-        builder: (context, chartsViewModel, child) {
-          AppLogger.w('Building chart');
-          var consumption = widget.getConsumptionData(chartsViewModel);
-          if (consumption.isEmpty) {
-            return const Center(child: Text('No data available'));
+      child: FutureBuilder<List<double>>(
+        future: widget.getConsumptionData(context.read<ChartsViewModel>()),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data == null) {
+            return const Center(child: Text('No data'));
           }
-          bool allZeros = consumption.every((element) => element == 0);
-          if (allZeros) {
-            AppLogger.w('All consumption values are zero');
-            return Center(
-              child: Text(
-                'No data available',
-                style: AppTextStyles.body.copyWith(
-                  color: AppColors.textSecondary,
-                  fontSize: 16.sp,
-                ),
-              ),
-            );
-          }
-
-          return BarChart(
-            _buildBarChartData(context, consumption),
-            duration: Duration(milliseconds: 250),
-            key: widget.chartKey,
+          var consumption = snapshot.data!;
+          return FutureBuilder<BarChartData>(
+            future: _buildBarChartData(context, consumption),
+            builder: (context, barChartSnapshot) {
+              if (barChartSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (barChartSnapshot.hasError) {
+                return Center(child: Text('Error: ${barChartSnapshot.error}'));
+              } else if (!barChartSnapshot.hasData) {
+                return const Center(child: Text('No chart data'));
+              }
+              return BarChart(
+                barChartSnapshot.data!,
+                duration: const Duration(milliseconds: 250),
+                key: widget.chartKey,
+              );
+            },
           );
         },
       ),
     );
   }
 
-  BarChartData _buildBarChartData(
+  Future<BarChartData> _buildBarChartData(
     BuildContext context,
     List<double> consumption,
-  ) {
+  ) async {
     return BarChartData(
       alignment: BarChartAlignment.spaceEvenly,
       titlesData: FlTitlesData(
@@ -97,7 +99,7 @@ class _BaseMonthlyConsumptionChartState
           getTooltipItem: getBarTooltipItem(context),
         ),
       ),
-      barGroups: _buildBarChartGroupData(context),
+      barGroups: await _buildBarChartGroupData(context),
     );
   }
 
@@ -173,10 +175,12 @@ class _BaseMonthlyConsumptionChartState
     return SideTitleWidget(meta: meta, space: 8, child: text);
   }
 
-  List<BarChartGroupData> _buildBarChartGroupData(BuildContext context) {
+  Future<List<BarChartGroupData>> _buildBarChartGroupData(
+    BuildContext context,
+  ) async {
     var provider = Provider.of<ChartsViewModel>(context, listen: false);
-    var consumption = widget.getConsumptionData(provider);
-    var months = widget.getMonthsData(provider);
+    var consumption = await widget.getConsumptionData(provider);
+    var months = await widget.getMonthsData(provider);
     if (consumption.isEmpty || months.isEmpty) {
       AppLogger.w('No consumption or months data available');
       return [];

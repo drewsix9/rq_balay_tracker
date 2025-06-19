@@ -20,6 +20,9 @@ class LandingPageScreen extends StatefulWidget {
 }
 
 class _LandingPageScreenState extends State<LandingPageScreen> {
+  final RefreshController _refreshController = RefreshController(
+    initialRefresh: false,
+  );
   @override
   void initState() {
     super.initState();
@@ -33,9 +36,24 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
 
   Future<void> _onRefresh() async {
     final unit = await UnitSharedPref.getUnit();
-    if (mounted) {
-      context.read<LandingPageViewModel>().getTodayKWhConsump(unit);
+    try {
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (!mounted) return;
+      final landingPageViewModel = Provider.of<LandingPageViewModel>(
+        context,
+        listen: false,
+      );
+      await landingPageViewModel.getTodayKWhConsump(unit);
+      _refreshController.refreshCompleted();
+    } catch (e) {
+      _refreshController.refreshFailed();
     }
+  }
+
+  @override
+  void dispose() {
+    _refreshController.dispose();
+    super.dispose();
   }
 
   @override
@@ -65,7 +83,7 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
       drawer: SidePanel(),
       body: SmartRefresher(
         onRefresh: _onRefresh,
-        controller: RefreshController(initialRefresh: false),
+        controller: _refreshController,
         header: ClassicHeader(refreshStyle: RefreshStyle.Follow),
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -273,6 +291,13 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                   scrollDirection: Axis.horizontal,
                   child: Consumer<LandingPageViewModel>(
                     builder: (context, provider, child) {
+                      if (provider.isLoading) {
+                        return Expanded(
+                          child: const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
+                      }
                       if (provider.chartData.isEmpty) {
                         return SizedBox(
                           width: 1920.w,
@@ -282,9 +307,7 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                           ),
                         );
                       }
-                      if (provider.isLoading) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
+
                       double minValue =
                           provider.chartData.isEmpty
                               ? 0.0
