@@ -240,4 +240,52 @@ class ApiService {
       throw Exception('Network error: $e');
     }
   }
+
+  static Future<Map<String, dynamic>?> getTodaykWhConsump({
+    required String unit,
+  }) async {
+    try {
+      var url = Uri.http(baseUrl, 'app/mobile.cf');
+      var response = await http
+          .post(url, body: {'tpl': 'app_today_consump', 'room_id': unit})
+          .timeout(
+            const Duration(seconds: 10), // Add timeout
+            onTimeout: () {
+              throw TimeoutException('Connection timed out');
+            },
+          );
+
+      AppLogger.d("Response (http) status: ${response.statusCode}");
+      AppLogger.d("Response (http) body: ${response.body}");
+
+      Map<String, dynamic> jsonResponse;
+      try {
+        jsonResponse = jsonDecode(response.body);
+        AppLogger.d("Decoded response: $jsonResponse");
+      } catch (e) {
+        AppLogger.e("Error decoding JSON: $e");
+        throw Exception('Error decoding JSON: $e');
+      }
+
+      if (response.statusCode == 200) {
+        return jsonResponse;
+      } else {
+        AppLogger.e("Get Today kWh Consumption failed: $jsonResponse");
+        throw Exception('Get Today kWh Consumption failed: $jsonResponse');
+      }
+    } on TimeoutException {
+      AppLogger.e("Connection timed out");
+      throw Exception(
+        'Connection timed out. Please check your internet connection.',
+      );
+    } on SocketException {
+      AppLogger.e("No internet connection");
+      throw Exception(
+        'No internet connection. Please check your network settings.',
+      );
+    } catch (e) {
+      AppLogger.e("Network error: $e");
+      throw Exception('Network error: $e');
+    }
+  }
 }

@@ -12,6 +12,7 @@ import 'core/services/firebase_api.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/login_screen.dart';
 import 'features/charts/viewmodel/charts_viewmodel.dart';
+import 'features/landing_page/viewmodel/landing_page_viewmodel.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -41,6 +42,7 @@ class MyApp extends StatelessWidget {
             ChangeNotifierProvider(create: (_) => BillsProvider()),
             ChangeNotifierProvider(create: (_) => ChartsViewModel()),
             ChangeNotifierProvider(create: (_) => BiometricProvider()),
+            ChangeNotifierProvider(create: (_) => LandingPageViewModel()),
           ],
           child: MaterialApp(
             debugShowCheckedModeBanner: false,

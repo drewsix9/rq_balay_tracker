@@ -1,8 +1,9 @@
 import 'dart:io' show Platform; // Used for Platform.isAndroid, Platform.isIOS
 
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/foundation.dart'
-    show kIsWeb; // Used for checking if it's web
+import 'package:flutter/foundation.dart' show kIsWeb;
+
+import '../logger/app_logger.dart'; // Used for checking if it's web
 
 Future<Map<String, dynamic>> getDeviceInfo() async {
   final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
@@ -25,7 +26,7 @@ Future<Map<String, dynamic>> getDeviceInfo() async {
       // You can add more platforms like macOS, Windows, Linux if needed
     }
   } catch (e) {
-    print('Failed to get platform info: $e');
+    AppLogger.e('Failed to get platform info: $e');
     // Handle error, return default or empty data
     deviceData = {'Error': e.toString()};
   }

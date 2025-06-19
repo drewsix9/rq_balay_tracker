@@ -1,23 +1,37 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/usecases/unit_shared_pref.dart';
 import '../../profile/presentation/side_panel.dart';
 import '../viewmodel/landing_page_viewmodel.dart';
 
-class LandingPageScreen extends StatelessWidget {
-  final LandingPageViewModel viewModel = LandingPageViewModel();
+class LandingPageScreen extends StatefulWidget {
+  const LandingPageScreen({super.key});
 
-  LandingPageScreen({super.key});
+  @override
+  State<LandingPageScreen> createState() => _LandingPageScreenState();
+}
+
+class _LandingPageScreenState extends State<LandingPageScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final unit = await UnitSharedPref.getUnit();
+      if (context.mounted) {
+        context.read<LandingPageViewModel>().getTodayKWhConsump(unit);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final user = viewModel.user;
-    final chartData = viewModel.chartData;
-    final timeLabels = viewModel.timeLabels;
+    final user = context.read<LandingPageViewModel>().user;
 
     return Scaffold(
       appBar: AppBar(
@@ -222,85 +236,134 @@ class LandingPageScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  child: SizedBox(
-                    width: 1200,
-                    height: 300,
-                    child: LineChart(
-                      LineChartData(
-                        minY: 0,
-                        maxY: 5,
-                        lineBarsData: [
-                          LineChartBarData(
-                            spots: chartData,
-                            isCurved: true,
-                            color: Colors.redAccent,
-                            barWidth: 2,
-                            belowBarData: BarAreaData(
-                              show: true,
-                              color: Colors.redAccent.withValues(alpha: 0.1),
-                            ),
-                            dotData: const FlDotData(show: false),
+                  child: Consumer<LandingPageViewModel>(
+                    builder: (context, provider, child) {
+                      if (provider.chartData.isEmpty) {
+                        return SizedBox(
+                          width: 1200,
+                          height: 300,
+                          child: Center(
+                            child: Text('No consumption data available'),
                           ),
-                        ],
-                        lineTouchData: LineTouchData(
-                          touchTooltipData: LineTouchTooltipData(
-                            fitInsideVertically: true,
-                            getTooltipColor: (touchedSpot) => Colors.redAccent,
-                            getTooltipItems: (List<LineBarSpot> touchedSpots) {
-                              return touchedSpots.map((spot) {
-                                return LineTooltipItem(
-                                  '${spot.y.toStringAsFixed(2)} kWh',
-                                  TextStyle(color: Colors.white),
-                                );
-                              }).toList();
-                            },
-                          ),
-                        ),
-                        titlesData: FlTitlesData(
-                          leftTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize: 20.w,
-                              interval: 1,
-                              getTitlesWidget:
-                                  (value, meta) => Text(
-                                    '${value.toInt()}',
-                                    style: const TextStyle(fontSize: 12),
+                        );
+                      }
+                      if (provider.isLoading) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      double minValue =
+                          provider.chartData.isEmpty
+                              ? 0.0
+                              : provider.chartData
+                                  .map((spot) => spot.y)
+                                  .reduce((a, b) => a < b ? a : b);
+                      double maxValue =
+                          provider.chartData.isEmpty
+                              ? 0.001
+                              : provider.chartData
+                                  .map((spot) => spot.y)
+                                  .reduce((a, b) => a > b ? a : b);
+
+                      // Add padding to min/max for better visualization
+                      double padding =
+                          (maxValue - minValue) * 0.1; // 10% padding
+                      double chartMinY = (minValue - padding).clamp(
+                        0.0,
+                        double.infinity,
+                      );
+                      double chartMaxY = maxValue + padding;
+
+                      // For very small values, ensure minimum range
+                      if (chartMaxY - chartMinY < 0.001) {
+                        chartMaxY = chartMinY + 0.001;
+                      }
+
+                      return SizedBox(
+                        width: 1200,
+                        height: 300,
+                        child: LineChart(
+                          LineChartData(
+                            minY: chartMinY,
+                            maxY: chartMaxY,
+                            lineBarsData: [
+                              LineChartBarData(
+                                spots: provider.chartData,
+                                isCurved: true,
+                                color: Colors.redAccent,
+                                barWidth: 2,
+                                belowBarData: BarAreaData(
+                                  show: true,
+                                  color: Colors.redAccent.withValues(
+                                    alpha: 0.1,
                                   ),
+                                ),
+                                dotData: const FlDotData(show: false),
+                              ),
+                            ],
+                            lineTouchData: LineTouchData(
+                              touchTooltipData: LineTouchTooltipData(
+                                fitInsideVertically: true,
+                                getTooltipColor:
+                                    (touchedSpot) => Colors.redAccent,
+                                getTooltipItems: (
+                                  List<LineBarSpot> touchedSpots,
+                                ) {
+                                  return touchedSpots.map((spot) {
+                                    return LineTooltipItem(
+                                      '${spot.y.toStringAsFixed(4)} kWh',
+                                      TextStyle(color: Colors.white),
+                                    );
+                                  }).toList();
+                                },
+                              ),
+                            ),
+                            titlesData: FlTitlesData(
+                              leftTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: 60.w,
+                                  interval: (chartMaxY - chartMinY) / 4,
+                                  getTitlesWidget:
+                                      (value, meta) => Text(
+                                        value.toDouble().toStringAsFixed(4),
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                ),
+                              ),
+                              bottomTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  interval: 4, // every hour
+                                  getTitlesWidget: (value, meta) {
+                                    int idx = value.toInt();
+                                    if (idx < 0 ||
+                                        idx >= provider.timeLabels.length) {
+                                      return const SizedBox.shrink();
+                                    }
+                                    return Text(
+                                      provider.timeLabels[idx],
+                                      style: const TextStyle(fontSize: 10),
+                                    );
+                                  },
+                                ),
+                              ),
+                              rightTitles: const AxisTitles(
+                                sideTitles: SideTitles(showTitles: false),
+                              ),
+                              topTitles: AxisTitles(
+                                sideTitles: SideTitles(showTitles: false),
+                              ),
+                            ),
+                            gridData: const FlGridData(show: false),
+                            borderData: FlBorderData(
+                              show: true,
+                              border: Border.all(
+                                color: Colors.redAccent.withValues(alpha: 0.2),
+                              ),
                             ),
                           ),
-                          bottomTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              interval: 4, // every hour
-                              getTitlesWidget: (value, meta) {
-                                int idx = value.toInt();
-                                if (idx < 0 || idx >= timeLabels.length) {
-                                  return const SizedBox.shrink();
-                                }
-                                return Text(
-                                  timeLabels[idx],
-                                  style: const TextStyle(fontSize: 10),
-                                );
-                              },
-                            ),
-                          ),
-                          rightTitles: const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                          topTitles: const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
                         ),
-                        gridData: const FlGridData(show: false),
-                        borderData: FlBorderData(
-                          show: true,
-                          border: Border.all(
-                            color: Colors.redAccent.withValues(alpha: 0.2),
-                          ),
-                        ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
                 ),
               ],
