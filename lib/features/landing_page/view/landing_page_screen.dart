@@ -23,7 +23,7 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final unit = await UnitSharedPref.getUnit();
-      if (context.mounted) {
+      if (mounted) {
         context.read<LandingPageViewModel>().getTodayKWhConsump(unit);
       }
     });
@@ -31,7 +31,7 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
 
   Future<void> _onRefresh() async {
     final unit = await UnitSharedPref.getUnit();
-    if (context.mounted) {
+    if (mounted) {
       context.read<LandingPageViewModel>().getTodayKWhConsump(unit);
     }
   }
