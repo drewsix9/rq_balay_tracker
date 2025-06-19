@@ -176,9 +176,6 @@ class _ChartsScreenState extends State<ChartsScreen> {
                   ),
                   // Add some bottom padding
                   SliverToBoxAdapter(child: SizedBox(height: 16.h)),
-                  // TODO: Daily Usage Chart (15 minutes interval)
-
-                  // TODO: Monthly Usage Chart
                 ],
               ),
             );

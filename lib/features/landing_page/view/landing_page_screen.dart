@@ -29,6 +29,13 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
     });
   }
 
+  Future<void> _onRefresh() async {
+    final unit = await UnitSharedPref.getUnit();
+    if (context.mounted) {
+      context.read<LandingPageViewModel>().getTodayKWhConsump(unit);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = context.read<LandingPageViewModel>().user;
@@ -57,7 +64,8 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
       ),
       drawer: SidePanel(),
       body: SmartRefresher(
-        controller: RefreshController(),
+        onRefresh: _onRefresh,
+        controller: RefreshController(initialRefresh: false),
         header: ClassicHeader(refreshStyle: RefreshStyle.Follow),
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -240,8 +248,8 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                     builder: (context, provider, child) {
                       if (provider.chartData.isEmpty) {
                         return SizedBox(
-                          width: 1200,
-                          height: 300,
+                          width: 1920.w,
+                          height: 350.h,
                           child: Center(
                             child: Text('No consumption data available'),
                           ),
@@ -278,8 +286,8 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                       }
 
                       return SizedBox(
-                        width: 1200,
-                        height: 300,
+                        width: 1920.w,
+                        height: 350.h,
                         child: LineChart(
                           LineChartData(
                             minY: chartMinY,
@@ -308,9 +316,23 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                                   List<LineBarSpot> touchedSpots,
                                 ) {
                                   return touchedSpots.map((spot) {
+                                    int index = spot.x.toInt();
+                                    String timeLabel = '';
+
+                                    // Safe index checking
+                                    if (index >= 0 &&
+                                        index < provider.timeLabels.length) {
+                                      timeLabel = provider.timeLabels[index];
+                                    }
+
                                     return LineTooltipItem(
-                                      '${spot.y.toStringAsFixed(4)} kWh',
-                                      TextStyle(color: Colors.white),
+                                      '⚡ ${spot.y.toStringAsFixed(4)} KWh\n🕒 $timeLabel',
+                                      TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        height: 1.3, // Line spacing
+                                      ),
                                     );
                                   }).toList();
                                 },
@@ -324,7 +346,7 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                                   interval: (chartMaxY - chartMinY) / 4,
                                   getTitlesWidget:
                                       (value, meta) => Text(
-                                        value.toDouble().toStringAsFixed(4),
+                                        '${value.toDouble().toStringAsFixed(4)} KWh',
                                         style: const TextStyle(fontSize: 12),
                                       ),
                                 ),
@@ -332,7 +354,8 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                               bottomTitles: AxisTitles(
                                 sideTitles: SideTitles(
                                   showTitles: true,
-                                  interval: 4, // every hour
+
+                                  interval: 3, // every hour
                                   getTitlesWidget: (value, meta) {
                                     int idx = value.toInt();
                                     if (idx < 0 ||
