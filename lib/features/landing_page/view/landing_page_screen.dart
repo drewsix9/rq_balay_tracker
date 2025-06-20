@@ -1,4 +1,6 @@
+import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
@@ -25,29 +27,13 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
     initialRefresh: false,
   );
 
-  DateTime _selectedDate = DateTime.now();
-  final List<String> _months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final unit = await UnitSharedPref.getUnit();
       if (mounted) {
-        context.read<LandingPageViewModel>().getTodayKWhConsump(unit);
+        context.read<LandingPageViewModel>().initializeData(unit);
       }
     });
   }
@@ -72,104 +58,6 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
   void dispose() {
     _refreshController.dispose();
     super.dispose();
-  }
-
-  Future<void> _showMonthPicker() async {
-    final DateTime currentDate = DateTime.now();
-    int selectedYear = _selectedDate.year;
-    int selectedMonth = _selectedDate.month;
-
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'Select Month & Year',
-            style: AppTextStyles.subheading.copyWith(fontSize: 18.sp),
-          ),
-          content: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Month Dropdown
-                  DropdownButtonFormField<int>(
-                    value: selectedMonth,
-                    decoration: InputDecoration(
-                      labelText: 'Month',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                    ),
-                    items: List.generate(12, (index) {
-                      return DropdownMenuItem(
-                        value: index + 1,
-                        child: Text(_months[index]),
-                      );
-                    }),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedMonth = value!;
-                      });
-                    },
-                  ),
-                  SizedBox(height: 16.h),
-                  // Year Dropdown
-                  DropdownButtonFormField<int>(
-                    value: selectedYear,
-                    decoration: InputDecoration(
-                      labelText: 'Year',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                    ),
-                    items: List.generate(currentDate.year - 2019, (index) {
-                      final year = currentDate.year - index;
-                      return DropdownMenuItem(
-                        value: year,
-                        child: Text(year.toString()),
-                      );
-                    }),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedYear = value!;
-                      });
-                    },
-                  ),
-                ],
-              );
-            },
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(
-                'Cancel',
-                style: TextStyle(color: AppColors.textMuted),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final newDate = DateTime(selectedYear, selectedMonth);
-                if (newDate != _selectedDate) {
-                  setState(() {
-                    _selectedDate = newDate;
-                  });
-                  // TODO: Fetch data for selected month
-                  // You can add logic here to fetch monthly consumption data for the selected month
-                }
-                Navigator.of(context).pop();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryBlue,
-                foregroundColor: Colors.white,
-              ),
-              child: Text('Select'),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   @override
@@ -416,70 +304,53 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Today\'s kWh Consumption',
-                      style: AppTextStyles.subheading.copyWith(fontSize: 18.sp),
-                    ),
-                    const SizedBox(height: 8),
-                    TodayKwhConsumpChart(provider: provider),
-                    const SizedBox(height: 24),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
+                        CustomSlidingSegmentedControl<int>(
+                          initialValue: 1,
+                          children: {1: Text('Hourly'), 2: Text('Daily')},
+                          decoration: BoxDecoration(
+                            color: CupertinoColors.lightBackgroundGray,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          thumbDecoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(6),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(.3),
+                                blurRadius: 4.0,
+                                spreadRadius: 1.0,
+                                offset: Offset(0.0, 2.0),
+                              ),
+                            ],
+                          ),
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.easeInToLinear,
+                          onValueChanged: (v) {
+                            return v == 1
+                                ? provider.isHourlyViewToggle(true)
+                                : provider.isHourlyViewToggle(false);
+                          },
+                        ),
                         Text(
-                          'Monthly kWh Consumption',
+                          'kWh Consumption',
                           style: AppTextStyles.subheading.copyWith(
                             fontSize: 18.sp,
                           ),
                         ),
-                        SizedBox(height: 12.h),
-                        GestureDetector(
-                          onTap: _showMonthPicker,
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 12.w,
-                              vertical: 8.h,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.surface,
-                              borderRadius: BorderRadius.circular(8.r),
-                              border: Border.all(
-                                color: AppColors.textMuted.withValues(
-                                  alpha: 0.3,
-                                ),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.calendar_month,
-                                  size: 18.sp,
-                                  color: AppColors.textMuted,
-                                ),
-                                SizedBox(width: 8.w),
-                                Text(
-                                  '${_months[_selectedDate.month - 1]} ${_selectedDate.year}',
-                                  style: AppTextStyles.body.copyWith(
-                                    fontSize: 14.sp,
-                                    color: AppColors.textPrimary,
-                                  ),
-                                ),
-                                SizedBox(width: 4.w),
-                                Icon(
-                                  Icons.arrow_drop_down,
-                                  size: 18.sp,
-                                  color: AppColors.textMuted,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    DailyKwhConsumpChart(provider: provider),
+                    const SizedBox(height: 24),
+                    Builder(
+                      builder: (context) {
+                        return provider.isToday
+                            ? TodayKwhConsumpChart(provider: provider)
+                            : DailyKwhConsumpChart(provider: provider);
+                      },
+                    ),
                   ],
                 );
               },
@@ -509,7 +380,7 @@ class TodayKwhConsumpChart extends StatelessWidget {
               child: const Center(child: CircularProgressIndicator()),
             );
           }
-          if (provider.chartData.isEmpty) {
+          if (provider.todayChartData.isEmpty) {
             return SizedBox(
               width: 1920.w,
               height: 300.h,
@@ -518,15 +389,15 @@ class TodayKwhConsumpChart extends StatelessWidget {
           }
 
           double minValue =
-              provider.chartData.isEmpty
+              provider.todayChartData.isEmpty
                   ? 0.0
-                  : provider.chartData
+                  : provider.todayChartData
                       .map((spot) => spot.y)
                       .reduce((a, b) => a < b ? a : b);
           double maxValue =
-              provider.chartData.isEmpty
+              provider.todayChartData.isEmpty
                   ? 0.001
-                  : provider.chartData
+                  : provider.todayChartData
                       .map((spot) => spot.y)
                       .reduce((a, b) => a > b ? a : b);
 
@@ -549,7 +420,7 @@ class TodayKwhConsumpChart extends StatelessWidget {
                 maxY: chartMaxY,
                 lineBarsData: [
                   LineChartBarData(
-                    spots: provider.chartData,
+                    spots: provider.todayChartData,
                     isCurved: true,
                     color: Colors.redAccent,
                     barWidth: 2,
@@ -570,8 +441,9 @@ class TodayKwhConsumpChart extends StatelessWidget {
                         String timeLabel = '';
 
                         // Safe index checking
-                        if (index >= 0 && index < provider.timeLabels.length) {
-                          timeLabel = provider.timeLabels[index];
+                        if (index >= 0 &&
+                            index < provider.todayTimeLabels.length) {
+                          timeLabel = provider.todayTimeLabels[index];
                         }
 
                         return LineTooltipItem(
@@ -607,11 +479,11 @@ class TodayKwhConsumpChart extends StatelessWidget {
                       interval: 3, // every hour
                       getTitlesWidget: (value, meta) {
                         int idx = value.toInt();
-                        if (idx < 0 || idx >= provider.timeLabels.length) {
+                        if (idx < 0 || idx >= provider.todayTimeLabels.length) {
                           return const SizedBox.shrink();
                         }
                         return Text(
-                          provider.timeLabels[idx],
+                          provider.todayTimeLabels[idx],
                           style: const TextStyle(fontSize: 10),
                         );
                       },
@@ -664,7 +536,7 @@ class DailyKwhConsumpChart extends StatelessWidget {
               child: const Center(child: CircularProgressIndicator()),
             );
           }
-          if (provider.chartData.isEmpty) {
+          if (provider.dailyChartData.isEmpty) {
             return SizedBox(
               width: 1920.w,
               height: 300.h,
@@ -673,15 +545,15 @@ class DailyKwhConsumpChart extends StatelessWidget {
           }
 
           double minValue =
-              provider.chartData.isEmpty
+              provider.dailyChartData.isEmpty
                   ? 0.0
-                  : provider.chartData
+                  : provider.dailyChartData
                       .map((spot) => spot.y)
                       .reduce((a, b) => a < b ? a : b);
           double maxValue =
-              provider.chartData.isEmpty
+              provider.dailyChartData.isEmpty
                   ? 0.001
-                  : provider.chartData
+                  : provider.dailyChartData
                       .map((spot) => spot.y)
                       .reduce((a, b) => a > b ? a : b);
 
@@ -704,7 +576,7 @@ class DailyKwhConsumpChart extends StatelessWidget {
                 maxY: chartMaxY,
                 lineBarsData: [
                   LineChartBarData(
-                    spots: provider.chartData,
+                    spots: provider.dailyChartData,
                     isCurved: true,
                     color: Colors.redAccent,
                     barWidth: 2,
@@ -725,8 +597,9 @@ class DailyKwhConsumpChart extends StatelessWidget {
                         String timeLabel = '';
 
                         // Safe index checking
-                        if (index >= 0 && index < provider.timeLabels.length) {
-                          timeLabel = provider.timeLabels[index];
+                        if (index >= 0 &&
+                            index < provider.dailyTimeLabels.length) {
+                          timeLabel = provider.dailyTimeLabels[index];
                         }
 
                         return LineTooltipItem(
@@ -758,15 +631,14 @@ class DailyKwhConsumpChart extends StatelessWidget {
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-
-                      interval: 3, // every hour
+                      // interval: 3, // every hour
                       getTitlesWidget: (value, meta) {
                         int idx = value.toInt();
-                        if (idx < 0 || idx >= provider.timeLabels.length) {
+                        if (idx < 0 || idx >= provider.dailyTimeLabels.length) {
                           return const SizedBox.shrink();
                         }
                         return Text(
-                          provider.timeLabels[idx],
+                          provider.dailyTimeLabels[idx],
                           style: const TextStyle(fontSize: 10),
                         );
                       },
@@ -784,7 +656,6 @@ class DailyKwhConsumpChart extends StatelessWidget {
                   // checkToShowHorizontalLine: (value) => true,
                   // checkToShowVerticalLine: (value) => true,
                   horizontalInterval: (chartMaxY - chartMinY) / 4,
-                  verticalInterval: 3,
                 ),
                 borderData: FlBorderData(
                   show: true,
