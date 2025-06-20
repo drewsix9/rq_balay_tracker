@@ -603,7 +603,7 @@ class DailyKwhConsumpChart extends StatelessWidget {
                         }
 
                         return LineTooltipItem(
-                          '⚡ ${(spot.y * 1000).toStringAsFixed(2)} mWh\n🕒 $timeLabel',
+                          '⚡ ${spot.y.toStringAsFixed(2)} kWh\n🕒 $timeLabel',
                           TextStyle(
                             color: Colors.white,
                             fontSize: 13,
@@ -623,7 +623,7 @@ class DailyKwhConsumpChart extends StatelessWidget {
                       interval: (chartMaxY - chartMinY) / 4,
                       getTitlesWidget:
                           (value, meta) => Text(
-                            '${(value.toDouble() * 1000).toStringAsFixed(1)} mWh',
+                            '${value.toDouble().toStringAsFixed(1)} kWh',
                             style: const TextStyle(fontSize: 12),
                           ),
                     ),
