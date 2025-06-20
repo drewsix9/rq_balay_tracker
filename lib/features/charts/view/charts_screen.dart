@@ -6,7 +6,6 @@ import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:rq_balay_tracker/features/charts/model/month_total_model.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
-import '../../../core/providers/bills_provider.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
@@ -53,7 +52,6 @@ class _ChartsScreenState extends State<ChartsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final billsProvider = Provider.of<BillsProvider>(context, listen: false);
       String unit = await UnitSharedPref.getUnit() ?? '';
       final transactionHistory = await ApiService.getTransactionHistory(unit);
       final chartsViewModel = Provider.of<ChartsViewModel>(

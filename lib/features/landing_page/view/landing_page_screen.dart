@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+import 'package:rq_balay_tracker/core/global/current_user_model.dart';
 import 'package:rq_balay_tracker/features/landing_page/view/widgets/daily_kwh_consump_chart.dart';
 import 'package:rq_balay_tracker/features/landing_page/view/widgets/today_kwh_consump_chart.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -25,6 +26,7 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
   final RefreshController _refreshController = RefreshController(
     initialRefresh: false,
   );
+  late CurrentUserModel? user;
 
   @override
   void initState() {
@@ -33,6 +35,7 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
       final unit = await UnitSharedPref.getUnit();
       if (mounted) {
         context.read<LandingPageViewModel>().initializeData(unit);
+        user = await UserSharedPref.getCurrentUser();
       }
     });
   }
@@ -117,180 +120,166 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                           vertical: 8.h,
                           horizontal: 0,
                         ),
-                        child: FutureBuilder(
-                          future: UserSharedPref.getCurrentUser(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            }
-                            var user = snapshot.data;
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              user!.name,
+                              style: Theme.of(
+                                context,
+                              ).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textPrimary,
+                                fontSize: 20.sp,
+                              ),
+                            ),
+                            SizedBox(height: 4.h),
+                            Text(
+                              'Unit: ${user!.unit}',
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.copyWith(
+                                color: AppColors.textMuted,
+                                fontSize: 14.sp,
+                              ),
+                            ),
+                            SizedBox(height: 16.h),
+                            Column(
                               children: [
-                                Text(
-                                  user?.name ?? '',
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.textPrimary,
-                                    fontSize: 20.sp,
-                                  ),
-                                ),
-                                SizedBox(height: 4.h),
-                                Text(
-                                  'Unit: ${user?.unit}',
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.bodySmall?.copyWith(
-                                    color: AppColors.textMuted,
-                                    fontSize: 14.sp,
-                                  ),
-                                ),
-                                SizedBox(height: 16.h),
-                                Column(
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          'Monthly Rate:',
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.bodyMedium?.copyWith(
-                                            color: AppColors.textMuted,
-                                            fontSize: 15.sp,
-                                          ),
-                                        ),
-                                        Text(
-                                          NumberFormat.currency(
-                                            symbol: '₱',
-                                            decimalDigits: 2,
-                                          ).format(
-                                            double.tryParse(
-                                                  user?.monthlyRate ?? '0',
-                                                ) ??
-                                                0,
-                                          ),
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.titleMedium?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                            color: AppColors.textPrimary,
-                                            fontSize: 16.sp,
-                                          ),
-                                        ),
-                                      ],
+                                    Text(
+                                      'Monthly Rate:',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodyMedium?.copyWith(
+                                        color: AppColors.textMuted,
+                                        fontSize: 15.sp,
+                                      ),
                                     ),
-                                    SizedBox(height: 10.h),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          'WiFi:',
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.bodyMedium?.copyWith(
-                                            color: AppColors.textMuted,
-                                            fontSize: 15.sp,
-                                          ),
-                                        ),
-                                        if (user?.wifi == 'Y')
-                                          Container(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: 12.w,
-                                              vertical: 4.h,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: const Color(0xFFD1FADF),
-                                              borderRadius:
-                                                  BorderRadius.circular(999.r),
-                                            ),
-                                            child: Text(
-                                              'Available',
-                                              style: Theme.of(
-                                                context,
-                                              ).textTheme.labelMedium?.copyWith(
-                                                color: const Color(0xFF039855),
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: 13.sp,
-                                              ),
-                                            ),
-                                          )
-                                        else
-                                          Text(
-                                            'Not Available',
-                                            style: Theme.of(
-                                              context,
-                                            ).textTheme.labelMedium?.copyWith(
-                                              color: AppColors.textMuted,
-                                              fontSize: 13.sp,
-                                            ),
-                                          ),
-                                      ],
+                                    Text(
+                                      NumberFormat.currency(
+                                        symbol: '₱',
+                                        decimalDigits: 2,
+                                      ).format(
+                                        double.tryParse(user!.monthlyRate) ?? 0,
+                                      ),
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.textPrimary,
+                                        fontSize: 16.sp,
+                                      ),
                                     ),
-                                    SizedBox(height: 10.h),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          'Mobile:',
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.bodyMedium?.copyWith(
-                                            color: AppColors.textMuted,
-                                            fontSize: 15.sp,
-                                          ),
-                                        ),
-                                        Text(
-                                          user?.mobileno ?? '',
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.titleMedium?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                            color: AppColors.textPrimary,
-                                            fontSize: 16.sp,
-                                          ),
-                                        ),
-                                      ],
+                                  ],
+                                ),
+                                SizedBox(height: 10.h),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'WiFi:',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodyMedium?.copyWith(
+                                        color: AppColors.textMuted,
+                                        fontSize: 15.sp,
+                                      ),
                                     ),
-                                    SizedBox(height: 10.h),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          'Start Date:',
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.bodyMedium?.copyWith(
-                                            color: AppColors.textMuted,
-                                            fontSize: 15.sp,
+                                    if (user!.wifi == 'Y')
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 12.w,
+                                          vertical: 4.h,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFD1FADF),
+                                          borderRadius: BorderRadius.circular(
+                                            999.r,
                                           ),
                                         ),
-                                        Text(
-                                          user?.startDate ?? '',
+                                        child: Text(
+                                          'Available',
                                           style: Theme.of(
                                             context,
-                                          ).textTheme.titleMedium?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                            color: AppColors.textPrimary,
-                                            fontSize: 16.sp,
+                                          ).textTheme.labelMedium?.copyWith(
+                                            color: const Color(0xFF039855),
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 13.sp,
                                           ),
                                         ),
-                                      ],
+                                      )
+                                    else
+                                      Text(
+                                        'Not Available',
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.labelMedium?.copyWith(
+                                          color: AppColors.textMuted,
+                                          fontSize: 13.sp,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                                SizedBox(height: 10.h),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Mobile:',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodyMedium?.copyWith(
+                                        color: AppColors.textMuted,
+                                        fontSize: 15.sp,
+                                      ),
+                                    ),
+                                    Text(
+                                      user!.mobileno ?? '',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.textPrimary,
+                                        fontSize: 16.sp,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 10.h),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Start Date:',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodyMedium?.copyWith(
+                                        color: AppColors.textMuted,
+                                        fontSize: 15.sp,
+                                      ),
+                                    ),
+                                    Text(
+                                      user!.startDate,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.textPrimary,
+                                        fontSize: 16.sp,
+                                      ),
                                     ),
                                   ],
                                 ),
                               ],
-                            );
-                          },
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -304,77 +293,7 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                             borderRadius: BorderRadius.circular(999),
                           ),
                           padding: EdgeInsets.all(4.w),
-                          child: Row(
-                            children: [
-                              GestureDetector(
-                                onTap: () => provider.isHourlyViewToggle(true),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color:
-                                        provider.isToday
-                                            ? const Color(
-                                              0xFF4a90e2,
-                                            ) // active: blue
-                                            : const Color(
-                                              0xFFE5E7EB,
-                                            ), // inactive: gray
-                                    borderRadius: BorderRadius.circular(999),
-                                  ),
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 20.w,
-                                    vertical: 8.h,
-                                  ),
-                                  child: Text(
-                                    'Hourly',
-                                    style: TextStyle(
-                                      color:
-                                          provider.isToday
-                                              ? Colors
-                                                  .white // active: white
-                                              : const Color(
-                                                0xFF374151,
-                                              ), // inactive: gray-800
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(width: 8.w),
-                              GestureDetector(
-                                onTap: () => provider.isHourlyViewToggle(false),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color:
-                                        !provider.isToday
-                                            ? const Color(
-                                              0xFF4a90e2,
-                                            ) // active: blue
-                                            : const Color(
-                                              0xFFE5E7EB,
-                                            ), // inactive: gray
-                                    borderRadius: BorderRadius.circular(999),
-                                  ),
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 20.w,
-                                    vertical: 8.h,
-                                  ),
-                                  child: Text(
-                                    'Daily',
-                                    style: TextStyle(
-                                      color:
-                                          !provider.isToday
-                                              ? Colors
-                                                  .white // active: white
-                                              : const Color(
-                                                0xFF374151,
-                                              ), // inactive: gray-800
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                          child: _toggleChartSlider(provider),
                         ),
                         Text(
                           'kWh Consumption',
@@ -385,13 +304,9 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    Consumer<LandingPageViewModel>(
-                      builder: (context, provider, child) {
-                        return provider.isToday
-                            ? TodayKwhConsumpChart(provider: provider)
-                            : DailyKwhConsumpChart(provider: provider);
-                      },
-                    ),
+                    provider.isToday
+                        ? TodayKwhConsumpChart(provider: provider)
+                        : DailyKwhConsumpChart(provider: provider),
                   ],
                 );
               },
@@ -399,6 +314,62 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _toggleChartSlider(LandingPageViewModel provider) {
+    return Row(
+      children: [
+        GestureDetector(
+          onTap: () => provider.isHourlyViewToggle(true),
+          child: Container(
+            decoration: BoxDecoration(
+              color:
+                  provider.isToday
+                      ? const Color(0xFF4a90e2) // active: blue
+                      : const Color(0xFFE5E7EB), // inactive: gray
+              borderRadius: BorderRadius.circular(999),
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+            child: Text(
+              'Hourly',
+              style: TextStyle(
+                color:
+                    provider.isToday
+                        ? Colors
+                            .white // active: white
+                        : const Color(0xFF374151), // inactive: gray-800
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+        SizedBox(width: 8.w),
+        GestureDetector(
+          onTap: () => provider.isHourlyViewToggle(false),
+          child: Container(
+            decoration: BoxDecoration(
+              color:
+                  !provider.isToday
+                      ? const Color(0xFF4a90e2) // active: blue
+                      : const Color(0xFFE5E7EB), // inactive: gray
+              borderRadius: BorderRadius.circular(999),
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+            child: Text(
+              'Daily',
+              style: TextStyle(
+                color:
+                    !provider.isToday
+                        ? Colors
+                            .white // active: white
+                        : const Color(0xFF374151), // inactive: gray-800
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -120,7 +120,7 @@ class DailyKwhConsumpChart extends StatelessWidget {
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
-                        // interval: 3, // every hour
+                        interval: 1, // every hour
                         getTitlesWidget: (value, meta) {
                           int idx = value.toInt();
                           if (idx < 0 ||
