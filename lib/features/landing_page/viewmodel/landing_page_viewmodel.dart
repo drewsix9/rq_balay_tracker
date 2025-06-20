@@ -91,8 +91,8 @@ class LandingPageViewModel extends ChangeNotifier {
   // Generate time labels for x axis
   List<String> get todayTimeLabels {
     List<String> labels = [];
-    for (var element in _todayKWhConsumpList.todayKWhConsump ?? []) {
-      labels.add(element.timeDisplay ?? '');
+    for (int i = 0; i < _todayKWhConsumpList.todayKWhConsump!.length - 1; i++) {
+      labels.add(_todayKWhConsumpList.todayKWhConsump?[i].timeDisplay ?? '');
     }
 
     return labels;
@@ -100,8 +100,8 @@ class LandingPageViewModel extends ChangeNotifier {
 
   List<String> get dailyTimeLabels {
     List<String> labels = [];
-    for (var element in _dailyKWhConsumpList.dailyKwhConsump ?? []) {
-      labels.add(element.day ?? '');
+    for (int i = 0; i < _dailyKWhConsumpList.dailyKwhConsump!.length - 1; i++) {
+      labels.add(_dailyKWhConsumpList.dailyKwhConsump?[i].day ?? '');
     }
     return labels;
   }

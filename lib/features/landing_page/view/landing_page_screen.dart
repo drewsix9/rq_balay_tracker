@@ -1,11 +1,10 @@
-import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+import 'package:rq_balay_tracker/features/landing_page/view/widgets/daily_kwh_consump_chart.dart';
+import 'package:rq_balay_tracker/features/landing_page/view/widgets/today_kwh_consump_chart.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../core/theme/app_colors.dart';
@@ -63,15 +62,6 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Provider.of<LandingPageViewModel>(
-            context,
-            listen: false,
-          ).fakeLoading();
-        },
-        child: Icon(Icons.refresh),
-      ),
       appBar: AppBar(
         elevation: 0,
         title: Text(
@@ -308,32 +298,83 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        CustomSlidingSegmentedControl<int>(
-                          initialValue: 1,
-                          children: {1: Text('Hourly'), 2: Text('Daily')},
+                        Container(
                           decoration: BoxDecoration(
-                            color: CupertinoColors.lightBackgroundGray,
-                            borderRadius: BorderRadius.circular(8),
+                            color: const Color(0xFFE5E7EB), // bg-gray-200
+                            borderRadius: BorderRadius.circular(999),
                           ),
-                          thumbDecoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(6),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(.3),
-                                blurRadius: 4.0,
-                                spreadRadius: 1.0,
-                                offset: Offset(0.0, 2.0),
+                          padding: EdgeInsets.all(4.w),
+                          child: Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () => provider.isHourlyViewToggle(true),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color:
+                                        provider.isToday
+                                            ? const Color(
+                                              0xFF4a90e2,
+                                            ) // active: blue
+                                            : const Color(
+                                              0xFFE5E7EB,
+                                            ), // inactive: gray
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 20.w,
+                                    vertical: 8.h,
+                                  ),
+                                  child: Text(
+                                    'Hourly',
+                                    style: TextStyle(
+                                      color:
+                                          provider.isToday
+                                              ? Colors
+                                                  .white // active: white
+                                              : const Color(
+                                                0xFF374151,
+                                              ), // inactive: gray-800
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 8.w),
+                              GestureDetector(
+                                onTap: () => provider.isHourlyViewToggle(false),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color:
+                                        !provider.isToday
+                                            ? const Color(
+                                              0xFF4a90e2,
+                                            ) // active: blue
+                                            : const Color(
+                                              0xFFE5E7EB,
+                                            ), // inactive: gray
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 20.w,
+                                    vertical: 8.h,
+                                  ),
+                                  child: Text(
+                                    'Daily',
+                                    style: TextStyle(
+                                      color:
+                                          !provider.isToday
+                                              ? Colors
+                                                  .white // active: white
+                                              : const Color(
+                                                0xFF374151,
+                                              ), // inactive: gray-800
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ],
                           ),
-                          duration: Duration(milliseconds: 300),
-                          curve: Curves.easeInToLinear,
-                          onValueChanged: (v) {
-                            return v == 1
-                                ? provider.isHourlyViewToggle(true)
-                                : provider.isHourlyViewToggle(false);
-                          },
                         ),
                         Text(
                           'kWh Consumption',
@@ -343,9 +384,9 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
-                    Builder(
-                      builder: (context) {
+                    const SizedBox(height: 16),
+                    Consumer<LandingPageViewModel>(
+                      builder: (context, provider, child) {
                         return provider.isToday
                             ? TodayKwhConsumpChart(provider: provider)
                             : DailyKwhConsumpChart(provider: provider);
@@ -357,316 +398,6 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class TodayKwhConsumpChart extends StatelessWidget {
-  final LandingPageViewModel provider;
-
-  const TodayKwhConsumpChart({super.key, required this.provider});
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Builder(
-        builder: (context) {
-          if (provider.isLoading) {
-            return SizedBox(
-              width: 350.w,
-              height: 300.h,
-              child: const Center(child: CircularProgressIndicator()),
-            );
-          }
-          if (provider.todayChartData.isEmpty) {
-            return SizedBox(
-              width: 1920.w,
-              height: 300.h,
-              child: Center(child: Text('No consumption data available')),
-            );
-          }
-
-          double minValue =
-              provider.todayChartData.isEmpty
-                  ? 0.0
-                  : provider.todayChartData
-                      .map((spot) => spot.y)
-                      .reduce((a, b) => a < b ? a : b);
-          double maxValue =
-              provider.todayChartData.isEmpty
-                  ? 0.001
-                  : provider.todayChartData
-                      .map((spot) => spot.y)
-                      .reduce((a, b) => a > b ? a : b);
-
-          // Add padding to min/max for better visualization
-          double padding = (maxValue - minValue) * 0.1; // 10% padding
-          double chartMinY = (minValue - padding).clamp(0.0, double.infinity);
-          double chartMaxY = maxValue + padding;
-
-          // For very small values, ensure minimum range
-          if (chartMaxY - chartMinY < 0.001) {
-            chartMaxY = chartMinY + 0.001;
-          }
-
-          return SizedBox(
-            width: 1920.w,
-            height: 300.h,
-            child: LineChart(
-              LineChartData(
-                minY: chartMinY,
-                maxY: chartMaxY,
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: provider.todayChartData,
-                    isCurved: true,
-                    color: Colors.redAccent,
-                    barWidth: 2,
-                    belowBarData: BarAreaData(
-                      show: true,
-                      color: Colors.redAccent.withValues(alpha: 0.1),
-                    ),
-                    dotData: const FlDotData(show: false),
-                  ),
-                ],
-                lineTouchData: LineTouchData(
-                  touchTooltipData: LineTouchTooltipData(
-                    fitInsideVertically: true,
-                    getTooltipColor: (touchedSpot) => Colors.redAccent,
-                    getTooltipItems: (List<LineBarSpot> touchedSpots) {
-                      return touchedSpots.map((spot) {
-                        int index = spot.x.toInt();
-                        String timeLabel = '';
-
-                        // Safe index checking
-                        if (index >= 0 &&
-                            index < provider.todayTimeLabels.length) {
-                          timeLabel = provider.todayTimeLabels[index];
-                        }
-
-                        return LineTooltipItem(
-                          '⚡ ${(spot.y * 1000).toStringAsFixed(2)} mWh\n🕒 $timeLabel',
-                          TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            height: 1.3, // Line spacing
-                          ),
-                        );
-                      }).toList();
-                    },
-                  ),
-                ),
-                titlesData: FlTitlesData(
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 60.w,
-                      interval: (chartMaxY - chartMinY) / 4,
-                      getTitlesWidget:
-                          (value, meta) => Text(
-                            '${(value.toDouble() * 1000).toStringAsFixed(1)} mWh',
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                    ),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-
-                      interval: 3, // every hour
-                      getTitlesWidget: (value, meta) {
-                        int idx = value.toInt();
-                        if (idx < 0 || idx >= provider.todayTimeLabels.length) {
-                          return const SizedBox.shrink();
-                        }
-                        return Text(
-                          provider.todayTimeLabels[idx],
-                          style: const TextStyle(fontSize: 10),
-                        );
-                      },
-                    ),
-                  ),
-                  rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  topTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                ),
-                gridData: FlGridData(
-                  show: true,
-                  // checkToShowHorizontalLine: (value) => true,
-                  // checkToShowVerticalLine: (value) => true,
-                  horizontalInterval: (chartMaxY - chartMinY) / 4,
-                  verticalInterval: 3,
-                ),
-                borderData: FlBorderData(
-                  show: true,
-                  border: Border.all(
-                    color: Colors.redAccent.withValues(alpha: 0.2),
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class DailyKwhConsumpChart extends StatelessWidget {
-  final LandingPageViewModel provider;
-
-  const DailyKwhConsumpChart({super.key, required this.provider});
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Builder(
-        builder: (context) {
-          if (provider.isLoading) {
-            return SizedBox(
-              width: 350.w,
-              height: 300.h,
-              child: const Center(child: CircularProgressIndicator()),
-            );
-          }
-          if (provider.dailyChartData.isEmpty) {
-            return SizedBox(
-              width: 1920.w,
-              height: 300.h,
-              child: Center(child: Text('No consumption data available')),
-            );
-          }
-
-          double minValue =
-              provider.dailyChartData.isEmpty
-                  ? 0.0
-                  : provider.dailyChartData
-                      .map((spot) => spot.y)
-                      .reduce((a, b) => a < b ? a : b);
-          double maxValue =
-              provider.dailyChartData.isEmpty
-                  ? 0.001
-                  : provider.dailyChartData
-                      .map((spot) => spot.y)
-                      .reduce((a, b) => a > b ? a : b);
-
-          // Add padding to min/max for better visualization
-          double padding = (maxValue - minValue) * 0.1; // 10% padding
-          double chartMinY = (minValue - padding).clamp(0.0, double.infinity);
-          double chartMaxY = maxValue + padding;
-
-          // For very small values, ensure minimum range
-          if (chartMaxY - chartMinY < 0.001) {
-            chartMaxY = chartMinY + 0.001;
-          }
-
-          return SizedBox(
-            width: 1920.w,
-            height: 300.h,
-            child: LineChart(
-              LineChartData(
-                minY: chartMinY,
-                maxY: chartMaxY,
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: provider.dailyChartData,
-                    isCurved: true,
-                    color: Colors.redAccent,
-                    barWidth: 2,
-                    belowBarData: BarAreaData(
-                      show: true,
-                      color: Colors.redAccent.withValues(alpha: 0.1),
-                    ),
-                    dotData: const FlDotData(show: false),
-                  ),
-                ],
-                lineTouchData: LineTouchData(
-                  touchTooltipData: LineTouchTooltipData(
-                    fitInsideVertically: true,
-                    getTooltipColor: (touchedSpot) => Colors.redAccent,
-                    getTooltipItems: (List<LineBarSpot> touchedSpots) {
-                      return touchedSpots.map((spot) {
-                        int index = spot.x.toInt();
-                        String timeLabel = '';
-
-                        // Safe index checking
-                        if (index >= 0 &&
-                            index < provider.dailyTimeLabels.length) {
-                          timeLabel = provider.dailyTimeLabels[index];
-                        }
-
-                        return LineTooltipItem(
-                          '⚡ ${spot.y.toStringAsFixed(2)} kWh\n🕒 $timeLabel',
-                          TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            height: 1.3, // Line spacing
-                          ),
-                        );
-                      }).toList();
-                    },
-                  ),
-                ),
-                titlesData: FlTitlesData(
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 60.w,
-                      interval: (chartMaxY - chartMinY) / 4,
-                      getTitlesWidget:
-                          (value, meta) => Text(
-                            '${value.toDouble().toStringAsFixed(1)} kWh',
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                    ),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      // interval: 3, // every hour
-                      getTitlesWidget: (value, meta) {
-                        int idx = value.toInt();
-                        if (idx < 0 || idx >= provider.dailyTimeLabels.length) {
-                          return const SizedBox.shrink();
-                        }
-                        return Text(
-                          provider.dailyTimeLabels[idx],
-                          style: const TextStyle(fontSize: 10),
-                        );
-                      },
-                    ),
-                  ),
-                  rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  topTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                ),
-                gridData: FlGridData(
-                  show: true,
-                  // checkToShowHorizontalLine: (value) => true,
-                  // checkToShowVerticalLine: (value) => true,
-                  horizontalInterval: (chartMaxY - chartMinY) / 4,
-                ),
-                borderData: FlBorderData(
-                  show: true,
-                  border: Border.all(
-                    color: Colors.redAccent.withValues(alpha: 0.2),
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
       ),
     );
   }

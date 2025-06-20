@@ -10,7 +10,7 @@ import 'core/providers/bills_provider.dart';
 import 'core/providers/biometric_provider.dart';
 import 'core/services/firebase_api.dart';
 import 'core/theme/app_theme.dart';
-import 'features/auth/presentation/login_screen.dart';
+import 'core/widgets/splash_screen.dart';
 import 'features/charts/viewmodel/charts_viewmodel.dart';
 import 'features/landing_page/viewmodel/landing_page_viewmodel.dart';
 import 'firebase_options.dart';
@@ -48,7 +48,7 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             title: 'RQ Balay Tracker',
             theme: AppTheme.lightTheme,
-            home: LoginScreen(),
+            home: SplashScreen(),
           ),
         );
       },

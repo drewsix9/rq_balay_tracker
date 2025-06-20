@@ -7,8 +7,10 @@ import 'package:rq_balay_tracker/features/charts/model/month_total_model.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../core/providers/bills_provider.dart';
+import '../../../core/services/api_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/usecases/unit_shared_pref.dart';
 import '../../profile/presentation/side_panel.dart';
 import '../model/usage_trend_model.dart';
 import '../viewmodel/charts_viewmodel.dart';
@@ -52,6 +54,8 @@ class _ChartsScreenState extends State<ChartsScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final billsProvider = Provider.of<BillsProvider>(context, listen: false);
+      String unit = await UnitSharedPref.getUnit() ?? '';
+      final transactionHistory = await ApiService.getTransactionHistory(unit);
       final chartsViewModel = Provider.of<ChartsViewModel>(
         context,
         listen: false,
@@ -59,9 +63,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
 
       if (!mounted) return;
 
-      await chartsViewModel.initialize(
-        billsProvider.transactionHistory!.transactionHistory!,
-      );
+      await chartsViewModel.initialize(transactionHistory.transactionHistory!);
     });
   }
 

@@ -81,6 +81,7 @@ flutter:
   assets:
     - lib/core/images/face-id.png
     - lib/core/images/fingerprint.png
+    - lib/core/logo/logo2.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
