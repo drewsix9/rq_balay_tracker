@@ -1,18 +1,22 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/foundation.dart';
+import 'package:rq_balay_tracker/features/landing_page/model/hourly_kwh_consump_model/hourly_kwh_consump_model.dart';
 
+import '../../../core/logger/app_logger.dart';
 import '../../../core/services/api_service.dart';
 import '../model/daily_kwh_consump_model/daily_kwh_consump_model.dart';
-import '../model/kwh_consump_model/kwh_consump_model.dart';
+import '../model/hourly_kwh_consump_model/reading_pair_model.dart';
 
 class LandingPageViewModel extends ChangeNotifier {
   bool _isHourlyView = true;
   bool _isLoading = false;
-  KwhConsumpModel _todayKWhConsumpList = KwhConsumpModel();
+  HourlyKwhConsumpModel _hourlyKWhConsumpList = HourlyKwhConsumpModel();
   DailyKwhConsumpModel _dailyKWhConsumpList = DailyKwhConsumpModel();
+  List<ReadingPair> _readingPairs = [];
 
-  KwhConsumpModel get todayKWhConsumpList => _todayKWhConsumpList;
+  HourlyKwhConsumpModel get todayKWhConsumpList => _hourlyKWhConsumpList;
   DailyKwhConsumpModel get dailyKWhConsumpList => _dailyKWhConsumpList;
+  List<ReadingPair> get readingPairs => _readingPairs;
   bool get isLoading => _isLoading;
   bool get isToday => _isHourlyView;
 
@@ -31,7 +35,11 @@ class LandingPageViewModel extends ChangeNotifier {
 
   Future<void> getTodayKWhConsump(String? unit) async {
     final todayKWhConsump = await ApiService.getTodaykWhConsump(unit: unit!);
-    _todayKWhConsumpList = KwhConsumpModel.fromMap(todayKWhConsump!);
+    _hourlyKWhConsumpList = HourlyKwhConsumpModel.fromMap(todayKWhConsump!);
+    // TODO: verify data
+    _readingPairs = ReadingPair.generateReadingPair(_hourlyKWhConsumpList);
+    AppLogger.w('Count of reading pairs: ${_readingPairs.length}');
+    // AppLogger.w(_readingPairs);
   }
 
   Future<void> getDailyKWhConsump(
@@ -68,12 +76,12 @@ class LandingPageViewModel extends ChangeNotifier {
   // Generate fake chart data for 15-min intervals (96 points for 24 hours)
   List<FlSpot> get todayChartData {
     List<FlSpot> spots = [];
-    for (int i = 0; i < _todayKWhConsumpList.todayKWhConsump!.length - 1; i++) {
-      double y = double.parse(
-        _todayKWhConsumpList.todayKWhConsump?[i].consumptionKwh ?? '0',
-      );
+    for (int i = 0; i < _readingPairs.length; i++) {
+      AppLogger.w('#$i cumulativeEnergy: ${_readingPairs[i].cumulativeEnergy}');
+      double y = double.parse(_readingPairs[i].cumulativeEnergy);
       spots.add(FlSpot(i.toDouble(), y));
     }
+
     return spots;
   }
 
@@ -91,8 +99,9 @@ class LandingPageViewModel extends ChangeNotifier {
   // Generate time labels for x axis
   List<String> get todayTimeLabels {
     List<String> labels = [];
-    for (int i = 0; i < _todayKWhConsumpList.todayKWhConsump!.length - 1; i++) {
-      labels.add(_todayKWhConsumpList.todayKWhConsump?[i].timeDisplay ?? '');
+    for (int i = 0; i < _readingPairs.length; i++) {
+      String time = _readingPairs[i].currentReadingTs;
+      labels.add(time.split(' ')[1]);
     }
 
     return labels;
@@ -101,7 +110,9 @@ class LandingPageViewModel extends ChangeNotifier {
   List<String> get dailyTimeLabels {
     List<String> labels = [];
     for (int i = 0; i < _dailyKWhConsumpList.dailyKwhConsump!.length - 1; i++) {
-      labels.add(_dailyKWhConsumpList.dailyKwhConsump?[i].day ?? '');
+      String dayName = _dailyKWhConsumpList.dailyKwhConsump?[i].dayName ?? '';
+      String day = _dailyKWhConsumpList.dailyKwhConsump?[i].day ?? '';
+      labels.add('$dayName, $day');
     }
     return labels;
   }

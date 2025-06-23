@@ -9,9 +9,6 @@ class TodayKWhConsump extends Equatable {
   final String? instantaneousPower;
   final String? voltage;
   final String? current;
-  final String? consumptionKwh;
-  final String? minutesElapsed;
-  final String? powerRateKw;
   final String? timeDisplay;
   final String? end;
 
@@ -22,9 +19,6 @@ class TodayKWhConsump extends Equatable {
     this.instantaneousPower,
     this.voltage,
     this.current,
-    this.consumptionKwh,
-    this.minutesElapsed,
-    this.powerRateKw,
     this.timeDisplay,
     this.end,
   });
@@ -37,9 +31,6 @@ class TodayKWhConsump extends Equatable {
       instantaneousPower: data['instantaneous_power'] as String?,
       voltage: data['voltage'] as String?,
       current: data['current'] as String?,
-      consumptionKwh: data['consumption_kwh'] as String?,
-      minutesElapsed: data['minutes_elapsed'] as String?,
-      powerRateKw: data['power_rate_kw'] as String?,
       timeDisplay: data['time_display'] as String?,
       end: data['end'] as String?,
     );
@@ -52,9 +43,6 @@ class TodayKWhConsump extends Equatable {
     'instantaneous_power': instantaneousPower,
     'voltage': voltage,
     'current': current,
-    'consumption_kwh': consumptionKwh,
-    'minutes_elapsed': minutesElapsed,
-    'power_rate_kw': powerRateKw,
     'time_display': timeDisplay,
     'end': end,
   };
@@ -78,9 +66,6 @@ class TodayKWhConsump extends Equatable {
     String? instantaneousPower,
     String? voltage,
     String? current,
-    String? consumptionKwh,
-    String? minutesElapsed,
-    String? powerRateKw,
     String? timeDisplay,
     String? end,
   }) {
@@ -91,9 +76,6 @@ class TodayKWhConsump extends Equatable {
       instantaneousPower: instantaneousPower ?? this.instantaneousPower,
       voltage: voltage ?? this.voltage,
       current: current ?? this.current,
-      consumptionKwh: consumptionKwh ?? this.consumptionKwh,
-      minutesElapsed: minutesElapsed ?? this.minutesElapsed,
-      powerRateKw: powerRateKw ?? this.powerRateKw,
       timeDisplay: timeDisplay ?? this.timeDisplay,
       end: end ?? this.end,
     );
@@ -111,9 +93,6 @@ class TodayKWhConsump extends Equatable {
       instantaneousPower,
       voltage,
       current,
-      consumptionKwh,
-      minutesElapsed,
-      powerRateKw,
       timeDisplay,
       end,
     ];

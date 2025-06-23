@@ -1,0 +1,313 @@
+# RQ Balay Tracker - Cursor Rules
+
+## Project Overview
+
+This is a Flutter application for tracking electricity and water consumption with billing features. The project follows a feature-based architecture with clean separation of concerns.
+
+## Architecture Guidelines
+
+### Directory Structure
+
+- Follow the existing feature-based architecture in `lib/features/`
+- Each feature should have: `data/`, `domain/`, `presentation/` layers
+- Keep core utilities in `lib/core/`
+- Maintain separation between UI, business logic, and data layers
+
+### Code Organization
+
+- Use meaningful file and folder names that reflect their purpose
+- Group related functionality together
+- Keep files focused on a single responsibility
+- Follow the existing naming conventions (snake_case for files, camelCase for variables)
+
+## Flutter/Dart Best Practices
+
+### State Management
+
+- Use Provider pattern for state management (as seen in `bills_provider.dart`, `biometric_provider.dart`)
+- Keep providers focused and avoid large, monolithic providers
+- Use ChangeNotifier for simple state management
+- Consider using Riverpod for more complex state management if needed
+
+### Widget Structure
+
+- Create reusable widgets in `lib/core/widgets/` for common UI elements
+- Feature-specific widgets should be in `lib/features/[feature]/presentation/widgets/`
+- Use StatelessWidget when possible, only use StatefulWidget when necessary
+- Implement proper widget composition and avoid deep nesting
+
+### Models and Data
+
+- Create dedicated model classes for data structures
+- Use JSON serialization for API responses
+- Implement proper data validation
+- Keep models immutable when possible
+
+### Services
+
+- Implement services in `lib/core/services/` for external dependencies
+- Use dependency injection for service management
+- Handle errors gracefully in services
+- Implement proper logging for debugging with the use of AppLoger()
+
+## Coding Standards
+
+### Naming Conventions
+
+- Use `snake_case` for file names: `bills_screen.dart`, `app_button.dart`
+- Use `camelCase` for variables, methods, and properties
+- Use `PascalCase` for class names
+- Use descriptive names that clearly indicate purpose
+
+### Code Style
+
+- Follow Dart/Flutter official style guide
+- Use consistent indentation (2 spaces)
+- Keep line length under 80 characters when possible
+- Add proper comments for complex logic
+- Use meaningful variable names
+
+### Error Handling
+
+- Implement proper try-catch blocks for async operations
+- Use Result types or Option types for error handling
+- Provide user-friendly error messages
+- Log errors for debugging purposes
+
+## Feature Development Guidelines
+
+### Authentication (`lib/features/auth/`)
+
+- Implement secure authentication flow
+- Use biometric authentication when available
+- Store sensitive data securely
+- Implement proper session management
+
+### Bills (`lib/features/bills/`)
+
+- Handle bill data efficiently
+- Implement proper data caching
+- Use shimmer loading states for better UX
+- Implement proper error handling for API calls
+
+### Charts (`lib/features/charts/`)
+
+- Use appropriate chart libraries (fl_chart recommended)
+- Implement responsive chart designs
+- Handle empty data states gracefully
+- Optimize chart performance for large datasets
+
+### Landing Page (`lib/features/landing_page/`)
+
+- Focus on performance and fast loading
+- Implement proper data refresh mechanisms
+- Use efficient data models for consumption tracking
+- Handle real-time updates when possible
+
+## UI/UX Guidelines
+
+### Design System
+
+- Use the existing color scheme from `lib/core/theme/app_colors.dart`
+- Follow the gradient patterns in `lib/core/theme/app_gradients.dart`
+- Use consistent text styles from `lib/core/theme/app_text_styles.dart`
+- Maintain responsive design using `lib/core/utils/responsive_helper.dart`
+
+### Components
+
+- Use existing reusable components like `AppButton` and `AppInputField`
+- Create new reusable components when patterns emerge
+- Ensure accessibility compliance
+- Test components across different screen sizes
+
+## Testing Guidelines
+
+### Unit Tests
+
+- Write tests for business logic and services
+- Test data models and utilities
+- Mock external dependencies
+- Aim for high test coverage
+
+### Widget Tests
+
+- Test UI components in isolation
+- Test user interactions and state changes
+- Mock providers and services
+- Test error states and loading states
+
+### Integration Tests
+
+- Test complete user flows
+- Test API integrations
+- Test navigation between screens
+- Test real device scenarios
+
+## Performance Guidelines
+
+### Code Optimization
+
+- Use const constructors where possible
+- Implement proper list view optimizations
+- Use lazy loading for large datasets
+- Minimize widget rebuilds
+
+### Memory Management
+
+- Dispose of controllers and listeners properly
+- Avoid memory leaks in long-running operations
+- Use proper image caching strategies
+- Monitor memory usage in development
+
+## Security Guidelines
+
+### Data Protection
+
+- Never hardcode sensitive information
+- Use secure storage for user credentials
+- Implement proper API authentication
+- Validate all user inputs
+
+### Biometric Authentication
+
+- Follow platform-specific biometric guidelines
+- Handle biometric availability gracefully
+- Provide fallback authentication methods
+- Secure biometric data properly
+
+## Firebase Integration
+
+### Configuration
+
+- Keep Firebase configuration secure
+- Use environment-specific configurations
+- Implement proper error handling for Firebase services
+- Monitor Firebase usage and costs
+
+### FCM (Firebase Cloud Messaging)
+
+- Handle push notifications properly
+- Implement proper token management
+- Handle notification permissions
+- Test notification delivery
+
+## Development Workflow
+
+### Git Practices
+
+- Use meaningful commit messages
+- Create feature branches for new development
+- Review code before merging
+- Keep commits atomic and focused
+
+### Code Review
+
+- Review for security vulnerabilities
+- Check for performance issues
+- Ensure proper error handling
+- Verify UI/UX consistency
+
+### Documentation
+
+- Document complex business logic
+- Keep README updated
+- Document API integrations
+- Maintain code comments for future developers
+
+## Dependencies Management
+
+### Package Selection
+
+- Use well-maintained packages
+- Check package compatibility
+- Minimize dependency conflicts
+- Regularly update dependencies
+
+### Version Control
+
+- Lock dependency versions in `pubspec.lock`
+- Document breaking changes
+- Test thoroughly after dependency updates
+- Keep dependencies up to date
+
+## Platform-Specific Considerations
+
+### Android
+
+- Follow Material Design guidelines
+- Handle Android-specific permissions
+- Test on different Android versions
+- Optimize for different screen densities
+
+### iOS
+
+- Follow iOS Human Interface Guidelines
+- Handle iOS-specific permissions
+- Test on different iOS versions
+- Ensure proper app store compliance
+
+## Monitoring and Analytics
+
+### Error Tracking
+
+- Implement proper error logging
+- Use Firebase Crashlytics for crash reporting
+- Monitor app performance metrics
+- Track user engagement patterns
+
+### Analytics
+
+- Track important user actions
+- Monitor feature usage
+- Analyze user behavior patterns
+- Use data to improve user experience
+
+## Accessibility
+
+### Guidelines
+
+- Implement proper semantic labels
+- Ensure proper color contrast
+- Support screen readers
+- Test with accessibility tools
+
+### Internationalization
+
+- Use proper string localization
+- Support multiple languages
+- Handle different text directions
+- Test with different locales
+
+## Deployment Guidelines
+
+### Build Configuration
+
+- Use proper build variants
+- Configure signing for releases
+- Optimize build sizes
+- Test release builds thoroughly
+
+### App Store Deployment
+
+- Follow platform-specific guidelines
+- Prepare proper app store assets
+- Write compelling app descriptions
+- Test app store submission process
+
+## Maintenance
+
+### Code Quality
+
+- Regularly refactor code
+- Remove unused dependencies
+- Optimize performance bottlenecks
+- Keep codebase clean and organized
+
+### Updates
+
+- Plan regular app updates
+- Monitor user feedback
+- Address bug reports promptly
+- Implement feature requests based on priority
+
+Remember to always prioritize user experience, code maintainability, and security in all development decisions.

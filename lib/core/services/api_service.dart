@@ -13,11 +13,17 @@ import '../logger/app_logger.dart';
 class ApiService {
   static const String baseUrl = 'balay.quisumbing.net';
 
-  static Future<Map<String, dynamic>?> login(String password) async {
+  static Future<Map<String, dynamic>?> login(
+    String roomId,
+    String password,
+  ) async {
     try {
       var url = Uri.http(baseUrl, 'app/mobile.cf');
       var response = await http
-          .post(url, body: {'tpl': 'app_login', 'password': password})
+          .post(
+            url,
+            body: {'tpl': 'app_login', 'room_id': roomId, 'password': password},
+          )
           .timeout(
             const Duration(seconds: 10), // Add timeout
             onTimeout: () {

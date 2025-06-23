@@ -4,13 +4,13 @@ import 'package:equatable/equatable.dart';
 
 import 'today_k_wh_consump.dart';
 
-class KwhConsumpModel extends Equatable {
+class HourlyKwhConsumpModel extends Equatable {
   final List<TodayKWhConsump>? todayKWhConsump;
 
-  const KwhConsumpModel({this.todayKWhConsump});
+  const HourlyKwhConsumpModel({this.todayKWhConsump});
 
-  factory KwhConsumpModel.fromMap(Map<String, dynamic> data) {
-    return KwhConsumpModel(
+  factory HourlyKwhConsumpModel.fromMap(Map<String, dynamic> data) {
+    return HourlyKwhConsumpModel(
       todayKWhConsump:
           (data['todayKWhConsump'] as List<dynamic>?)
               ?.map((e) => TodayKWhConsump.fromMap(e as Map<String, dynamic>))
@@ -24,18 +24,20 @@ class KwhConsumpModel extends Equatable {
 
   /// `dart:convert`
   ///
-  /// Parses the string and returns the resulting Json object as [KwhConsumpModel].
-  factory KwhConsumpModel.fromJson(String data) {
-    return KwhConsumpModel.fromMap(json.decode(data) as Map<String, dynamic>);
+  /// Parses the string and returns the resulting Json object as [HourlyKwhConsumpModel].
+  factory HourlyKwhConsumpModel.fromJson(String data) {
+    return HourlyKwhConsumpModel.fromMap(
+      json.decode(data) as Map<String, dynamic>,
+    );
   }
 
   /// `dart:convert`
   ///
-  /// Converts [KwhConsumpModel] to a JSON string.
+  /// Converts [HourlyKwhConsumpModel] to a JSON string.
   String toJson() => json.encode(toMap());
 
-  KwhConsumpModel copyWith({List<TodayKWhConsump>? todayKWhConsump}) {
-    return KwhConsumpModel(
+  HourlyKwhConsumpModel copyWith({List<TodayKWhConsump>? todayKWhConsump}) {
+    return HourlyKwhConsumpModel(
       todayKWhConsump: todayKWhConsump ?? this.todayKWhConsump,
     );
   }

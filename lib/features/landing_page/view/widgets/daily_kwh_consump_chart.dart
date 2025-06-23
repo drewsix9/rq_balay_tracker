@@ -10,8 +10,8 @@ class DailyKwhConsumpChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
+    return AspectRatio(
+      aspectRatio: 1.2,
       child: Builder(
         builder: (context) {
           if (provider.isLoading) {
@@ -52,74 +52,80 @@ class DailyKwhConsumpChart extends StatelessWidget {
             chartMaxY = chartMinY + 0.001;
           }
 
+          // Convert FlSpot data to BarChartGroupData
+          List<BarChartGroupData> barGroups =
+              provider.dailyChartData.asMap().entries.map((entry) {
+                int index = entry.key;
+                FlSpot spot = entry.value;
+
+                return BarChartGroupData(
+                  x: index,
+                  barRods: [
+                    BarChartRodData(
+                      toY: spot.y,
+                      color: Colors.redAccent,
+                      width: 8.w,
+                      borderRadius: BorderRadius.circular(2.r),
+                    ),
+                  ],
+                );
+              }).toList();
+
           return SizedBox(
             width: 1920.w,
             height: 300.h,
             child: Padding(
               padding: EdgeInsets.only(top: 8.h),
-              child: LineChart(
-                LineChartData(
+              child: BarChart(
+                BarChartData(
+                  alignment: BarChartAlignment.spaceBetween,
                   minY: chartMinY,
                   maxY: chartMaxY,
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: provider.dailyChartData,
-                      isCurved: true,
-                      color: Colors.redAccent,
-                      barWidth: 2,
-                      belowBarData: BarAreaData(
-                        show: true,
-                        color: Colors.redAccent.withValues(alpha: 0.1),
-                      ),
-                      dotData: const FlDotData(show: false),
-                    ),
-                  ],
-                  lineTouchData: LineTouchData(
-                    touchTooltipData: LineTouchTooltipData(
+                  barGroups: barGroups,
+                  barTouchData: BarTouchData(
+                    touchTooltipData: BarTouchTooltipData(
                       fitInsideVertically: true,
                       getTooltipColor: (touchedSpot) => Colors.redAccent,
-                      getTooltipItems: (List<LineBarSpot> touchedSpots) {
-                        return touchedSpots.map((spot) {
-                          int index = spot.x.toInt();
-                          String timeLabel = '';
+                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                        int index = group.x;
+                        String timeLabel = '';
 
-                          // Safe index checking
-                          if (index >= 0 &&
-                              index < provider.dailyTimeLabels.length) {
-                            timeLabel = provider.dailyTimeLabels[index];
-                          }
+                        // Safe index checking
+                        if (index >= 0 &&
+                            index < provider.dailyTimeLabels.length) {
+                          timeLabel = provider.dailyTimeLabels[index];
+                        }
 
-                          return LineTooltipItem(
-                            '⚡ ${spot.y.toStringAsFixed(2)} kWh\n📅 $timeLabel',
-                            TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              height: 1.3, // Line spacing
-                            ),
-                          );
-                        }).toList();
+                        return BarTooltipItem(
+                          '⚡ ${rod.toY.toStringAsFixed(2)} kWh\n📅 $timeLabel',
+                          TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            height: 1.3, // Line spacing
+                          ),
+                        );
                       },
                     ),
                   ),
                   titlesData: FlTitlesData(
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
-                        maxIncluded: false,
+                        maxIncluded: true,
                         minIncluded: false,
                         showTitles: true,
-                        reservedSize: 50.w,
+                        reservedSize: 40.w,
                         interval: (chartMaxY - chartMinY) / 4,
                         getTitlesWidget:
                             (value, meta) => Text(
                               '${value.toInt()} kWh',
-                              style: const TextStyle(fontSize: 12),
+                              style: TextStyle(fontSize: 10.sp),
                             ),
                       ),
                     ),
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
-                        showTitles: true,
+                        showTitles: false,
                         interval: 1, // every hour
                         getTitlesWidget: (value, meta) {
                           int idx = value.toInt();
@@ -129,7 +135,7 @@ class DailyKwhConsumpChart extends StatelessWidget {
                           }
                           return Text(
                             provider.dailyTimeLabels[idx],
-                            style: const TextStyle(fontSize: 10),
+                            style: TextStyle(fontSize: 8.sp),
                           );
                         },
                       ),
@@ -143,8 +149,6 @@ class DailyKwhConsumpChart extends StatelessWidget {
                   ),
                   gridData: FlGridData(
                     show: true,
-                    // checkToShowHorizontalLine: (value) => true,
-                    // checkToShowVerticalLine: (value) => true,
                     horizontalInterval: (chartMaxY - chartMinY) / 4,
                   ),
                   borderData: FlBorderData(

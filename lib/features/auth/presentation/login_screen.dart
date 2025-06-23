@@ -33,6 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   final _formKey = GlobalKey<FormState>();
   final _passwordController = TextEditingController();
+  final _roomIdController = TextEditingController();
 
   @override
   void initState() {
@@ -156,11 +157,22 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       SizedBox(height: 24.h),
                       AppInputField(
-                        hint: 'Username / Room Number',
+                        hint: 'Room Number',
+                        controller: _roomIdController,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Please enter a room number';
+                          }
+                          return null;
+                        },
+                      ),
+                      AppInputField(
+                        isPassword: true,
+                        hint: 'Password',
                         controller: _passwordController,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Please enter a username or room number';
+                            return 'Please enter a password';
                           }
                           return null;
                         },
@@ -252,11 +264,12 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLogin(BuildContext context) async {
+    String roomId = _roomIdController.text.trim();
     String password = _passwordController.text.trim();
     AppLogger.w("User Name Controller: $password");
 
     try {
-      final response = await ApiService.login(password);
+      final response = await ApiService.login(roomId, password);
       var unit = response!['unit'];
       if (unit != null && unit.toString().isNotEmpty) {
         // Cache only the unit ID
@@ -288,7 +301,7 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         }
       } else {
-        _showErrorSnackBar('Login Failed', 'Incorrect Username / Room Number');
+        _showErrorSnackBar('Login Failed', 'Incorrect Room Number or Password');
       }
     } on SocketException {
       _showErrorSnackBar(
