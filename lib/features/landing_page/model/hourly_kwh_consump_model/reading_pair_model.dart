@@ -20,12 +20,12 @@ class ReadingPair {
     return 'ReadingPair(prevReadingTs: $prevReadingTs, currentReadingTs: $currentReadingTs, cumulativeEnergy: $cumulativeEnergy, timeDisplay: $timeDisplay)';
   }
 
-  static List<ReadingPair> generateReadingPair(
+  static List<ReadingPair>? generateReadingPair(
     HourlyKwhConsumpModel hourlyKwhConsump,
   ) {
     List<ReadingPair> readingPairs = [];
     final readings = hourlyKwhConsump.todayKWhConsump;
-    if (readings == null || readings.length < 2) return readingPairs;
+    if (readings == null || readings.length < 2) return null;
 
     // Sort readings by timestamp (just in case)
     final sortedReadings = List.of(readings)

@@ -37,7 +37,7 @@ class LandingPageViewModel extends ChangeNotifier {
     final todayKWhConsump = await ApiService.getTodaykWhConsump(unit: unit!);
     _hourlyKWhConsumpList = HourlyKwhConsumpModel.fromMap(todayKWhConsump!);
     // TODO: verify data
-    _readingPairs = ReadingPair.generateReadingPair(_hourlyKWhConsumpList);
+    _readingPairs = ReadingPair.generateReadingPair(_hourlyKWhConsumpList)!;
     AppLogger.w('Count of reading pairs: ${_readingPairs.length}');
     // AppLogger.w(_readingPairs);
   }
