@@ -143,39 +143,50 @@ class _ChartsScreenState extends State<ChartsScreen> {
                     child: Padding(
                       padding: EdgeInsets.symmetric(
                         horizontal: 16.w,
-                        vertical: 16.h,
+                        vertical: 8.h,
                       ),
                       child: _buildSummaryCards(),
                     ),
                   ),
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: EdgeInsets.all(16.w),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 8.h,
+                      ),
                       child: _buildChartSection(
                         title: 'Monthly Electricity Consumption (kWh)',
+                        icon: Icons.electric_bolt,
+                        color: AppColors.primaryBlue,
                       ),
                     ),
                   ),
-                  SliverToBoxAdapter(child: SizedBox(height: 24.h)),
+                  SliverToBoxAdapter(child: SizedBox(height: 4.h)),
                   SliverToBoxAdapter(
                     child:
                         MonthlyElectricityConsumptionWidget.monthlyElectricityConsumptionChart(),
                   ),
+                  SliverToBoxAdapter(child: SizedBox(height: 16.h)),
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: EdgeInsets.all(16.w),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 8.h,
+                      ),
                       child: _buildChartSection(
                         title: 'Monthly Water Consumption (m³)',
+                        icon: Icons.water_drop,
+                        color: const Color(0xFF4299E1),
                       ),
                     ),
                   ),
-                  SliverToBoxAdapter(child: SizedBox(height: 24.h)),
+                  SliverToBoxAdapter(child: SizedBox(height: 4.h)),
                   SliverToBoxAdapter(
                     child:
                         MonthlyWaterConsumptionWidget.monthlyWaterConsumptionChart(),
                   ),
                   // Add some bottom padding
-                  SliverToBoxAdapter(child: SizedBox(height: 16.h)),
+                  SliverToBoxAdapter(child: SizedBox(height: 8.h)),
                 ],
               ),
             );
@@ -298,12 +309,46 @@ class _ChartsScreenState extends State<ChartsScreen> {
     );
   }
 
-  Widget _buildChartSection({required String title}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: AppTextStyles.subheading.copyWith(fontSize: 18.sp)),
-      ],
+  Widget _buildChartSection({
+    required String title,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 3,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(6.w),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(6.r),
+            ),
+            child: Icon(icon, color: color, size: 20.sp),
+          ),
+          SizedBox(width: 8.w),
+          Expanded(
+            child: Text(
+              title,
+              style: AppTextStyles.subheading.copyWith(
+                fontSize: 16.sp,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

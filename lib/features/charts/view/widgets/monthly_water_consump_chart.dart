@@ -6,7 +6,10 @@ class MonthlyWaterConsumptionWidget extends BaseMonthlyConsumptionChart {
   const MonthlyWaterConsumptionWidget.monthlyWaterConsumptionChart({
     super.key,
     super.chartKey,
-  }) : super(chartGradient: AppGradients.primaryBlueGradient);
+  }) : super(
+         chartGradient: AppGradients.primaryBlueGradient,
+         chartType: 'water',
+       );
 
   @override
   Future<List<double>> getConsumptionData(ChartsViewModel provider) async {

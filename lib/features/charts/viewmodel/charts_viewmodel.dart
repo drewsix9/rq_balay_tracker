@@ -22,6 +22,8 @@ class ChartsViewModel extends ChangeNotifier {
   String? _error;
   ElectricityConsumptionChartModel? _electricityChartModel;
   WaterConsumptionChartModel? _waterChartModel;
+  double _yMaxElectricity = 0;
+  double _yMaxWater = 0;
 
   MonthTotalModel? get monthTotal => _monthTotal;
   UsageTrendModel? get usageTrend => _usageTrend;
@@ -30,6 +32,18 @@ class ChartsViewModel extends ChangeNotifier {
   ElectricityConsumptionChartModel? get electricityChartModel =>
       _electricityChartModel;
   WaterConsumptionChartModel? get waterChartModel => _waterChartModel;
+  double get yMaxElectricity => _yMaxElectricity;
+  double get yMaxWater => _yMaxWater;
+
+  set yMaxElectricity(double value) {
+    _yMaxElectricity = value;
+    notifyListeners();
+  }
+
+  set yMaxWater(double value) {
+    _yMaxWater = value;
+    notifyListeners();
+  }
 
   void _setError(String? error) {
     _error = error;

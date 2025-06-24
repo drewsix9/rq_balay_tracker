@@ -6,7 +6,10 @@ class MonthlyElectricityConsumptionWidget extends BaseMonthlyConsumptionChart {
   const MonthlyElectricityConsumptionWidget.monthlyElectricityConsumptionChart({
     super.key,
     super.chartKey,
-  }) : super(chartGradient: AppGradients.warningGradient);
+  }) : super(
+         chartGradient: AppGradients.warningGradient,
+         chartType: 'electricity',
+       );
 
   @override
   Future<List<double>> getConsumptionData(ChartsViewModel provider) async {
