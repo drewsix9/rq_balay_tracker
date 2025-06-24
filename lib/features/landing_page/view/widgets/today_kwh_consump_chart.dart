@@ -248,6 +248,7 @@ class TodayKwhConsumpChart extends StatelessWidget {
                                   showTitles: true,
                                   reservedSize: 30.h,
                                   interval: 1,
+                                  maxIncluded: false,
                                   getTitlesWidget: (value, meta) {
                                     int idx = value.toInt();
                                     if (idx < 0 ||
