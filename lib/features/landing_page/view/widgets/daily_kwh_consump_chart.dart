@@ -93,13 +93,21 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
             widget.provider.dailyChartData.asMap().entries.map((entry) {
               int index = entry.key;
               FlSpot spot = entry.value;
+              bool isTouched = touchedIndex == index;
 
               return BarChartGroupData(
                 x: index,
                 barRods: [
                   BarChartRodData(
                     toY: spot.y,
-                    gradient: AppGradients.primaryBlueGradient,
+                    gradient:
+                        isTouched
+                            ? AppGradients.primaryBlueGradient
+                            : const LinearGradient(
+                              colors: [Color(0xFF90CDF4), Color(0xFFBEE3F8)],
+                              begin: Alignment.bottomRight,
+                              end: Alignment.topLeft,
+                            ),
                     width: 12.w,
                     borderRadius: BorderRadius.zero,
                     backDrawRodData: BackgroundBarChartRodData(
@@ -175,6 +183,12 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
                           touchTooltipData: BarTouchTooltipData(
                             fitInsideVertically: true,
                             fitInsideHorizontally: true,
+                            tooltipPadding: EdgeInsets.symmetric(
+                              horizontal: 16.w,
+                              vertical: 12.h,
+                            ),
+                            tooltipMargin: 8.h,
+                            maxContentWidth: 200.w,
                             getTooltipColor: (touchedSpot) => AppColors.surface,
                             getTooltipItem: (group, groupIndex, rod, rodIndex) {
                               int index = group.x;
@@ -275,7 +289,7 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
                         extraLinesData: ExtraLinesData(
                           horizontalLines: [
                             HorizontalLine(
-                              y: chartMaxY * 0.9,
+                              y: widget.provider.yDailyMaxKWh,
                               color: AppColors.warning.withValues(alpha: 0.3),
                               strokeWidth: 1,
                               dashArray: [10, 5],

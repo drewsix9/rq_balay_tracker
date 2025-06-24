@@ -266,7 +266,7 @@ class TodayKwhConsumpChart extends StatelessWidget {
                         extraLinesData: ExtraLinesData(
                           horizontalLines: [
                             HorizontalLine(
-                              y: chartMaxY * 0.9,
+                              y: provider.yHourlyMaxKWh,
                               color: AppColors.warning.withValues(alpha: 0.3),
                               strokeWidth: 1,
                               dashArray: [10, 5],

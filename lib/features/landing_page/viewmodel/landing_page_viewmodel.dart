@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rq_balay_tracker/features/landing_page/model/hourly_kwh_consump_model/hourly_kwh_consump_model.dart';
@@ -12,12 +14,16 @@ class LandingPageViewModel extends ChangeNotifier {
   HourlyKwhConsumpModel _hourlyKWhConsumpList = HourlyKwhConsumpModel();
   DailyKwhConsumpModel _dailyKWhConsumpList = DailyKwhConsumpModel();
   List<ReadingPair> _readingPairs = [];
+  double _yDailyMaxKWh = 0;
+  double _yHourlyMaxKWh = 0;
 
   HourlyKwhConsumpModel get todayKWhConsumpList => _hourlyKWhConsumpList;
   DailyKwhConsumpModel get dailyKWhConsumpList => _dailyKWhConsumpList;
   List<ReadingPair> get readingPairs => _readingPairs;
   bool get isLoading => _isLoading;
   bool get isToday => _isHourlyView;
+  double get yDailyMaxKWh => _yDailyMaxKWh;
+  double get yHourlyMaxKWh => _yHourlyMaxKWh;
 
   Future<void> fakeLoading() async {
     _isLoading = true;
@@ -75,6 +81,7 @@ class LandingPageViewModel extends ChangeNotifier {
     List<FlSpot> spots = [];
     for (int i = 0; i < _readingPairs.length; i++) {
       double y = double.parse(_readingPairs[i].cumulativeEnergy);
+      _yHourlyMaxKWh = max(y, _yHourlyMaxKWh);
       spots.add(FlSpot(i.toDouble(), y));
     }
 
@@ -87,6 +94,7 @@ class LandingPageViewModel extends ChangeNotifier {
       double y = double.parse(
         _dailyKWhConsumpList.dailyKwhConsump?[i].dailyConsumptionKwh ?? '0',
       );
+      _yDailyMaxKWh = max(y, _yDailyMaxKWh);
       spots.add(FlSpot(i.toDouble(), y));
     }
     return spots;
