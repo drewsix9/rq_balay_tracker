@@ -2,7 +2,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rq_balay_tracker/features/landing_page/model/hourly_kwh_consump_model/hourly_kwh_consump_model.dart';
 
-import '../../../core/logger/app_logger.dart';
 import '../../../core/services/api_service.dart';
 import '../model/daily_kwh_consump_model/daily_kwh_consump_model.dart';
 import '../model/hourly_kwh_consump_model/reading_pair_model.dart';
@@ -38,8 +37,6 @@ class LandingPageViewModel extends ChangeNotifier {
     _hourlyKWhConsumpList = HourlyKwhConsumpModel.fromMap(todayKWhConsump!);
     // TODO: verify data
     _readingPairs = ReadingPair.generateReadingPair(_hourlyKWhConsumpList)!;
-    AppLogger.w('Count of reading pairs: ${_readingPairs.length}');
-    // AppLogger.w(_readingPairs);
   }
 
   Future<void> getDailyKWhConsump(
@@ -77,7 +74,6 @@ class LandingPageViewModel extends ChangeNotifier {
   List<FlSpot> get todayChartData {
     List<FlSpot> spots = [];
     for (int i = 0; i < _readingPairs.length; i++) {
-      AppLogger.w('#$i cumulativeEnergy: ${_readingPairs[i].cumulativeEnergy}');
       double y = double.parse(_readingPairs[i].cumulativeEnergy);
       spots.add(FlSpot(i.toDouble(), y));
     }

@@ -63,8 +63,30 @@ class ReadingPair {
         double currEnergy = double.parse(curr.cumulativeEnergy ?? '0');
         double energyDiff = currEnergy - prevEnergy;
         AppLogger.w(
-          '$currEnergy - $prevEnergy = $energyDiff ${curr.timestamp}',
+          '$currEnergy - $prevEnergy = $energyDiff \\${curr.timestamp}',
         );
+        // Detect time skip
+        int prevMin = getMinutes(prev.timeDisplay);
+        int currMin = getMinutes(curr.timeDisplay);
+        int gap = currMin - prevMin;
+        if (gap > interval) {
+          // There is a time skip, flatten (forward fill) for each missing interval
+          int missingIntervals = (gap ~/ interval) - 1;
+          for (int m = 1; m <= missingIntervals; m++) {
+            int fillMin = prevMin + m * interval;
+            String fillTime =
+                '${(fillMin ~/ 60).toString().padLeft(2, '0')}:${(fillMin % 60).toString().padLeft(2, '0')}';
+            readingPairs.add(
+              ReadingPair(
+                prevReadingTs: prev.timestamp ?? '',
+                currentReadingTs: prev.timestamp ?? '',
+                cumulativeEnergy:
+                    '0.0', // No consumption during missing interval
+                timeDisplay: fillTime,
+              ),
+            );
+          }
+        }
         readingPairs.add(
           ReadingPair(
             prevReadingTs: prev.timestamp ?? '',
