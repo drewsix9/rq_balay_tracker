@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:rq_balay_tracker/features/landing_page/model/hourly_kwh_consump_model/hourly_kwh_consump_model.dart';
 
 import '../../../../core/logger/app_logger.dart';
+import '../../../../core/usecases/list_reading_pair_shared_pref.dart';
 
 class ReadingPair {
   final String prevReadingTs;
@@ -65,28 +68,7 @@ class ReadingPair {
         AppLogger.w(
           '$currEnergy - $prevEnergy = $energyDiff \\${curr.timestamp}',
         );
-        // Detect time skip
-        int prevMin = getMinutes(prev.timeDisplay);
-        int currMin = getMinutes(curr.timeDisplay);
-        int gap = currMin - prevMin;
-        if (gap > interval) {
-          // There is a time skip, flatten (forward fill) for each missing interval
-          int missingIntervals = (gap ~/ interval) - 1;
-          for (int m = 1; m <= missingIntervals; m++) {
-            int fillMin = prevMin + m * interval;
-            String fillTime =
-                '${(fillMin ~/ 60).toString().padLeft(2, '0')}:${(fillMin % 60).toString().padLeft(2, '0')}';
-            readingPairs.add(
-              ReadingPair(
-                prevReadingTs: prev.timestamp ?? '',
-                currentReadingTs: prev.timestamp ?? '',
-                cumulativeEnergy:
-                    '0.0', // No consumption during missing interval
-                timeDisplay: fillTime,
-              ),
-            );
-          }
-        }
+
         readingPairs.add(
           ReadingPair(
             prevReadingTs: prev.timestamp ?? '',
@@ -99,8 +81,31 @@ class ReadingPair {
       }
     }
     if (readingPairs.isNotEmpty) {
+      ListReadingPairSharedPref.saveListReadingPair(readingPairs.sublist(1));
       return readingPairs.sublist(1);
     }
     return readingPairs;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'prevReadingTs': prevReadingTs,
+      'currentReadingTs': currentReadingTs,
+      'cumulativeEnergy': cumulativeEnergy,
+      'timeDisplay': timeDisplay,
+    };
+  }
+
+  static ReadingPair fromJson(Map<String, dynamic> json) {
+    return ReadingPair(
+      prevReadingTs: json['prevReadingTs'] ?? '',
+      currentReadingTs: json['currentReadingTs'] ?? '',
+      cumulativeEnergy: json['cumulativeEnergy'] ?? '',
+      timeDisplay: json['timeDisplay'] ?? '',
+    );
+  }
+
+  static ReadingPair fromJsonString(String jsonString) {
+    return ReadingPair.fromJson(jsonDecode(jsonString));
   }
 }

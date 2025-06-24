@@ -60,18 +60,24 @@ class TodayKwhConsumpChart extends StatelessWidget {
           );
         }
 
-        double minValue =
-            provider.todayChartData.isEmpty
-                ? 0.0
-                : provider.todayChartData
-                    .map((spot) => spot.y)
-                    .reduce((a, b) => a < b ? a : b);
-        double maxValue =
-            provider.todayChartData.isEmpty
-                ? 0.001
-                : provider.todayChartData
-                    .map((spot) => spot.y)
-                    .reduce((a, b) => a > b ? a : b);
+        double minValue = 0.0;
+        double maxValue = 0.001;
+
+        if (provider.todayChartData.isNotEmpty) {
+          if (provider.todayChartData.length == 1) {
+            // If only one data point, use it for both min and max
+            minValue = provider.todayChartData.first.y;
+            maxValue = provider.todayChartData.first.y;
+          } else {
+            // If multiple data points, use reduce to find min and max
+            minValue = provider.todayChartData
+                .map((spot) => spot.y)
+                .reduce((a, b) => a < b ? a : b);
+            maxValue = provider.todayChartData
+                .map((spot) => spot.y)
+                .reduce((a, b) => a > b ? a : b);
+          }
+        }
 
         // Add padding to min/max for better visualization
         double padding =
@@ -147,12 +153,14 @@ class TodayKwhConsumpChart extends StatelessWidget {
                               show: true,
                             ),
                             dotData: FlDotData(
+                              checkToShowDot:
+                                  (spot, barData) => spot.y > 0 && spot.x > 0,
                               show: true,
                               getDotPainter: (spot, percent, barData, index) {
                                 return FlDotCirclePainter(
                                   radius: 4.r,
                                   color: AppColors.primaryBlue,
-                                  strokeWidth: 2,
+                                  strokeWidth: 1,
                                   strokeColor: Colors.white,
                                 );
                               },
@@ -169,7 +177,9 @@ class TodayKwhConsumpChart extends StatelessWidget {
                           touchTooltipData: LineTouchTooltipData(
                             fitInsideVertically: true,
                             fitInsideHorizontally: true,
-                            getTooltipColor: (touchedSpot) => AppColors.surface,
+                            getTooltipColor:
+                                (touchedSpot) =>
+                                    AppColors.surface.withValues(alpha: 0.8),
                             getTooltipItems: (List<LineBarSpot> touchedSpots) {
                               return touchedSpots.map((spot) {
                                 int index = spot.x.toInt();

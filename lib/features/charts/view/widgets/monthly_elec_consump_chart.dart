@@ -6,6 +6,7 @@ class MonthlyElectricityConsumptionWidget extends BaseMonthlyConsumptionChart {
   const MonthlyElectricityConsumptionWidget.monthlyElectricityConsumptionChart({
     super.key,
     super.chartKey,
+    super.showContainer,
   }) : super(
          chartGradient: AppGradients.warningGradient,
          chartType: 'electricity',

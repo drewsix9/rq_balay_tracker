@@ -91,226 +91,223 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
         onRefresh: _onRefresh,
         controller: _refreshController,
         header: ClassicHeader(refreshStyle: RefreshStyle.Follow),
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Padding(
-            padding: EdgeInsets.all(16.0.w),
-            child: Consumer<LandingPageViewModel>(
-              builder: (context, provider, child) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Skeletonizer(
-                      enabled: provider.isLoading,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(20.r),
-                          boxShadow: [
-                            BoxShadow(
-                              offset: const Offset(0, 4),
-                              blurRadius: 6,
-                              spreadRadius: -1,
-                              color: Colors.black.withValues(alpha: 0.1),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0.w, vertical: 16.0.h),
+          child: Consumer<LandingPageViewModel>(
+            builder: (context, provider, child) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Skeletonizer(
+                    enabled: provider.isLoading,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(12.r),
+                        boxShadow: [
+                          BoxShadow(
+                            offset: const Offset(0, 4),
+                            blurRadius: 6,
+                            spreadRadius: -1,
+                            color: Colors.black.withValues(alpha: 0.1),
+                          ),
+                        ],
+                      ),
+                      padding: EdgeInsets.all(20.w),
+                      margin: EdgeInsets.symmetric(
+                        vertical: 4.h,
+                        horizontal: 0,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            user!.name,
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
+                              fontSize: 20.sp,
                             ),
-                          ],
-                        ),
-                        padding: EdgeInsets.all(24.w),
-                        margin: EdgeInsets.symmetric(
-                          vertical: 8.h,
-                          horizontal: 0,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              user!.name,
-                              style: Theme.of(
-                                context,
-                              ).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.textPrimary,
-                                fontSize: 20.sp,
+                          ),
+                          SizedBox(height: 4.h),
+                          Text(
+                            'Unit: ${user!.unit}',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodySmall?.copyWith(
+                              color: AppColors.textMuted,
+                              fontSize: 14.sp,
+                            ),
+                          ),
+                          SizedBox(height: 12.h),
+                          Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Monthly Rate:',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.copyWith(
+                                      color: AppColors.textMuted,
+                                      fontSize: 15.sp,
+                                    ),
+                                  ),
+                                  Text(
+                                    NumberFormat.currency(
+                                      symbol: '₱',
+                                      decimalDigits: 2,
+                                    ).format(
+                                      double.tryParse(user!.monthlyRate) ?? 0,
+                                    ),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textPrimary,
+                                      fontSize: 16.sp,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                            SizedBox(height: 4.h),
-                            Text(
-                              'Unit: ${user!.unit}',
-                              style: Theme.of(
-                                context,
-                              ).textTheme.bodySmall?.copyWith(
-                                color: AppColors.textMuted,
-                                fontSize: 14.sp,
-                              ),
-                            ),
-                            SizedBox(height: 16.h),
-                            Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Monthly Rate:',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodyMedium?.copyWith(
-                                        color: AppColors.textMuted,
-                                        fontSize: 15.sp,
-                                      ),
+                              SizedBox(height: 8.h),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'WiFi:',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.copyWith(
+                                      color: AppColors.textMuted,
+                                      fontSize: 15.sp,
                                     ),
-                                    Text(
-                                      NumberFormat.currency(
-                                        symbol: '₱',
-                                        decimalDigits: 2,
-                                      ).format(
-                                        double.tryParse(user!.monthlyRate) ?? 0,
+                                  ),
+                                  if (user!.wifi == 'Y')
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 12.w,
+                                        vertical: 4.h,
                                       ),
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleMedium?.copyWith(
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.textPrimary,
-                                        fontSize: 16.sp,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFD1FADF),
+                                        borderRadius: BorderRadius.circular(
+                                          999.r,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 10.h),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'WiFi:',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodyMedium?.copyWith(
-                                        color: AppColors.textMuted,
-                                        fontSize: 15.sp,
-                                      ),
-                                    ),
-                                    if (user!.wifi == 'Y')
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 12.w,
-                                          vertical: 4.h,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFD1FADF),
-                                          borderRadius: BorderRadius.circular(
-                                            999.r,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          'Available',
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.labelMedium?.copyWith(
-                                            color: const Color(0xFF039855),
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 13.sp,
-                                          ),
-                                        ),
-                                      )
-                                    else
-                                      Text(
-                                        'Not Available',
+                                      child: Text(
+                                        'Available',
                                         style: Theme.of(
                                           context,
                                         ).textTheme.labelMedium?.copyWith(
-                                          color: AppColors.textMuted,
+                                          color: const Color(0xFF039855),
+                                          fontWeight: FontWeight.w700,
                                           fontSize: 13.sp,
                                         ),
                                       ),
-                                  ],
-                                ),
-                                SizedBox(height: 10.h),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
+                                    )
+                                  else
                                     Text(
-                                      'Mobile:',
+                                      'Not Available',
                                       style: Theme.of(
                                         context,
-                                      ).textTheme.bodyMedium?.copyWith(
+                                      ).textTheme.labelMedium?.copyWith(
                                         color: AppColors.textMuted,
-                                        fontSize: 15.sp,
+                                        fontSize: 13.sp,
                                       ),
                                     ),
-                                    Text(
-                                      user!.mobileno ?? '',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleMedium?.copyWith(
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.textPrimary,
-                                        fontSize: 16.sp,
-                                      ),
+                                ],
+                              ),
+                              SizedBox(height: 8.h),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Mobile:',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.copyWith(
+                                      color: AppColors.textMuted,
+                                      fontSize: 15.sp,
                                     ),
-                                  ],
-                                ),
-                                SizedBox(height: 10.h),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Start Date:',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodyMedium?.copyWith(
-                                        color: AppColors.textMuted,
-                                        fontSize: 15.sp,
-                                      ),
+                                  ),
+                                  Text(
+                                    user!.mobileno ?? '',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textPrimary,
+                                      fontSize: 16.sp,
                                     ),
-                                    Text(
-                                      user!.startDate,
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleMedium?.copyWith(
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.textPrimary,
-                                        fontSize: 16.sp,
-                                      ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 8.h),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Start Date:',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.copyWith(
+                                      color: AppColors.textMuted,
+                                      fontSize: 15.sp,
                                     ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                                  ),
+                                  Text(
+                                    user!.startDate,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textPrimary,
+                                      fontSize: 16.sp,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE5E7EB), // bg-gray-200
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          padding: EdgeInsets.all(4.w),
-                          child: _toggleChartSlider(provider),
+                  ),
+                  SizedBox(height: 12.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE5E7EB), // bg-gray-200
+                          borderRadius: BorderRadius.circular(999),
                         ),
-                        Text(
-                          'kWh Consumption',
-                          style: AppTextStyles.subheading.copyWith(
-                            fontSize: 18.sp,
-                          ),
+                        padding: EdgeInsets.all(4.w),
+                        child: _toggleChartSlider(provider),
+                      ),
+                      Text(
+                        'kWh Consumption',
+                        style: AppTextStyles.subheading.copyWith(
+                          fontSize: 18.sp,
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    provider.isToday
-                        ? TodayKwhConsumpChart(provider: provider)
-                        : DailyKwhConsumpChart(provider: provider),
-                  ],
-                );
-              },
-            ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 12.h),
+                  provider.isToday
+                      ? TodayKwhConsumpChart(provider: provider)
+                      : DailyKwhConsumpChart(provider: provider),
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -330,7 +327,7 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                       : const Color(0xFFE5E7EB), // inactive: gray
               borderRadius: BorderRadius.circular(999),
             ),
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
             child: Text(
               'Hourly',
               style: TextStyle(
@@ -355,7 +352,7 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                       : const Color(0xFFE5E7EB), // inactive: gray
               borderRadius: BorderRadius.circular(999),
             ),
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
             child: Text(
               'Daily',
               style: TextStyle(

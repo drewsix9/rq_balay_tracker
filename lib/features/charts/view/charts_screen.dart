@@ -54,13 +54,11 @@ class _ChartsScreenState extends State<ChartsScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       String unit = await UnitSharedPref.getUnit() ?? '';
       final transactionHistory = await ApiService.getTransactionHistory(unit);
+      if (!mounted) return;
       final chartsViewModel = Provider.of<ChartsViewModel>(
         context,
         listen: false,
       );
-
-      if (!mounted) return;
-
       await chartsViewModel.initialize(transactionHistory.transactionHistory!);
     });
   }
@@ -154,39 +152,34 @@ class _ChartsScreenState extends State<ChartsScreen> {
                         horizontal: 16.w,
                         vertical: 8.h,
                       ),
-                      child: _buildChartSection(
+                      child: _buildCombinedChartCard(
                         title: 'Monthly Electricity Consumption (kWh)',
                         icon: Icons.electric_bolt,
                         color: AppColors.primaryBlue,
+                        chartWidget:
+                            MonthlyElectricityConsumptionWidget.monthlyElectricityConsumptionChart(
+                              showContainer: false,
+                            ),
                       ),
                     ),
                   ),
-                  SliverToBoxAdapter(child: SizedBox(height: 4.h)),
-                  SliverToBoxAdapter(
-                    child:
-                        MonthlyElectricityConsumptionWidget.monthlyElectricityConsumptionChart(),
-                  ),
-                  SliverToBoxAdapter(child: SizedBox(height: 16.h)),
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: EdgeInsets.symmetric(
                         horizontal: 16.w,
                         vertical: 8.h,
                       ),
-                      child: _buildChartSection(
+                      child: _buildCombinedChartCard(
                         title: 'Monthly Water Consumption (m³)',
                         icon: Icons.water_drop,
                         color: const Color(0xFF4299E1),
+                        chartWidget:
+                            MonthlyWaterConsumptionWidget.monthlyWaterConsumptionChart(
+                              showContainer: false,
+                            ),
                       ),
                     ),
                   ),
-                  SliverToBoxAdapter(child: SizedBox(height: 4.h)),
-                  SliverToBoxAdapter(
-                    child:
-                        MonthlyWaterConsumptionWidget.monthlyWaterConsumptionChart(),
-                  ),
-                  // Add some bottom padding
-                  SliverToBoxAdapter(child: SizedBox(height: 8.h)),
                 ],
               ),
             );
@@ -309,10 +302,11 @@ class _ChartsScreenState extends State<ChartsScreen> {
     );
   }
 
-  Widget _buildChartSection({
+  Widget _buildCombinedChartCard({
     required String title,
     required IconData icon,
     required Color color,
+    required Widget chartWidget,
   }) {
     return Container(
       padding: EdgeInsets.all(12.w),
@@ -327,26 +321,34 @@ class _ChartsScreenState extends State<ChartsScreen> {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: EdgeInsets.all(6.w),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(6.r),
-            ),
-            child: Icon(icon, color: color, size: 20.sp),
-          ),
-          SizedBox(width: 8.w),
-          Expanded(
-            child: Text(
-              title,
-              style: AppTextStyles.subheading.copyWith(
-                fontSize: 16.sp,
-                color: AppColors.textPrimary,
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(6.w),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6.r),
+                ),
+                child: Icon(icon, color: color, size: 20.sp),
               ),
-            ),
+              SizedBox(width: 8.w),
+              Expanded(
+                child: Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.subheading.copyWith(
+                    fontSize: 16.sp,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+            ],
           ),
+          SizedBox(height: 16.h),
+          chartWidget,
         ],
       ),
     );

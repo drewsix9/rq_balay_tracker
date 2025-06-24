@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:rq_balay_tracker/features/landing_page/model/hourly_kwh_consump_model/hourly_kwh_consump_model.dart';
 
 import '../../../core/services/api_service.dart';
+import '../../../core/usecases/hourly_kwh_consum_shared_pref.dart';
 import '../model/daily_kwh_consump_model/daily_kwh_consump_model.dart';
 import '../model/hourly_kwh_consump_model/reading_pair_model.dart';
 
@@ -41,7 +42,7 @@ class LandingPageViewModel extends ChangeNotifier {
   Future<void> getTodayKWhConsump(String? unit) async {
     final todayKWhConsump = await ApiService.getTodaykWhConsump(unit: unit!);
     _hourlyKWhConsumpList = HourlyKwhConsumpModel.fromMap(todayKWhConsump!);
-    // TODO: verify data
+    await HourlyKwhConsumSharedPref.saveHourlyKwhConsum(_hourlyKWhConsumpList);
     _readingPairs = ReadingPair.generateReadingPair(_hourlyKWhConsumpList)!;
   }
 

@@ -27,7 +27,7 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
             height: 300.h,
             decoration: BoxDecoration(
               color: AppColors.surface,
-              borderRadius: BorderRadius.circular(20.r),
+              borderRadius: BorderRadius.circular(12.r),
             ),
             child: const Center(
               child: CircularProgressIndicator(color: AppColors.primaryBlue),
@@ -41,7 +41,7 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
             height: 300.h,
             decoration: BoxDecoration(
               color: AppColors.surface,
-              borderRadius: BorderRadius.circular(20.r),
+              borderRadius: BorderRadius.circular(12.r),
               border: Border.all(color: AppColors.border, width: 1),
             ),
             child: Center(
@@ -125,7 +125,7 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
           height: 300.h,
           decoration: BoxDecoration(
             color: AppColors.surface,
-            borderRadius: BorderRadius.circular(20.r),
+            borderRadius: BorderRadius.circular(12.r),
             boxShadow: [
               BoxShadow(
                 offset: const Offset(0, 4),
@@ -136,7 +136,7 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
             ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(20.r),
+            borderRadius: BorderRadius.circular(12.r),
             child: Padding(
               padding: EdgeInsets.only(top: 8.h),
               child: Row(
@@ -189,7 +189,9 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
                             ),
                             tooltipMargin: 8.h,
                             maxContentWidth: 200.w,
-                            getTooltipColor: (touchedSpot) => AppColors.surface,
+                            getTooltipColor:
+                                (touchedSpot) =>
+                                    AppColors.surface.withValues(alpha: 0.8),
                             getTooltipItem: (group, groupIndex, rod, rodIndex) {
                               int index = group.x;
                               String timeLabel = '';
@@ -295,7 +297,9 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
                               dashArray: [10, 5],
                               label: HorizontalLineLabel(
                                 show: true,
-                                labelResolver: (line) => 'High Usage',
+                                labelResolver:
+                                    (line) =>
+                                        'High Usage @ ${widget.provider.yDailyMaxKWh.toStringAsFixed(2)} kWh',
                                 style: AppTextStyles.caption.copyWith(
                                   fontSize: 10.sp,
                                   color: AppColors.warning,

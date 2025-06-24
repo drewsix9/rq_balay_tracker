@@ -12,12 +12,14 @@ abstract class BaseMonthlyConsumptionChart extends StatefulWidget {
   final Key? chartKey;
   final Gradient chartGradient;
   final String chartType;
+  final bool showContainer;
 
   const BaseMonthlyConsumptionChart({
     super.key,
     this.chartKey,
     required this.chartGradient,
     required this.chartType,
+    this.showContainer = true,
   });
 
   @override
@@ -32,8 +34,132 @@ abstract class BaseMonthlyConsumptionChart extends StatefulWidget {
 
 class _BaseMonthlyConsumptionChartState
     extends State<BaseMonthlyConsumptionChart> {
+  int? touchedIndex;
+
   @override
   Widget build(BuildContext context) {
+    Widget chartContent = AspectRatio(
+      aspectRatio: 1.5,
+      child: FutureBuilder<List<double>>(
+        future: widget.getConsumptionData(context.read<ChartsViewModel>()),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Container(
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: const Center(
+                child: CircularProgressIndicator(color: AppColors.primaryBlue),
+              ),
+            );
+          } else if (snapshot.hasError) {
+            return Container(
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 32.sp,
+                      color: AppColors.textMuted,
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      'Error loading data',
+                      style: AppTextStyles.muted.copyWith(fontSize: 14.sp),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          } else if (!snapshot.hasData || snapshot.data == null) {
+            return Container(
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.bar_chart_outlined,
+                      size: 32.sp,
+                      color: AppColors.textMuted,
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      'No data available',
+                      style: AppTextStyles.muted.copyWith(fontSize: 14.sp),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+          var consumption = snapshot.data!;
+          return FutureBuilder<BarChartData>(
+            future: _buildBarChartData(context, consumption),
+            builder: (context, barChartSnapshot) {
+              if (barChartSnapshot.connectionState == ConnectionState.waiting) {
+                return Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.background,
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.primaryBlue,
+                    ),
+                  ),
+                );
+              } else if (barChartSnapshot.hasError) {
+                return Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.background,
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Error: ${barChartSnapshot.error}',
+                      style: AppTextStyles.muted.copyWith(fontSize: 14.sp),
+                    ),
+                  ),
+                );
+              } else if (!barChartSnapshot.hasData) {
+                return Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.background,
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'No chart data',
+                      style: AppTextStyles.muted.copyWith(fontSize: 14.sp),
+                    ),
+                  ),
+                );
+              }
+              return BarChart(
+                barChartSnapshot.data!,
+                duration: const Duration(milliseconds: 500),
+                key: widget.chartKey,
+              );
+            },
+          );
+        },
+      ),
+    );
+
+    if (!widget.showContainer) {
+      return chartContent;
+    }
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 8.w),
       decoration: BoxDecoration(
@@ -50,139 +176,7 @@ class _BaseMonthlyConsumptionChartState
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16.r),
-        child: Padding(
-          padding: EdgeInsets.all(12.w),
-          child: AspectRatio(
-            aspectRatio: 1.5,
-            child: FutureBuilder<List<double>>(
-              future: widget.getConsumptionData(
-                context.read<ChartsViewModel>(),
-              ),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.background,
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    child: const Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.primaryBlue,
-                      ),
-                    ),
-                  );
-                } else if (snapshot.hasError) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.background,
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.error_outline,
-                            size: 32.sp,
-                            color: AppColors.textMuted,
-                          ),
-                          SizedBox(height: 4.h),
-                          Text(
-                            'Error loading data',
-                            style: AppTextStyles.muted.copyWith(
-                              fontSize: 14.sp,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                } else if (!snapshot.hasData || snapshot.data == null) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.background,
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.bar_chart_outlined,
-                            size: 32.sp,
-                            color: AppColors.textMuted,
-                          ),
-                          SizedBox(height: 4.h),
-                          Text(
-                            'No data available',
-                            style: AppTextStyles.muted.copyWith(
-                              fontSize: 14.sp,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-                var consumption = snapshot.data!;
-                return FutureBuilder<BarChartData>(
-                  future: _buildBarChartData(context, consumption),
-                  builder: (context, barChartSnapshot) {
-                    if (barChartSnapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.background,
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                        child: const Center(
-                          child: CircularProgressIndicator(
-                            color: AppColors.primaryBlue,
-                          ),
-                        ),
-                      );
-                    } else if (barChartSnapshot.hasError) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.background,
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'Error: ${barChartSnapshot.error}',
-                            style: AppTextStyles.muted.copyWith(
-                              fontSize: 14.sp,
-                            ),
-                          ),
-                        ),
-                      );
-                    } else if (!barChartSnapshot.hasData) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.background,
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'No chart data',
-                            style: AppTextStyles.muted.copyWith(
-                              fontSize: 14.sp,
-                            ),
-                          ),
-                        ),
-                      );
-                    }
-                    return BarChart(
-                      barChartSnapshot.data!,
-                      duration: const Duration(milliseconds: 500),
-                      key: widget.chartKey,
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-        ),
+        child: Padding(padding: EdgeInsets.all(12.w), child: chartContent),
       ),
     );
   }
@@ -254,30 +248,34 @@ class _BaseMonthlyConsumptionChartState
           width: 1,
         ),
       ),
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.transparent,
       barTouchData: BarTouchData(
         enabled: true,
+        // touchCallback: (FlTouchEvent event, BarTouchResponse? response) {
+        //   setState(() {
+        //     if (response?.spot != null && event.isInterestedForInteractions) {
+        //       touchedIndex = response!.spot!.touchedBarGroupIndex;
+        //     } else {
+        //       touchedIndex = null;
+        //     }
+        //   });
+        // },
         touchTooltipData: BarTouchTooltipData(
           fitInsideVertically: true,
           fitInsideHorizontally: true,
           tooltipPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
           tooltipMargin: 4.h,
           maxContentWidth: 160.w,
-          getTooltipColor: (touchedSpot) => AppColors.surface,
-          getTooltipItem: getBarTooltipItem(context),
+          getTooltipColor:
+              (touchedSpot) => AppColors.surface.withValues(alpha: 0.8),
+          getTooltipItem: getBarTooltipItem(),
         ),
       ),
       barGroups: await _buildBarChartGroupData(context),
     );
   }
 
-  /// Calculates the maximum value for plotting the High Usage horizontal line
-  /// Returns 80% of the maximum consumption value as the threshold
-  double _getHighUsageThreshold(double maxValue) {
-    return maxValue * 0.8; // 80% of maximum value
-  }
-
-  GetBarTooltipItem getBarTooltipItem(BuildContext context) {
+  GetBarTooltipItem getBarTooltipItem() {
     return (
       BarChartGroupData group,
       int groupIndex,
@@ -439,7 +437,7 @@ class _BaseMonthlyConsumptionChartState
           gradient:
               y > 0 ? widget.chartGradient : AppGradients.primaryBlueGradient,
           width: width,
-          borderRadius: BorderRadius.circular(6.r),
+          borderRadius: BorderRadius.circular(4.r),
           backDrawRodData: BackgroundBarChartRodData(
             show: true,
             toY: y > 0 ? y : 0,

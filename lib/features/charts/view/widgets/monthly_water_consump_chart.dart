@@ -6,6 +6,7 @@ class MonthlyWaterConsumptionWidget extends BaseMonthlyConsumptionChart {
   const MonthlyWaterConsumptionWidget.monthlyWaterConsumptionChart({
     super.key,
     super.chartKey,
+    super.showContainer,
   }) : super(
          chartGradient: AppGradients.primaryBlueGradient,
          chartType: 'water',
