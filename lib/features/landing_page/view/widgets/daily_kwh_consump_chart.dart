@@ -147,7 +147,7 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
                     child: Padding(
                       padding: EdgeInsets.only(bottom: 4.h, top: 4.h),
                       child: Text(
-                        'kWh',
+                        'Wh',
                         style: AppTextStyles.caption.copyWith(
                           fontSize: 12.sp,
                           color: AppColors.textMuted,
@@ -204,7 +204,7 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
                               }
 
                               return BarTooltipItem(
-                                '⚡ ${rod.toY.toStringAsFixed(2)} kWh\n📅 $timeLabel',
+                                '⚡ ${rod.toY.toStringAsFixed(2)} Wh\n📅 $timeLabel',
                                 AppTextStyles.body.copyWith(
                                   color: AppColors.textPrimary,
                                   fontWeight: FontWeight.w600,
@@ -220,7 +220,10 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
                               maxIncluded: false,
                               minIncluded: false,
                               showTitles: true,
-                              reservedSize: 25.w,
+                              reservedSize:
+                                  widget.provider.yDailyMaxKWh > 10000
+                                      ? 45.w
+                                      : 35.w,
                               interval: (chartMaxY - chartMinY) / 4,
                               getTitlesWidget:
                                   (value, meta) => Padding(
@@ -275,7 +278,7 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
                           horizontalInterval: (chartMaxY - chartMinY) / 4,
                           getDrawingHorizontalLine: (value) {
                             return FlLine(
-                              color: AppColors.border.withValues(alpha: 0.3),
+                              color: AppColors.textMuted.withValues(alpha: 0.3),
                               strokeWidth: 1,
                               dashArray: [5, 5],
                             );
@@ -299,7 +302,7 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
                                 show: true,
                                 labelResolver:
                                     (line) =>
-                                        'High Usage @ ${widget.provider.yDailyMaxKWh.toStringAsFixed(2)} kWh',
+                                        'High Usage @ ${widget.provider.yDailyMaxKWh.toStringAsFixed(2)} Wh',
                                 style: AppTextStyles.caption.copyWith(
                                   fontSize: 10.sp,
                                   color: AppColors.warning,

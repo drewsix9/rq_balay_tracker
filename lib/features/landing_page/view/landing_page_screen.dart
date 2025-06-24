@@ -294,7 +294,7 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                         child: _toggleChartSlider(provider),
                       ),
                       Text(
-                        'kWh Consumption',
+                        'Wh Consumption',
                         style: AppTextStyles.subheading.copyWith(
                           fontSize: 18.sp,
                         ),

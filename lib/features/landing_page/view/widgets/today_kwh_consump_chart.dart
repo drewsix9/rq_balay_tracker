@@ -284,7 +284,7 @@ class TodayKwhConsumpChart extends StatelessWidget {
                               horizontalInterval: (chartMaxY - chartMinY) / 4,
                               getDrawingHorizontalLine: (value) {
                                 return FlLine(
-                                  color: AppColors.border.withValues(
+                                  color: AppColors.textMuted.withValues(
                                     alpha: 0.3,
                                   ),
                                   strokeWidth: 1,
