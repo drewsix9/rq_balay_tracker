@@ -109,197 +109,251 @@ class TodayKwhConsumpChart extends StatelessWidget {
             borderRadius: BorderRadius.circular(20.r),
             child: Padding(
               padding: EdgeInsets.only(top: 8.h),
-              child: Row(
-                children: [
-                  // Side label for "mWh"
-                  RotatedBox(
-                    quarterTurns: 3,
-                    child: Padding(
-                      padding: EdgeInsets.only(bottom: 4.h, top: 4.h),
-                      child: Text(
-                        'mWh',
-                        style: AppTextStyles.caption.copyWith(
-                          fontSize: 12.sp,
-                          color: AppColors.textMuted,
-                          fontWeight: FontWeight.w600,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  width: _calculateChartWidth(),
+                  child: Row(
+                    children: [
+                      // Side label for "mWh"
+                      RotatedBox(
+                        quarterTurns: 3,
+                        child: Padding(
+                          padding: EdgeInsets.only(bottom: 4.h, top: 4.h),
+                          child: Text(
+                            'mWh',
+                            style: AppTextStyles.caption.copyWith(
+                              fontSize: 12.sp,
+                              color: AppColors.textMuted,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                  // Chart
-                  Expanded(
-                    child: LineChart(
-                      LineChartData(
-                        minY: chartMinY,
-                        maxY: chartMaxY,
-                        lineBarsData: [
-                          LineChartBarData(
-                            spots: provider.todayChartData,
-                            isCurved: true,
-                            curveSmoothness: 0.35,
-                            preventCurveOverShooting: true,
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF2B6CB0), Color(0xFF4299E1)],
-                              begin: Alignment.bottomRight,
-                              end: Alignment.topLeft,
-                            ),
-                            barWidth: 3,
-                            belowBarData: BarAreaData(
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFF90CDF4), Color(0xFFBEE3F8)],
-                                begin: Alignment.bottomRight,
-                                end: Alignment.topLeft,
-                              ),
-                              show: true,
-                            ),
-                            dotData: FlDotData(
-                              checkToShowDot:
-                                  (spot, barData) => spot.y > 0 && spot.x > 0,
-                              show: true,
-                              getDotPainter: (spot, percent, barData, index) {
-                                return FlDotCirclePainter(
-                                  radius: 4.r,
-                                  color: AppColors.primaryBlue,
-                                  strokeWidth: 1,
-                                  strokeColor: Colors.white,
-                                );
-                              },
-                            ),
-                            shadow: const Shadow(
-                              blurRadius: 8,
-                              color: AppColors.shadow,
-                            ),
-                          ),
-                        ],
-                        lineTouchData: LineTouchData(
-                          enabled: true,
-                          touchSpotThreshold: 20,
-                          touchTooltipData: LineTouchTooltipData(
-                            fitInsideVertically: true,
-                            fitInsideHorizontally: true,
-                            getTooltipColor:
-                                (touchedSpot) =>
-                                    AppColors.surface.withValues(alpha: 0.8),
-                            getTooltipItems: (List<LineBarSpot> touchedSpots) {
-                              return touchedSpots.map((spot) {
-                                int index = spot.x.toInt();
-                                String timeLabel = '';
-
-                                if (index >= 0 &&
-                                    index < provider.todayTimeLabels.length) {
-                                  timeLabel = provider.todayTimeLabels[index];
-                                }
-
-                                return LineTooltipItem(
-                                  '⚡ ${(spot.y * 1000).toStringAsFixed(2)} mWh\n🕒 $timeLabel',
-                                  AppTextStyles.body.copyWith(
-                                    color: AppColors.textPrimary,
-                                    fontWeight: FontWeight.w600,
-                                    height: 1.4,
+                      // Chart
+                      Expanded(
+                        child: LineChart(
+                          LineChartData(
+                            minY: chartMinY,
+                            maxY: chartMaxY,
+                            lineBarsData: [
+                              LineChartBarData(
+                                spots: provider.todayChartData,
+                                isCurved: true,
+                                curveSmoothness: 0.35,
+                                preventCurveOverShooting: true,
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFF2B6CB0),
+                                    Color(0xFF4299E1),
+                                  ],
+                                  begin: Alignment.bottomRight,
+                                  end: Alignment.topLeft,
+                                ),
+                                barWidth: 3,
+                                belowBarData: BarAreaData(
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFF90CDF4),
+                                      Color(0xFFBEE3F8),
+                                    ],
+                                    begin: Alignment.bottomRight,
+                                    end: Alignment.topLeft,
                                   ),
-                                );
-                              }).toList();
-                            },
-                          ),
-                        ),
-                        titlesData: FlTitlesData(
-                          leftTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              maxIncluded: false,
-                              minIncluded: false,
-                              showTitles: true,
-                              reservedSize: 25.w,
-                              interval: (chartMaxY - chartMinY) / 4,
-                              getTitlesWidget:
-                                  (value, meta) => Padding(
-                                    padding: EdgeInsets.only(right: 8.w),
-                                    child: Text(
-                                      '${(value.toDouble() * 1000).toInt()}',
-                                      style: AppTextStyles.caption.copyWith(
-                                        fontSize: 11.sp,
-                                        color: AppColors.textMuted,
-                                      ),
-                                    ),
-                                  ),
-                            ),
-                          ),
-                          bottomTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: false,
-                              reservedSize: 30.h,
-                              interval: 3,
-                              getTitlesWidget: (value, meta) {
-                                int idx = value.toInt();
-                                if (idx < 0 ||
-                                    idx >= provider.todayTimeLabels.length) {
-                                  return const SizedBox.shrink();
-                                }
-                                return Padding(
-                                  padding: EdgeInsets.only(top: 8.h),
-                                  child: Text(
-                                    provider.todayTimeLabels[idx],
-                                    style: AppTextStyles.caption.copyWith(
-                                      fontSize: 10.sp,
-                                      color: AppColors.textMuted,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                          rightTitles: const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                          topTitles: const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                        ),
-                        gridData: FlGridData(
-                          show: true,
-                          drawVerticalLine: false,
-                          horizontalInterval: (chartMaxY - chartMinY) / 4,
-                          getDrawingHorizontalLine: (value) {
-                            return FlLine(
-                              color: AppColors.border.withValues(alpha: 0.3),
-                              strokeWidth: 1,
-                              dashArray: [5, 5],
-                            );
-                          },
-                        ),
-                        borderData: FlBorderData(
-                          show: false,
-                          border: Border.all(
-                            color: AppColors.border.withValues(alpha: 0.5),
-                            width: 1,
-                          ),
-                        ),
-                        extraLinesData: ExtraLinesData(
-                          horizontalLines: [
-                            HorizontalLine(
-                              y: provider.yHourlyMaxKWh,
-                              color: AppColors.warning.withValues(alpha: 0.3),
-                              strokeWidth: 1,
-                              dashArray: [10, 5],
-                              label: HorizontalLineLabel(
-                                show: true,
-                                labelResolver: (line) => 'High Usage',
-                                style: AppTextStyles.caption.copyWith(
-                                  fontSize: 10.sp,
-                                  color: AppColors.warning,
+                                  show: true,
+                                ),
+                                dotData: FlDotData(
+                                  checkToShowDot:
+                                      (spot, barData) =>
+                                          spot.y > 0 && spot.x > 0,
+                                  show: true,
+                                  getDotPainter: (
+                                    spot,
+                                    percent,
+                                    barData,
+                                    index,
+                                  ) {
+                                    return FlDotCirclePainter(
+                                      radius: 4.r,
+                                      color: AppColors.primaryBlue,
+                                      strokeWidth: 1,
+                                      strokeColor: Colors.white,
+                                    );
+                                  },
+                                ),
+                                shadow: const Shadow(
+                                  blurRadius: 8,
+                                  color: AppColors.shadow,
                                 ),
                               ),
+                            ],
+                            lineTouchData: LineTouchData(
+                              enabled: true,
+                              touchSpotThreshold: 20,
+                              touchTooltipData: LineTouchTooltipData(
+                                fitInsideVertically: true,
+                                fitInsideHorizontally: true,
+                                getTooltipColor:
+                                    (touchedSpot) => AppColors.surface
+                                        .withValues(alpha: 0.8),
+                                getTooltipItems: (
+                                  List<LineBarSpot> touchedSpots,
+                                ) {
+                                  return touchedSpots.map((spot) {
+                                    int index = spot.x.toInt();
+                                    String timeLabel = '';
+
+                                    if (index >= 0 &&
+                                        index <
+                                            provider.todayTimeLabels.length) {
+                                      timeLabel =
+                                          provider.todayTimeLabels[index];
+                                    }
+
+                                    return LineTooltipItem(
+                                      '⚡ ${(spot.y * 1000).toStringAsFixed(2)} mWh\n🕒 $timeLabel',
+                                      AppTextStyles.body.copyWith(
+                                        color: AppColors.textPrimary,
+                                        fontWeight: FontWeight.w600,
+                                        height: 1.4,
+                                      ),
+                                    );
+                                  }).toList();
+                                },
+                              ),
                             ),
-                          ],
+                            titlesData: FlTitlesData(
+                              leftTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  maxIncluded: false,
+                                  minIncluded: false,
+                                  showTitles: true,
+                                  reservedSize: 25.w,
+                                  interval: (chartMaxY - chartMinY) / 4,
+                                  getTitlesWidget:
+                                      (value, meta) => Padding(
+                                        padding: EdgeInsets.only(right: 8.w),
+                                        child: Text(
+                                          '${(value.toDouble() * 1000).toInt()}',
+                                          style: AppTextStyles.caption.copyWith(
+                                            fontSize: 11.sp,
+                                            color: AppColors.textMuted,
+                                          ),
+                                        ),
+                                      ),
+                                ),
+                              ),
+                              bottomTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: 30.h,
+                                  interval: 1,
+                                  getTitlesWidget: (value, meta) {
+                                    int idx = value.toInt();
+                                    if (idx < 0 ||
+                                        idx >=
+                                            provider.todayTimeLabels.length) {
+                                      return const SizedBox.shrink();
+                                    }
+                                    return Padding(
+                                      padding: EdgeInsets.only(top: 8.h),
+                                      child: Text(
+                                        provider.todayTimeLabels[idx]
+                                            .split(':')
+                                            .take(2)
+                                            .join(':'),
+                                        style: AppTextStyles.caption.copyWith(
+                                          fontSize: 10.sp,
+                                          color: AppColors.textMuted,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              rightTitles: const AxisTitles(
+                                sideTitles: SideTitles(showTitles: false),
+                              ),
+                              topTitles: const AxisTitles(
+                                sideTitles: SideTitles(showTitles: false),
+                              ),
+                            ),
+                            gridData: FlGridData(
+                              show: true,
+                              drawVerticalLine: false,
+                              horizontalInterval: (chartMaxY - chartMinY) / 4,
+                              getDrawingHorizontalLine: (value) {
+                                return FlLine(
+                                  color: AppColors.border.withValues(
+                                    alpha: 0.3,
+                                  ),
+                                  strokeWidth: 1,
+                                  dashArray: [5, 5],
+                                );
+                              },
+                            ),
+                            borderData: FlBorderData(
+                              show: false,
+                              border: Border.all(
+                                color: AppColors.border.withValues(alpha: 0.5),
+                                width: 1,
+                              ),
+                            ),
+                            extraLinesData: ExtraLinesData(
+                              horizontalLines: [
+                                HorizontalLine(
+                                  y: provider.yHourlyMaxKWh,
+                                  color: AppColors.warning.withValues(
+                                    alpha: 0.3,
+                                  ),
+                                  strokeWidth: 1,
+                                  dashArray: [10, 5],
+                                  label: HorizontalLineLabel(
+                                    show: true,
+                                    labelResolver: (line) => 'High Usage',
+                                    style: AppTextStyles.caption.copyWith(
+                                      fontSize: 10.sp,
+                                      color: AppColors.warning,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
         );
       },
     );
+  }
+
+  double _calculateChartWidth() {
+    // Base width for the container
+    double baseWidth = 1920.w;
+
+    // If no data, return base width
+    if (provider.todayChartData.isEmpty) {
+      return baseWidth;
+    }
+
+    // Calculate width based on number of data points
+    // Each data point needs minimum 60 pixels for proper spacing
+    double minWidthPerPoint = 60.w;
+    double calculatedWidth = provider.todayChartData.length * minWidthPerPoint;
+
+    // Add extra space for the y-axis label and padding
+    double totalWidth = calculatedWidth + 50.w;
+
+    // Ensure minimum width and maximum reasonable width
+    double minWidth = baseWidth;
+    double maxWidth = 3000.w; // Maximum reasonable width
+
+    return totalWidth.clamp(minWidth, maxWidth);
   }
 }
