@@ -7,8 +7,13 @@ import 'package:rq_balay_tracker/features/landing_page/viewmodel/landing_page_vi
 
 class TodayKwhConsumpChart extends StatelessWidget {
   final LandingPageViewModel provider;
+  final double? dataPointSpacing; // New parameter for controlling spacing
 
-  const TodayKwhConsumpChart({super.key, required this.provider});
+  const TodayKwhConsumpChart({
+    super.key,
+    required this.provider,
+    this.dataPointSpacing, // Optional parameter with default value
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -131,9 +136,18 @@ class TodayKwhConsumpChart extends StatelessWidget {
                         ),
                       ),
                       // Chart
-                      Expanded(
+                      SizedBox(
+                        width:
+                            _calculateChartWidth() -
+                            50.w, // Subtract space for y-axis label
                         child: LineChart(
                           LineChartData(
+                            minX: 0,
+                            maxX:
+                                provider.todayChartData.length > 1
+                                    ? (provider.todayChartData.length - 1)
+                                        .toDouble()
+                                    : 1.0,
                             minY: chartMinY,
                             maxY: chartMaxY,
                             lineBarsData: [
@@ -344,8 +358,8 @@ class TodayKwhConsumpChart extends StatelessWidget {
     }
 
     // Calculate width based on number of data points
-    // Each data point needs minimum 60 pixels for proper spacing
-    double minWidthPerPoint = 60.w;
+    // Use configurable spacing or default to 80.w
+    double minWidthPerPoint = dataPointSpacing ?? 80.w;
     double calculatedWidth = provider.todayChartData.length * minWidthPerPoint;
 
     // Add extra space for the y-axis label and padding
@@ -353,7 +367,7 @@ class TodayKwhConsumpChart extends StatelessWidget {
 
     // Ensure minimum width and maximum reasonable width
     double minWidth = baseWidth;
-    double maxWidth = 3000.w; // Maximum reasonable width
+    double maxWidth = 4000.w; // Increased maximum width
 
     return totalWidth.clamp(minWidth, maxWidth);
   }

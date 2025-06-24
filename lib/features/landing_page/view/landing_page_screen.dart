@@ -303,7 +303,10 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                   ),
                   SizedBox(height: 12.h),
                   provider.isToday
-                      ? TodayKwhConsumpChart(provider: provider)
+                      ? TodayKwhConsumpChart(
+                        provider: provider,
+                        dataPointSpacing: 50.w,
+                      )
                       : DailyKwhConsumpChart(provider: provider),
                 ],
               );
