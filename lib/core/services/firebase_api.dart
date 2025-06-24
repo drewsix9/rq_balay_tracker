@@ -1,10 +1,14 @@
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 
+import '../../features/auth/presentation/login_screen.dart';
+import '../../home_screen.dart';
 import '../logger/app_logger.dart';
 import '../usecases/fcm_token_shared_pref.dart';
 import '../usecases/unit_shared_pref.dart';
+import '../usecases/user_shared_pref.dart';
 import 'api_service.dart';
 import 'device_info_service.dart';
 
@@ -71,6 +75,35 @@ class FirebaseApi {
       await FCMTokenSharedPref.saveFCMToken(newToken);
       AppLogger.d('New FCM Token saved to SharedPreferences');
     });
+  }
+
+  Future<void> handleNotificationTap(
+    BuildContext context,
+    RemoteMessage message,
+  ) async {
+    final page = message.data['page'];
+    if (page == 'bills') {
+      if (!context.mounted) return;
+      final user = await UserSharedPref.getCurrentUser();
+      final Widget nextScreen =
+          (user != null) ? const HomeScreen() : const LoginScreen();
+      if (context.mounted) {
+        Navigator.of(context).pushReplacement(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => nextScreen,
+            transitionsBuilder: (
+              context,
+              animation,
+              secondaryAnimation,
+              child,
+            ) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+            transitionDuration: const Duration(milliseconds: 500),
+          ),
+        );
+      }
+    }
   }
 
   Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {

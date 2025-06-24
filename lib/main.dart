@@ -19,6 +19,8 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SharedPreferences.getInstance();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Fix: Use the correct static background handler from FirebaseApi
   FirebaseMessaging.onBackgroundMessage(
     FirebaseApi.instance.firebaseMessagingBackgroundHandler,
   );
