@@ -115,13 +115,13 @@ class TodayKwhConsumpChart extends StatelessWidget {
                   width: _calculateChartWidth(),
                   child: Row(
                     children: [
-                      // Side label for "mWh"
+                      // Side label for "Wh"
                       RotatedBox(
                         quarterTurns: 3,
                         child: Padding(
                           padding: EdgeInsets.only(bottom: 4.h, top: 4.h),
                           child: Text(
-                            'mWh',
+                            'Wh',
                             style: AppTextStyles.caption.copyWith(
                               fontSize: 12.sp,
                               color: AppColors.textMuted,
@@ -211,7 +211,7 @@ class TodayKwhConsumpChart extends StatelessWidget {
                                     }
 
                                     return LineTooltipItem(
-                                      '⚡ ${(spot.y * 1000).toStringAsFixed(2)} mWh\n🕒 $timeLabel',
+                                      '⚡ ${(spot.y).toStringAsFixed(2)} Wh\n🕒 $timeLabel',
                                       AppTextStyles.body.copyWith(
                                         color: AppColors.textPrimary,
                                         fontWeight: FontWeight.w600,
@@ -228,13 +228,13 @@ class TodayKwhConsumpChart extends StatelessWidget {
                                   maxIncluded: false,
                                   minIncluded: false,
                                   showTitles: true,
-                                  reservedSize: 25.w,
+                                  reservedSize: 35.w,
                                   interval: (chartMaxY - chartMinY) / 4,
                                   getTitlesWidget:
                                       (value, meta) => Padding(
                                         padding: EdgeInsets.only(right: 8.w),
                                         child: Text(
-                                          '${(value.toDouble() * 1000).toInt()}',
+                                          (value.toDouble()).toStringAsFixed(2),
                                           style: AppTextStyles.caption.copyWith(
                                             fontSize: 11.sp,
                                             color: AppColors.textMuted,

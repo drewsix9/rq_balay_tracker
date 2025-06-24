@@ -81,7 +81,8 @@ class LandingPageViewModel extends ChangeNotifier {
   List<FlSpot> get todayChartData {
     List<FlSpot> spots = [];
     for (int i = 0; i < _readingPairs.length; i++) {
-      double y = double.parse(_readingPairs[i].cumulativeEnergy);
+      // Convert to Wh
+      double y = double.parse(_readingPairs[i].cumulativeEnergy) * 1000;
       _yHourlyMaxKWh = max(y, _yHourlyMaxKWh);
       spots.add(FlSpot(i.toDouble(), y));
     }
