@@ -44,6 +44,7 @@ class LandingPageViewModel extends ChangeNotifier {
     _hourlyKWhConsumpList = HourlyKwhConsumpModel.fromMap(todayKWhConsump!);
     await HourlyKwhConsumSharedPref.saveHourlyKwhConsum(_hourlyKWhConsumpList);
     _readingPairs = ReadingPair.generateReadingPair(_hourlyKWhConsumpList)!;
+    notifyListeners();
   }
 
   Future<void> getDailyKWhConsump(

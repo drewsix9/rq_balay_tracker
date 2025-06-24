@@ -37,13 +37,16 @@ class TodayKwhConsumpChart extends StatelessWidget {
             width: 1920.w,
             height: 300.h,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16.r),
-              gradient: const LinearGradient(
-                colors: [AppColors.background, AppColors.divider],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-              border: Border.all(color: AppColors.border, width: 1),
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(12.r),
+              boxShadow: [
+                BoxShadow(
+                  offset: const Offset(0, 4),
+                  blurRadius: 6,
+                  spreadRadius: -1,
+                  color: Colors.black.withValues(alpha: 0.1),
+                ),
+              ],
             ),
             child: Center(
               child: Column(

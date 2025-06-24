@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:rq_balay_tracker/core/theme/app_colors.dart';
+import 'package:rq_balay_tracker/core/usecases/user_shared_pref.dart';
 import 'package:rq_balay_tracker/features/auth/presentation/login_screen.dart';
+import 'package:rq_balay_tracker/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -35,13 +37,16 @@ class _SplashScreenState extends State<SplashScreen>
 
     _animationController.forward();
 
-    // Navigate to login screen after 3 seconds
-    Future.delayed(const Duration(seconds: 3), () {
+    // Navigate to login or home screen after 3 seconds
+    Future.delayed(const Duration(seconds: 3), () async {
+      if (!mounted) return;
+      final user = await UserSharedPref.getCurrentUser();
+      final Widget nextScreen =
+          (user != null) ? const HomeScreen() : const LoginScreen();
       if (mounted) {
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
-            pageBuilder:
-                (context, animation, secondaryAnimation) => const LoginScreen(),
+            pageBuilder: (context, animation, secondaryAnimation) => nextScreen,
             transitionsBuilder: (
               context,
               animation,
