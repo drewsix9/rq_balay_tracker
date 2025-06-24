@@ -1,6 +1,7 @@
 // lib/features/profile/presentation/side_panel.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:rq_balay_tracker/core/logger/app_logger.dart';
 
 import '../../../core/theme/app_colors.dart';
@@ -106,7 +107,15 @@ class SidePanel extends StatelessWidget {
                 label: 'Email',
                 value: (user.email?.isEmpty ?? true) ? 'N/A' : user.email!,
               ),
-              InfoRow(label: 'Move-in Date', value: user.startDate),
+              InfoRow(
+                label: 'Move-in Date',
+                value:
+                    user.startDate.isNotEmpty
+                        ? DateFormat(
+                          'MMM dd, yyyy',
+                        ).format(DateTime.parse(user.startDate))
+                        : '',
+              ),
             ],
           );
         }

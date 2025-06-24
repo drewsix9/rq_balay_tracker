@@ -264,7 +264,11 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                                     ),
                                   ),
                                   Text(
-                                    user!.startDate,
+                                    user!.startDate.isNotEmpty
+                                        ? DateFormat('MMM dd, yyyy').format(
+                                          DateTime.parse(user!.startDate),
+                                        )
+                                        : '',
                                     style: Theme.of(
                                       context,
                                     ).textTheme.titleMedium?.copyWith(
