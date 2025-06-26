@@ -12,7 +12,6 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/usecases/unit_shared_pref.dart';
 import '../../../core/usecases/user_shared_pref.dart';
-import '../../profile/presentation/side_panel.dart';
 import '../viewmodel/landing_page_viewmodel.dart';
 
 class LandingPageScreen extends StatefulWidget {
@@ -75,18 +74,18 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
           ),
         ),
         backgroundColor: AppColors.primaryBlue,
-        leading: Builder(
-          builder: (context) {
-            return IconButton(
-              icon: Icon(Icons.menu, color: Colors.white, size: 24.sp),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-            );
-          },
-        ),
+        // leading: Builder(
+        //   builder: (context) {
+        //     return IconButton(
+        //       icon: Icon(Icons.menu, color: Colors.white, size: 24.sp),
+        //       onPressed: () {
+        //         Scaffold.of(context).openDrawer();
+        //       },
+        //     );
+        //   },
+        // ),
       ),
-      drawer: SidePanel(),
+      // drawer: SidePanel(),
       body: SmartRefresher(
         onRefresh: _onRefresh,
         controller: _refreshController,

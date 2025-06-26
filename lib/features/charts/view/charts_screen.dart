@@ -10,7 +10,6 @@ import '../../../core/services/api_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/usecases/unit_shared_pref.dart';
-import '../../profile/presentation/side_panel.dart';
 import '../model/usage_trend_model.dart';
 import '../viewmodel/charts_viewmodel.dart';
 import 'widgets/monthly_elec_consump_chart.dart';
@@ -107,18 +106,18 @@ class _ChartsScreenState extends State<ChartsScreen> {
           ),
         ),
         backgroundColor: AppColors.primaryBlue,
-        leading: Builder(
-          builder: (context) {
-            return IconButton(
-              icon: Icon(Icons.menu, color: Colors.white, size: 24.sp),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-            );
-          },
-        ),
+        // leading: Builder(
+        //   builder: (context) {
+        //     return IconButton(
+        //       icon: Icon(Icons.menu, color: Colors.white, size: 24.sp),
+        //       onPressed: () {
+        //         Scaffold.of(context).openDrawer();
+        //       },
+        //     );
+        //   },
+        // ),
       ),
-      drawer: SidePanel(),
+      // drawer: SidePanel(),
       body: SafeArea(
         child: Consumer<ChartsViewModel>(
           builder: (context, chartsViewModel, child) {

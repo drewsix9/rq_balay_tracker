@@ -14,8 +14,6 @@ import '../../../core/logger/app_logger.dart';
 import '../../../core/providers/bills_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
-// import '../../profile/presentation/side_panel.dart';
-import '../../profile/presentation/side_panel.dart';
 import '../data/month_bill_model.dart';
 
 class BillsScreen extends StatefulWidget {
@@ -85,18 +83,18 @@ class _BillsScreenState extends State<BillsScreen> {
           ),
         ),
         backgroundColor: AppColors.primaryBlue,
-        leading: Builder(
-          builder: (context) {
-            return IconButton(
-              icon: Icon(Icons.menu, color: Colors.white, size: 24.sp),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-            );
-          },
-        ),
+        // leading: Builder(
+        //   builder: (context) {
+        //     return IconButton(
+        //       icon: Icon(Icons.menu, color: Colors.white, size: 24.sp),
+        //       onPressed: () {
+        //         Scaffold.of(context).openDrawer();
+        //       },
+        //     );
+        //   },
+        // ),
       ),
-      drawer: SidePanel(),
+      // drawer: SidePanel(),
       body: SafeArea(
         child: Column(
           children: [

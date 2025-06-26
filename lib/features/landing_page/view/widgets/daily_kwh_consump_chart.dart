@@ -299,24 +299,29 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
                           ),
                         ),
                         extraLinesData: ExtraLinesData(
-                          horizontalLines: [
-                            HorizontalLine(
-                              y: widget.provider.yDailyMaxKWh,
-                              color: AppColors.warning.withValues(alpha: 0.3),
-                              strokeWidth: 1,
-                              dashArray: [10, 5],
-                              label: HorizontalLineLabel(
-                                show: true,
-                                labelResolver:
-                                    (line) =>
-                                        'High Usage @ ${widget.provider.yDailyMaxKWh.toStringAsFixed(2)} Wh',
-                                style: AppTextStyles.caption.copyWith(
-                                  fontSize: 10.sp,
-                                  color: AppColors.warning,
-                                ),
-                              ),
-                            ),
-                          ],
+                          horizontalLines:
+                              widget.provider.yDailyMaxKWh > 0.0
+                                  ? [
+                                    HorizontalLine(
+                                      y: widget.provider.yDailyMaxKWh,
+                                      color: AppColors.warning.withValues(
+                                        alpha: 0.3,
+                                      ),
+                                      strokeWidth: 1,
+                                      dashArray: [10, 5],
+                                      label: HorizontalLineLabel(
+                                        show: true,
+                                        labelResolver:
+                                            (line) =>
+                                                'High Usage @ ${widget.provider.yDailyMaxKWh.toStringAsFixed(2)} Wh',
+                                        style: AppTextStyles.caption.copyWith(
+                                          fontSize: 10.sp,
+                                          color: AppColors.warning,
+                                        ),
+                                      ),
+                                    ),
+                                  ]
+                                  : [],
                         ),
                       ),
                     ),

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -318,24 +320,29 @@ class TodayKwhConsumpChart extends StatelessWidget {
                               ),
                             ),
                             extraLinesData: ExtraLinesData(
-                              horizontalLines: [
-                                HorizontalLine(
-                                  y: provider.yHourlyMaxKWh,
-                                  color: AppColors.warning.withValues(
-                                    alpha: 0.3,
-                                  ),
-                                  strokeWidth: 1,
-                                  dashArray: [10, 5],
-                                  label: HorizontalLineLabel(
-                                    show: true,
-                                    labelResolver: (line) => 'High Usage',
-                                    style: AppTextStyles.caption.copyWith(
-                                      fontSize: 10.sp,
-                                      color: AppColors.warning,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              horizontalLines:
+                                  provider.yHourlyMaxKWh > 0.0
+                                      ? [
+                                        HorizontalLine(
+                                          y: provider.yHourlyMaxKWh,
+                                          color: AppColors.warning.withValues(
+                                            alpha: 0.3,
+                                          ),
+                                          strokeWidth: 1,
+                                          dashArray: [10, 5],
+                                          label: HorizontalLineLabel(
+                                            show: true,
+                                            labelResolver:
+                                                (line) => 'High Usage',
+                                            style: AppTextStyles.caption
+                                                .copyWith(
+                                                  fontSize: 10.sp,
+                                                  color: AppColors.warning,
+                                                ),
+                                          ),
+                                        ),
+                                      ]
+                                      : [],
                             ),
                           ),
                         ),
@@ -349,6 +356,24 @@ class TodayKwhConsumpChart extends StatelessWidget {
         );
       },
     );
+  }
+
+  bool _shouldShowHighUsageLine(double maxValue, List<FlSpot> chartData) {
+    if (chartData.isEmpty || maxValue <= 0) return false;
+
+    // Calculate statistics
+    List<double> values = chartData.map((spot) => spot.y).toList();
+    double mean = values.reduce((a, b) => a + b) / values.length;
+    double variance =
+        values.map((v) => pow(v - mean, 2)).reduce((a, b) => a + b) /
+        values.length;
+    double standardDeviation = sqrt(variance);
+
+    // Show high usage if max value is more than 2 standard deviations above mean
+    // This captures values that are statistically significant outliers
+    double threshold = mean + (2 * standardDeviation);
+
+    return maxValue > threshold;
   }
 
   double _calculateChartWidth() {
