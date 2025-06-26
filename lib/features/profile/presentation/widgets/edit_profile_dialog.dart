@@ -157,8 +157,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                             _buildInputField(
                               controller: provider.phoneController,
                               label: 'Phone Number',
-                              hint:
-                                  'Enter your phone number (e.g., 09123456789)',
+                              hint: 'Enter your phone number',
                               icon: Icons.phone,
                               keyboardType: TextInputType.phone,
                               onChanged: (value) => provider.validatePhone(),
@@ -184,7 +183,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                             _buildInputField(
                               controller: provider.passwordController,
                               label: 'New Password',
-                              hint: 'Enter new password (optional)',
+                              hint: 'Enter new password',
                               icon: Icons.lock_outline,
                               obscureText: provider.obscurePassword,
                               onChanged: (value) {
@@ -385,7 +384,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: AppTextStyles.body.copyWith(
-              fontSize: 16.sp,
+              fontSize: 12.sp,
               color: AppColors.textMuted,
             ),
             prefixIcon: Icon(icon, size: 20.sp, color: AppColors.textMuted),
