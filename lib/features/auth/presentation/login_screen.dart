@@ -2,7 +2,6 @@
 import 'dart:async';
 import 'dart:io'; // Import for SocketException
 
-import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:local_auth/local_auth.dart';
@@ -47,14 +46,63 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     final snackBar = SnackBar(
-      elevation: 0,
-      behavior: SnackBarBehavior.floating,
-      backgroundColor: Colors.transparent,
-      content: AwesomeSnackbarContent(
-        title: title,
-        message: message,
-        contentType: ContentType.failure,
+      content: Row(
+        children: [
+          Icon(Icons.error, color: Colors.white, size: 20),
+          SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+                Text(message, style: TextStyle(fontSize: 12)),
+              ],
+            ),
+          ),
+        ],
       ),
+      backgroundColor: Colors.red[600],
+      duration: Duration(seconds: 4),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    );
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(snackBar);
+  }
+
+  void _showSuccessSnackBar(String title, String message) {
+    if (!mounted) return;
+
+    final snackBar = SnackBar(
+      content: Row(
+        children: [
+          Icon(Icons.check_circle, color: Colors.white, size: 20),
+          SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+                Text(message, style: TextStyle(fontSize: 12)),
+              ],
+            ),
+          ),
+        ],
+      ),
+      backgroundColor: Colors.green[600],
+      duration: Duration(seconds: 3),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     );
 
     ScaffoldMessenger.of(context)
@@ -103,10 +151,19 @@ class _LoginScreenState extends State<LoginScreen> {
             UserSharedPref.saveCurrentUser(CurrentUserModel.fromMap(response));
 
             if (mounted) {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => HomeScreen()),
+              _showSuccessSnackBar(
+                'Biometric Login',
+                'Biometric Login successful',
               );
+              // Navigate after a short delay to allow the snackbar to be visible
+              Future.delayed(Duration(milliseconds: 1500), () {
+                if (context.mounted) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => HomeScreen()),
+                  );
+                }
+              });
             }
           } else {
             _showErrorSnackBar(
@@ -295,10 +352,16 @@ class _LoginScreenState extends State<LoginScreen> {
         );
 
         if (context.mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => HomeScreen()),
-          );
+          _showSuccessSnackBar('Login', 'Login successful');
+          // Navigate after a short delay to allow the snackbar to be visible
+          Future.delayed(Duration(milliseconds: 1500), () {
+            if (context.mounted) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => HomeScreen()),
+              );
+            }
+          });
         }
       } else {
         _showErrorSnackBar('Login Failed', 'Incorrect Room Number or Password');
