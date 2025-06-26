@@ -24,7 +24,7 @@ class TodayKwhConsumpChart extends StatelessWidget {
             width: 350.w,
             height: 300.h,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16.r),
+              borderRadius: BorderRadius.circular(12.r),
             ),
             child: const Center(
               child: CircularProgressIndicator(color: AppColors.primaryBlue),
@@ -103,7 +103,7 @@ class TodayKwhConsumpChart extends StatelessWidget {
           height: 300.h,
           decoration: BoxDecoration(
             color: AppColors.surface,
-            borderRadius: BorderRadius.circular(20.r),
+            borderRadius: BorderRadius.circular(12.r),
             boxShadow: [
               BoxShadow(
                 offset: const Offset(0, 4),
@@ -114,7 +114,7 @@ class TodayKwhConsumpChart extends StatelessWidget {
             ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(20.r),
+            borderRadius: BorderRadius.circular(12.r),
             child: Padding(
               padding: EdgeInsets.only(top: 8.h),
               child: SingleChildScrollView(

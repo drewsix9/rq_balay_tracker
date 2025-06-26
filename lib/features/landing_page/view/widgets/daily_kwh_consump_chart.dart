@@ -42,7 +42,14 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
             decoration: BoxDecoration(
               color: AppColors.surface,
               borderRadius: BorderRadius.circular(12.r),
-              border: Border.all(color: AppColors.border, width: 1),
+              boxShadow: [
+                BoxShadow(
+                  offset: const Offset(0, 4),
+                  blurRadius: 6,
+                  spreadRadius: -1,
+                  color: Colors.black.withValues(alpha: 0.1),
+                ),
+              ],
             ),
             child: Center(
               child: Column(
