@@ -24,6 +24,9 @@ class BillsScreen extends StatefulWidget {
 }
 
 class _BillsScreenState extends State<BillsScreen> {
+  final RefreshController _refreshController = RefreshController(
+    initialRefresh: false,
+  );
   String? _lastError;
 
   void _showErrorSnackBar(String title, String message) {
@@ -220,12 +223,21 @@ class _BillsScreenState extends State<BillsScreen> {
                         ).isLoading,
                     child: Scrollbar(
                       child: SmartRefresher(
-                        controller: RefreshController(initialRefresh: false),
+                        controller: _refreshController,
                         onRefresh: () async {
-                          await Provider.of<BillsProvider>(
-                            context,
-                            listen: false,
-                          ).reload();
+                          try {
+                            await Provider.of<BillsProvider>(
+                              context,
+                              listen: false,
+                            ).reload();
+                            _refreshController.refreshCompleted();
+                          } catch (e) {
+                            _refreshController.refreshFailed();
+                            _showErrorSnackBar(
+                              'Error',
+                              'Failed to refresh data',
+                            );
+                          }
                         },
                         header: ClassicHeader(
                           refreshStyle: RefreshStyle.Follow,

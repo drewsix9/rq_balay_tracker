@@ -211,13 +211,26 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                                       ),
                                     )
                                   else
-                                    Text(
-                                      'Not Available',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.labelMedium?.copyWith(
-                                        color: AppColors.textMuted,
-                                        fontSize: 13.sp,
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 12.w,
+                                        vertical: 4.h,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFEE4E2),
+                                        borderRadius: BorderRadius.circular(
+                                          999.r,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Unavailable',
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.labelMedium?.copyWith(
+                                          color: const Color(0xFFB42318),
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 13.sp,
+                                        ),
                                       ),
                                     ),
                                 ],
