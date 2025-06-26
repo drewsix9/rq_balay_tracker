@@ -6,7 +6,6 @@ import 'package:rq_balay_tracker/core/usecases/user_shared_pref.dart';
 import 'package:rq_balay_tracker/features/auth/presentation/login_screen.dart';
 import 'package:rq_balay_tracker/home_screen.dart';
 
-import '../logger/app_logger.dart';
 import '../services/firebase_api.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -40,11 +39,6 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     _animationController.forward();
-
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      AppLogger.d('Firebase Message Opened: $message');
-      FirebaseApi.instance.handleNotificationTap(context, message);
-    });
 
     Future.delayed(const Duration(seconds: 3), () async {
       if (!mounted) return;

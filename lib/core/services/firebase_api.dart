@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../../features/auth/presentation/login_screen.dart';
 import '../../home_screen.dart';
@@ -21,10 +22,58 @@ class FirebaseApi {
   NotificationSettings? get settings => _settings;
 
   final _firebaseMessaging = FirebaseMessaging.instance;
+  final FlutterLocalNotificationsPlugin _localNotifications =
+      FlutterLocalNotificationsPlugin();
 
   Future<void> initNotification() async {
+    await _initializeLocalNotifications();
     await requestPermission();
     await _handleFCMToken();
+    await _setupForegroundMessageHandler();
+  }
+
+  Future<void> _initializeLocalNotifications() async {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    const DarwinInitializationSettings initializationSettingsIOS =
+        DarwinInitializationSettings(
+          requestAlertPermission: true,
+          requestBadgePermission: true,
+          requestSoundPermission: true,
+        );
+
+    const InitializationSettings initializationSettings =
+        InitializationSettings(
+          android: initializationSettingsAndroid,
+          iOS: initializationSettingsIOS,
+        );
+
+    await _localNotifications.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: _onNotificationTapped,
+    );
+
+    // Create notification channel for Android
+    if (Platform.isAndroid) {
+      const AndroidNotificationChannel channel = AndroidNotificationChannel(
+        'high_importance_channel',
+        'High Importance Notifications',
+        description: 'This channel is used for important notifications.',
+        importance: Importance.high,
+        playSound: true,
+        enableVibration: true,
+        showBadge: true,
+      );
+
+      await _localNotifications
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
+          ?.createNotificationChannel(channel);
+    }
+
+    AppLogger.d('Local notifications initialized');
   }
 
   Future<void> requestPermission() async {
@@ -46,6 +95,89 @@ class FirebaseApi {
       );
     }
     AppLogger.d('Notification settings: ${_settings?.authorizationStatus}');
+  }
+
+  Future<void> _setupForegroundMessageHandler() async {
+    // Handle foreground messages
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      AppLogger.d('Firebase Foreground Message: ${message.messageId}');
+      await _showLocalNotification(message);
+    });
+
+    // Handle notification tap when app is in background
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      AppLogger.d('Firebase Message Opened: $message');
+      handleNotificationTap(null, message);
+    });
+  }
+
+  Future<void> _showLocalNotification(RemoteMessage message) async {
+    try {
+      final AndroidNotificationDetails
+      androidDetails = AndroidNotificationDetails(
+        'high_importance_channel',
+        'High Importance Notifications',
+        channelDescription: 'This channel is used for important notifications.',
+        importance: Importance.high,
+        priority: Priority.high,
+        showWhen: true,
+        enableVibration: true,
+        playSound: true,
+        icon: '@drawable/ic_notification',
+        color: const Color(0xFF2196F3),
+        largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
+        styleInformation: const BigTextStyleInformation(''),
+      );
+
+      final DarwinNotificationDetails iOSDetails = DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+        sound: 'default',
+        badgeNumber: 1,
+      );
+
+      final NotificationDetails notificationDetails = NotificationDetails(
+        android: androidDetails,
+        iOS: iOSDetails,
+      );
+
+      // Extract notification data
+      final String title =
+          message.notification?.title ??
+          message.data['title'] ??
+          'New Notification';
+      final String body =
+          message.notification?.body ??
+          message.data['body'] ??
+          'You have a new message';
+      final String? imageUrl =
+          message.notification?.android?.imageUrl ?? message.data['image'];
+
+      // Show the notification
+      await _localNotifications.show(
+        message.hashCode, // Use message hash as notification ID
+        title,
+        body,
+        notificationDetails,
+        payload: message.data.toString(), // Pass data as payload
+      );
+
+      AppLogger.d('Local notification shown: $title - $body');
+    } catch (e) {
+      AppLogger.e('Error showing local notification: $e');
+    }
+  }
+
+  void _onNotificationTapped(NotificationResponse response) {
+    AppLogger.d('Local notification tapped: ${response.payload}');
+
+    // Parse the payload and handle navigation
+    if (response.payload != null) {
+      // You can parse the payload and handle navigation here
+      // For now, we'll use a simple approach
+      handleNotificationTap(null, RemoteMessage());
+    }
   }
 
   Future<void> _handleFCMToken() async {
@@ -78,16 +210,16 @@ class FirebaseApi {
   }
 
   Future<void> handleNotificationTap(
-    BuildContext context,
+    BuildContext? context,
     RemoteMessage message,
   ) async {
     final page = message.data['page'];
     if (page == 'bills') {
-      if (!context.mounted) return;
+      if (context != null && !context.mounted) return;
       final user = await UserSharedPref.getCurrentUser();
       final Widget nextScreen =
           (user != null) ? const HomeScreen() : const LoginScreen();
-      if (context.mounted) {
+      if (context != null && context.mounted) {
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) => nextScreen,
@@ -108,5 +240,66 @@ class FirebaseApi {
 
   Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     AppLogger.d('Firebase Background Message: $message');
+    // Background messages are handled automatically by the system
+    // No need to show local notifications here as they're handled by FCM
+  }
+
+  // Method to clear all notifications
+  Future<void> clearAllNotifications() async {
+    await _localNotifications.cancelAll();
+    AppLogger.d('All notifications cleared');
+  }
+
+  // Method to cancel a specific notification
+  Future<void> cancelNotification(int id) async {
+    await _localNotifications.cancel(id);
+    AppLogger.d('Notification cancelled: $id');
+  }
+
+  // Test method to show a local notification
+  Future<void> showTestNotification() async {
+    try {
+      const AndroidNotificationDetails androidDetails =
+          AndroidNotificationDetails(
+            'high_importance_channel',
+            'High Importance Notifications',
+            channelDescription:
+                'This channel is used for important notifications.',
+            importance: Importance.high,
+            priority: Priority.high,
+            showWhen: true,
+            enableVibration: true,
+            playSound: true,
+            icon: '@mipmap/ic_launcher',
+            color: Color(0xFF2196F3),
+            largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
+            styleInformation: BigTextStyleInformation(''),
+          );
+
+      const DarwinNotificationDetails iOSDetails = DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+        sound: 'default',
+        badgeNumber: 1,
+      );
+
+      const NotificationDetails notificationDetails = NotificationDetails(
+        android: androidDetails,
+        iOS: iOSDetails,
+      );
+
+      await _localNotifications.show(
+        999, // Test notification ID
+        'Test Notification',
+        'This is a test notification to verify local notifications are working!',
+        notificationDetails,
+        payload: 'test_notification',
+      );
+
+      AppLogger.d('Test notification shown successfully');
+    } catch (e) {
+      AppLogger.e('Error showing test notification: $e');
+    }
   }
 }

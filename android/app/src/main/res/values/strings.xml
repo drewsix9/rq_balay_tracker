@@ -1,6 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Balay RQ</string>
-
-    <string name="default_notification_channel_id">default_notification_channel_id</string>
-    <string name="default_notification_channel_name">Balay RQ Notifications</string>
-</resources>
+    <string name="default_notification_channel_id">high_importance_channel</string>
+    <string name="default_notification_channel_name">High Importance Notifications</string>
+</resources> 

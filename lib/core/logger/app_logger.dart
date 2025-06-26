@@ -5,7 +5,6 @@ class AppLogger {
     printer: PrettyPrinter(
       methodCount: 0, // Number of method calls to be displayed
       errorMethodCount: 8, // Number of method calls if stacktrace is provided
-      lineLength: 1000, // Width of the output
       colors: true, // Colorful log messages
       printEmojis: true, // Print an emoji for each log message
     ),
