@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
-import 'core/widgets/firebase_functions_test_widget.dart';
-import 'core/widgets/notification_test_widget.dart';
 import 'features/bills/presentation/bills_screen.dart';
 import 'features/charts/view/charts_screen.dart';
 import 'features/landing_page/view/landing_page_screen.dart';
+import 'features/profile/presentation/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -32,16 +31,16 @@ class _HomeScreenState extends State<HomeScreen> {
           screen: ChartsScreen(),
           item: ItemConfig(icon: Icon(Icons.bar_chart), title: "Charts"),
         ),
+        // PersistentTabConfig(
+        //   screen: NotificationTestWidget(),
+        //   item: ItemConfig(
+        //     icon: Icon(Icons.notifications),
+        //     title: "Notifications",
+        //   ),
+        // ),
         PersistentTabConfig(
-          screen: NotificationTestWidget(),
-          item: ItemConfig(
-            icon: Icon(Icons.notifications),
-            title: "Notifications",
-          ),
-        ),
-        PersistentTabConfig(
-          screen: FirebaseFunctionsTestWidget(),
-          item: ItemConfig(icon: Icon(Icons.functions), title: "Functions"),
+          screen: ProfileScreen(),
+          item: ItemConfig(icon: Icon(Icons.person), title: "Profile"),
         ),
       ],
       navBarBuilder:
@@ -53,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
               borderRadius: BorderRadius.circular(12.r),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
+                  color: Colors.black.withOpacity(0.1),
                   blurRadius: 10,
                   offset: Offset(0, -5),
                 ),
