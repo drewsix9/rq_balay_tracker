@@ -291,7 +291,7 @@ class _BaseMonthlyConsumptionChartState
             showTitles: true,
             getTitlesWidget:
                 (value, meta) => getTitles(value, meta, consumption),
-            reservedSize: ResponsiveHelper.isTablet(context) ? 40.0.h : 32.0.h,
+            reservedSize: ResponsiveHelper.isTablet(context) ? 65.0.h : 32.0.h,
           ),
         ),
       ),
@@ -519,7 +519,7 @@ class _BaseMonthlyConsumptionChartState
               y > 0 ? widget.chartGradient : AppGradients.primaryBlueGradient,
           width: width,
           borderRadius: BorderRadius.circular(
-            ResponsiveHelper.getBorderRadius(context),
+            ResponsiveHelper.getChartRodBorderRadius(context),
           ),
           backDrawRodData: BackgroundBarChartRodData(
             show: true,

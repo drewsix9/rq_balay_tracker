@@ -121,6 +121,13 @@ class ResponsiveHelper {
     return 16.0.r; // Large tablet
   }
 
+  static double getChartRodBorderRadius(BuildContext context) {
+    if (isMobile(context)) return 4.0.r;
+    if (isTablet7Inch(context)) return 6.0.r;
+    if (isTablet10Inch(context)) return 8.0.r;
+    return 10.0.r; // Large tablet
+  }
+
   // Responsive edge insets
   static EdgeInsets getScreenPadding(BuildContext context) {
     final padding = getPadding(context);
@@ -159,7 +166,7 @@ class ResponsiveHelper {
 
   // Chart dimensions for tablets
   static double getChartHeight(BuildContext context) {
-    if (isMobile(context)) return 200.0.h;
+    if (isMobile(context)) return 300.0.h;
     if (isTablet7Inch(context)) {
       return 500.0.h; // Increased from 400.0.h for 7-inch tablets
     }

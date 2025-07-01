@@ -390,7 +390,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _buildInfoRow(
                     icon: Icons.attach_money,
                     label: 'Monthly Rate',
-                    value: '₱${user?.monthlyRate ?? '0'}',
+                    value: NumberFormat.currency(
+                      symbol: '₱',
+                      decimalDigits: 2,
+                    ).format(double.tryParse(user!.monthlyRate) ?? 0),
                     valueColor: AppColors.textPrimary,
                     iconColor: AppColors.primaryBlue,
                   ),
@@ -399,33 +402,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     icon: Icons.wifi,
                     label: 'WiFi Status',
                     value:
-                        user != null &&
-                                user.wifi.isNotEmpty &&
-                                user.wifi.toLowerCase() == 'y'
+                        user.wifi.isNotEmpty && user.wifi.toLowerCase() == 'y'
                             ? 'Available'
                             : 'Unavailable',
                     valueColor:
-                        user != null &&
-                                user.wifi.isNotEmpty &&
-                                user.wifi.toLowerCase() == 'y'
+                        user.wifi.isNotEmpty && user.wifi.toLowerCase() == 'y'
                             ? const Color(0xFF039855)
                             : const Color(0xFFB42318),
                     iconColor: AppColors.primaryBlue,
                     customValue:
-                        user != null &&
-                                user.wifi.isNotEmpty &&
-                                user.wifi.toLowerCase() == 'y'
+                        user.wifi.isNotEmpty && user.wifi.toLowerCase() == 'y'
                             ? _buildStatusChip('Available', true)
                             : _buildStatusChip('Unavailable', false),
                   ),
-                  if (user?.startDate.isNotEmpty ?? false) ...[
+                  if (user.startDate.isNotEmpty ?? false) ...[
                     SizedBox(height: 16.h),
                     _buildInfoRow(
                       icon: Icons.calendar_today,
                       label: 'Start Date',
                       value: DateFormat(
                         'MMM dd, yyyy',
-                      ).format(DateTime.parse(user!.startDate)),
+                      ).format(DateTime.parse(user.startDate)),
                       valueColor: AppColors.textPrimary,
                       iconColor: AppColors.primaryBlue,
                     ),
@@ -442,7 +439,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _buildInfoRow(
                     icon: Icons.phone,
                     label: 'Mobile Number',
-                    value: user?.mobileno ?? 'Not provided',
+                    value: user.mobileno ?? 'Not provided',
                     valueColor: AppColors.textPrimary,
                     iconColor: AppColors.primaryBlue,
                   ),
@@ -451,9 +448,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     icon: Icons.email,
                     label: 'Email',
                     value:
-                        user?.email?.isEmpty ?? true
+                        user.email?.isEmpty ?? true
                             ? 'Not provided'
-                            : user!.email ?? '',
+                            : user.email ?? '',
                     valueColor: AppColors.textPrimary,
                     iconColor: AppColors.primaryBlue,
                   ),

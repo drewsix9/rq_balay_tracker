@@ -147,11 +147,6 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
                             ),
                     width: ResponsiveHelper.isTablet(context) ? 20.0.w : 12.0.w,
                     borderRadius: BorderRadius.zero,
-                    backDrawRodData: BackgroundBarChartRodData(
-                      show: true,
-                      toY: chartMaxY,
-                      color: AppColors.border.withValues(alpha: 0.1),
-                    ),
                   ),
                 ],
               );

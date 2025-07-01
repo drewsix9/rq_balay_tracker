@@ -598,9 +598,9 @@ class BuildMonthBillCard extends StatelessWidget {
                   SizedBox(width: ResponsiveHelper.getSpacing(context) * 0.25),
                   SizedBox(
                     width:
-                        ResponsiveHelper.isTablet(context) ? 120.0.w : 100.0.w,
+                        ResponsiveHelper.isTablet(context) ? 160.0.w : 100.0.w,
                     height:
-                        ResponsiveHelper.isTablet(context) ? 44.0.h : 38.0.h,
+                        ResponsiveHelper.isTablet(context) ? 96.0.h : 38.0.h,
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryBlue,
@@ -620,13 +620,17 @@ class BuildMonthBillCard extends StatelessWidget {
                       },
                       icon: Icon(
                         Icons.account_balance_wallet,
-                        size: 18.sp,
+                        size:
+                            ResponsiveHelper.isTablet(context) ? 24.sp : 18.sp,
                         color: Colors.white,
                       ),
                       label: Text(
                         'Pay GCash',
                         style: AppTextStyles.buttonText.copyWith(
-                          fontSize: 12.sp,
+                          fontSize:
+                              ResponsiveHelper.isTablet(context)
+                                  ? 16.sp
+                                  : 12.sp,
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                         ),

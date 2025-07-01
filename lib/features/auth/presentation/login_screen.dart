@@ -273,6 +273,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         return null;
                       },
                     ),
+                    SizedBox(
+                      height: ResponsiveHelper.getSpacing(context) * 0.5,
+                    ),
                     AppInputField(
                       isPassword: true,
                       hint: 'Password',
@@ -283,6 +286,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         }
                         return null;
                       },
+                    ),
+                    SizedBox(
+                      height: ResponsiveHelper.getSpacing(context) * 0.5,
                     ),
                     SizedBox(height: 18.h),
                     SizedBox(

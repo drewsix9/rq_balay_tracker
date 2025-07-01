@@ -238,7 +238,7 @@ class TodayKwhConsumpChart extends StatelessWidget {
                                     ],
                                     begin: Alignment.bottomRight,
                                     end: Alignment.topLeft,
-                                  ),
+                                  ).withOpacity(.5),
                                   show: true,
                                 ),
                                 dotData: FlDotData(
@@ -353,7 +353,7 @@ class TodayKwhConsumpChart extends StatelessWidget {
                                   showTitles: true,
                                   reservedSize:
                                       ResponsiveHelper.isTablet(context)
-                                          ? 40.0.h
+                                          ? 65.0.h
                                           : 30.0.h,
                                   interval: 1,
                                   maxIncluded: false,

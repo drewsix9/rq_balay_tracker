@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'core/logger/app_logger.dart';
 import 'core/providers/bills_provider.dart';
 import 'core/providers/biometric_provider.dart';
 import 'core/services/firebase_api.dart';
@@ -35,12 +36,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Determine device width to set designSize dynamically
+    final mediaQuery = MediaQueryData.fromView(WidgetsBinding.instance.window);
+    final deviceWidth = mediaQuery.size.width;
+    Size designSize;
+    if (deviceWidth < 600) {
+      designSize = const Size(375, 812);
+    } else if (deviceWidth < 800) {
+      designSize = const Size(800, 1200);
+    } else {
+      designSize = const Size(1200, 1600);
+    }
+
+    AppLogger.d('Design Size: $designSize');
+
     return ScreenUtilInit(
-      // Design size optimized for tablets (10-inch tablet as base)
-      designSize: const Size(800, 1200),
+      designSize: designSize,
       minTextAdapt: true,
       splitScreenMode: true,
-      // Ensure proper scaling for different screen densities
       builder: (context, child) {
         return MultiProvider(
           providers: [
