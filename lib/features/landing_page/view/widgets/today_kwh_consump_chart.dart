@@ -331,7 +331,8 @@ class TodayKwhConsumpChart extends StatelessWidget {
                                           label: HorizontalLineLabel(
                                             show: true,
                                             labelResolver:
-                                                (line) => 'High Usage',
+                                                (line) =>
+                                                    'High Usage @ ${provider.yHourlyMaxKWh.toStringAsFixed(2)} Wh',
                                             style: AppTextStyles.caption
                                                 .copyWith(
                                                   fontSize: 10.sp,
