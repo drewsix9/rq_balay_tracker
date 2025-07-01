@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
+import 'core/theme/app_colors.dart';
 import 'features/bills/presentation/bills_screen.dart';
 import 'features/charts/view/charts_screen.dart';
 import 'features/landing_page/view/landing_page_screen.dart';
@@ -48,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
             navBarConfig: navBarConfig,
             navBarDecoration: NavBarDecoration(
               padding: EdgeInsets.symmetric(vertical: 12.h),
-              color: Theme.of(context).scaffoldBackgroundColor,
+              color: AppColors.background,
               borderRadius: BorderRadius.circular(12.r),
               boxShadow: [
                 BoxShadow(

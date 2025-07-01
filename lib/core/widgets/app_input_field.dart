@@ -9,18 +9,20 @@ class AppInputField extends StatelessWidget {
   final TextEditingController controller;
   final String? Function(String?)? validator;
   final bool isPassword;
-
+  final TextInputType? keyboardType;
   const AppInputField({
     super.key,
     required this.hint,
     required this.controller,
     this.validator,
     this.isPassword = false,
+    this.keyboardType,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      keyboardType: keyboardType,
       obscureText: isPassword,
       controller: controller,
       validator: validator,

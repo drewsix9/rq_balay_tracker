@@ -214,7 +214,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           },
           tooltip: 'Edit Profile',
         ),
-        title: const Text('Profile'),
+        title: Text(
+          'My Profile',
+          style: AppTextStyles.subheading.copyWith(
+            color: AppColors.surface,
+            fontSize: 20.sp,
+          ),
+        ),
         backgroundColor: AppColors.primaryBlue,
         elevation: 0,
         actions: [
@@ -402,7 +408,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   SizedBox(height: 16.h),
                   _buildInfoRow(
                     icon: Icons.email,
-                    label: 'Email Address',
+                    label: 'Email',
                     value:
                         user?.email?.isEmpty ?? true
                             ? 'Not provided'
@@ -569,9 +575,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Text(
               label,
               style: AppTextStyles.body.copyWith(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
+                color: AppColors.textMuted,
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -579,12 +585,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (customValue != null)
           customValue
         else
-          Text(
-            value,
-            style: AppTextStyles.body.copyWith(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
-              color: valueColor,
+          Flexible(
+            child: Text(
+              value,
+              style: AppTextStyles.body.copyWith(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: valueColor,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              textAlign: TextAlign.end,
             ),
           ),
       ],
@@ -600,7 +611,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       child: Text(
         label,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+        style: AppTextStyles.caption.copyWith(
           color: isActive ? const Color(0xFF039855) : const Color(0xFFB42318),
           fontWeight: FontWeight.w700,
           fontSize: 13.sp,

@@ -216,6 +216,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       AppInputField(
                         hint: 'Room Number',
                         controller: _roomIdController,
+                        keyboardType: TextInputType.number,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return 'Please enter a room number';

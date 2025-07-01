@@ -235,7 +235,7 @@ class _BaseMonthlyConsumptionChartState
         horizontalInterval: (chartMaxY - chartMinY) / 4,
         getDrawingHorizontalLine: (value) {
           return FlLine(
-            color: AppColors.border.withValues(alpha: 0.3),
+            color: AppColors.textMuted.withValues(alpha: 0.3),
             strokeWidth: 1,
             dashArray: [5, 5],
           );

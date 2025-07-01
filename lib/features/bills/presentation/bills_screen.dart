@@ -297,10 +297,12 @@ class _BillsScreenState extends State<BillsScreen> {
                                                 DateTime.now().toString(),
                                           ),
                                         ),
-                                        style:
-                                            Theme.of(
-                                              context,
-                                            ).textTheme.titleMedium,
+                                        style: AppTextStyles.subheading
+                                            .copyWith(
+                                              fontSize: 16.sp,
+                                              fontWeight: FontWeight.w600,
+                                              color: AppColors.textPrimary,
+                                            ),
                                       ),
                                       Container(
                                         padding: EdgeInsets.symmetric(
@@ -320,10 +322,11 @@ class _BillsScreenState extends State<BillsScreen> {
                                           transaction.paid == 'Y'
                                               ? 'Paid'
                                               : 'Pending',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium
-                                              ?.copyWith(color: Colors.white),
+                                          style: AppTextStyles.body.copyWith(
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -520,20 +523,29 @@ class BuildMonthBillCard extends StatelessWidget {
                                   DateTime.now().toIso8601String(),
                             ),
                           ),
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(color: AppColors.primaryBlue),
+                          style: AppTextStyles.heading.copyWith(
+                            fontSize: 20.sp,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.primaryBlue,
+                          ),
                         ),
                         SizedBox(height: 8.h),
                         Text(
                           'Total Due',
-                          style: Theme.of(context).textTheme.bodyMedium,
+                          style: AppTextStyles.body.copyWith(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textSecondary,
+                          ),
                         ),
                         SizedBox(height: 2.h),
                         Text(
                           '₱ ${MoneyFormatter(amount: double.tryParse(currentBill.totalDue ?? '0') ?? 0).output.nonSymbol}',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.displayLarge?.copyWith(fontSize: 28.sp),
+                          style: AppTextStyles.heading.copyWith(
+                            fontSize: 28.sp,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
                       ],
                     ),

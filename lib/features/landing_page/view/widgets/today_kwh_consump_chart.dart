@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -247,7 +245,7 @@ class TodayKwhConsumpChart extends StatelessWidget {
                                   maxIncluded: false,
                                   minIncluded: false,
                                   showTitles: true,
-                                  reservedSize: 35.w,
+                                  reservedSize: 40.w,
                                   interval: (chartMaxY - chartMinY) / 4,
                                   getTitlesWidget:
                                       (value, meta) => Padding(
@@ -356,24 +354,6 @@ class TodayKwhConsumpChart extends StatelessWidget {
         );
       },
     );
-  }
-
-  bool _shouldShowHighUsageLine(double maxValue, List<FlSpot> chartData) {
-    if (chartData.isEmpty || maxValue <= 0) return false;
-
-    // Calculate statistics
-    List<double> values = chartData.map((spot) => spot.y).toList();
-    double mean = values.reduce((a, b) => a + b) / values.length;
-    double variance =
-        values.map((v) => pow(v - mean, 2)).reduce((a, b) => a + b) /
-        values.length;
-    double standardDeviation = sqrt(variance);
-
-    // Show high usage if max value is more than 2 standard deviations above mean
-    // This captures values that are statistically significant outliers
-    double threshold = mean + (2 * standardDeviation);
-
-    return maxValue > threshold;
   }
 
   double _calculateChartWidth() {

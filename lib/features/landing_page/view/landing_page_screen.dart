@@ -125,9 +125,7 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                           children: [
                             Text(
                               user!.name,
-                              style: Theme.of(
-                                context,
-                              ).textTheme.titleLarge?.copyWith(
+                              style: AppTextStyles.heading.copyWith(
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.textPrimary,
                                 fontSize: 20.sp,
@@ -136,11 +134,10 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                             SizedBox(height: 4.h),
                             Text(
                               'Unit: ${user!.unit}',
-                              style: Theme.of(
-                                context,
-                              ).textTheme.bodySmall?.copyWith(
+                              style: AppTextStyles.body.copyWith(
                                 color: AppColors.textMuted,
-                                fontSize: 14.sp,
+                                fontSize: 15.sp,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                             SizedBox(height: 12.h),
@@ -152,11 +149,10 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                                   children: [
                                     Text(
                                       'Monthly Rate:',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodyMedium?.copyWith(
+                                      style: AppTextStyles.body.copyWith(
                                         color: AppColors.textMuted,
                                         fontSize: 15.sp,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                     Text(
@@ -166,12 +162,10 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                                       ).format(
                                         double.tryParse(user!.monthlyRate) ?? 0,
                                       ),
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleMedium?.copyWith(
+                                      style: AppTextStyles.body.copyWith(
+                                        fontSize: 16.sp,
                                         fontWeight: FontWeight.w600,
                                         color: AppColors.textPrimary,
-                                        fontSize: 16.sp,
                                       ),
                                     ),
                                   ],
@@ -183,11 +177,10 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                                   children: [
                                     Text(
                                       'WiFi:',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodyMedium?.copyWith(
+                                      style: AppTextStyles.body.copyWith(
                                         color: AppColors.textMuted,
                                         fontSize: 15.sp,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                     if (user!.wifi == 'Y')
@@ -204,9 +197,7 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                                         ),
                                         child: Text(
                                           'Available',
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.labelMedium?.copyWith(
+                                          style: AppTextStyles.caption.copyWith(
                                             color: const Color(0xFF039855),
                                             fontWeight: FontWeight.w700,
                                             fontSize: 13.sp,
@@ -227,9 +218,7 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                                         ),
                                         child: Text(
                                           'Unavailable',
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.labelMedium?.copyWith(
+                                          style: AppTextStyles.caption.copyWith(
                                             color: const Color(0xFFB42318),
                                             fontWeight: FontWeight.w700,
                                             fontSize: 13.sp,
@@ -245,21 +234,18 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                                   children: [
                                     Text(
                                       'Mobile:',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodyMedium?.copyWith(
+                                      style: AppTextStyles.body.copyWith(
                                         color: AppColors.textMuted,
                                         fontSize: 15.sp,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                     Text(
                                       user!.mobileno ?? '',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleMedium?.copyWith(
+                                      style: AppTextStyles.body.copyWith(
+                                        fontSize: 16.sp,
                                         fontWeight: FontWeight.w600,
                                         color: AppColors.textPrimary,
-                                        fontSize: 16.sp,
                                       ),
                                     ),
                                   ],
@@ -271,11 +257,10 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                                   children: [
                                     Text(
                                       'Start Date:',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodyMedium?.copyWith(
+                                      style: AppTextStyles.body.copyWith(
                                         color: AppColors.textMuted,
                                         fontSize: 15.sp,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                     Text(
@@ -284,12 +269,10 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                                             DateTime.parse(user!.startDate),
                                           )
                                           : '',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleMedium?.copyWith(
+                                      style: AppTextStyles.body.copyWith(
+                                        fontSize: 16.sp,
                                         fontWeight: FontWeight.w600,
                                         color: AppColors.textPrimary,
-                                        fontSize: 16.sp,
                                       ),
                                     ),
                                   ],
