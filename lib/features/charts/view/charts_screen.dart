@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+import 'package:rq_balay_tracker/core/utils/responsive_helper.dart';
 import 'package:rq_balay_tracker/features/charts/model/month_total_model.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -102,14 +103,15 @@ class _ChartsScreenState extends State<ChartsScreen> {
           'Utility Analytics',
           style: AppTextStyles.subheading.copyWith(
             color: AppColors.surface,
-            fontSize: 20.sp,
+            fontSize: ResponsiveHelper.getHeadingFontSize(context),
           ),
         ),
         backgroundColor: AppColors.primaryBlue,
+        toolbarHeight: ResponsiveHelper.getAppBarHeight(context),
         // leading: Builder(
         //   builder: (context) {
         //     return IconButton(
-        //       icon: Icon(Icons.menu, color: Colors.white, size: 24.sp),
+        //       icon: Icon(Icons.menu, color: Colors.white, size: ResponsiveHelper.getIconSize(context)),
         //       onPressed: () {
         //         Scaffold.of(context).openDrawer();
         //       },
@@ -139,8 +141,8 @@ class _ChartsScreenState extends State<ChartsScreen> {
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 8.h,
+                        horizontal: ResponsiveHelper.getPadding(context),
+                        vertical: ResponsiveHelper.getSpacing(context) * 0.33,
                       ),
                       child: _buildSummaryCards(),
                     ),
@@ -148,8 +150,8 @@ class _ChartsScreenState extends State<ChartsScreen> {
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 8.h,
+                        horizontal: ResponsiveHelper.getPadding(context),
+                        vertical: ResponsiveHelper.getSpacing(context) * 0.33,
                       ),
                       child: _buildCombinedChartCard(
                         title: 'Monthly Electricity Consumption (kWh)',
@@ -165,8 +167,8 @@ class _ChartsScreenState extends State<ChartsScreen> {
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 8.h,
+                        horizontal: ResponsiveHelper.getPadding(context),
+                        vertical: ResponsiveHelper.getSpacing(context) * 0.33,
                       ),
                       child: _buildCombinedChartCard(
                         title: 'Monthly Water Consumption (m³)',
@@ -199,34 +201,51 @@ class _ChartsScreenState extends State<ChartsScreen> {
         UsageTrendModel usageTrend = chartsViewModel.usageTrend!;
         return Skeletonizer(
           enabled: chartsViewModel.isLoading,
-          child: GridView.count(
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 16.h,
-            crossAxisSpacing: 16.w,
-            childAspectRatio: 1.5,
-            children: [
-              _buildSummaryCard(
-                title: 'This Month\'s Total',
-                value: monthTotal.formattedTotal,
-                trend: "Last month: ${monthTotal.formattedLastMonthTotal}",
-                isPositive: monthTotal.isPositive,
-              ),
-              _buildSummaryCard(
-                title: 'Usage Trend',
-                value: usageTrend.formattedTrend,
-                trend:
-                    usageTrend.isPositive
-                        ? "Lower than last month"
-                        : "Higher than last month",
-                isPositive: usageTrend.isPositive,
-                icon:
-                    usageTrend.isPositive
-                        ? Icons.trending_up
-                        : Icons.trending_down,
-              ),
-            ],
+          child: SizedBox(
+            height: ResponsiveHelper.getFontSize(
+              context,
+              mobileSize: 160.0,
+              tablet7Size: 200.0,
+              tablet10Size: 240.0,
+              largeTabletSize: 280.0,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Flexible(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minWidth: 160.w),
+                    child: _buildSummaryCard(
+                      title: 'This Month\'s Total',
+                      value: monthTotal.formattedTotal,
+                      trend:
+                          "Last month: ${monthTotal.formattedLastMonthTotal}",
+                      isPositive: monthTotal.isPositive,
+                    ),
+                  ),
+                ),
+                SizedBox(width: ResponsiveHelper.getSpacing(context) * 0.33),
+                Flexible(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minWidth: 160.w),
+                    child: _buildSummaryCard(
+                      title: 'Usage Trend',
+                      value: usageTrend.formattedTrend,
+                      trend:
+                          usageTrend.isPositive
+                              ? "Lower than last month"
+                              : "Higher than last month",
+                      isPositive: usageTrend.isPositive,
+                      icon:
+                          usageTrend.isPositive
+                              ? Icons.trending_up
+                              : Icons.trending_down,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -243,10 +262,11 @@ class _ChartsScreenState extends State<ChartsScreen> {
     return Skeletonizer(
       enabled: Provider.of<ChartsViewModel>(context, listen: false).isLoading,
       child: Container(
-        padding: EdgeInsets.all(8.w),
         decoration: BoxDecoration(
           color: AppColors.surface,
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(
+            ResponsiveHelper.getBorderRadius(context),
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.1),
@@ -263,10 +283,16 @@ class _ChartsScreenState extends State<ChartsScreen> {
               title,
               style: AppTextStyles.body.copyWith(
                 color: AppColors.textSecondary,
-                fontSize: 14.sp,
+                fontSize: ResponsiveHelper.getFontSize(
+                  context,
+                  mobileSize: 14.0,
+                  tablet7Size: 15.0,
+                  tablet10Size: 16.0,
+                  largeTabletSize: 17.0,
+                ),
               ),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: ResponsiveHelper.getSpacing(context) * 0.33),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -274,25 +300,37 @@ class _ChartsScreenState extends State<ChartsScreen> {
                   Icon(
                     icon,
                     color: isPositive ? Colors.green : Colors.red,
-                    size: 20.sp,
+                    size: ResponsiveHelper.getIconSize(context),
                   ),
-                  SizedBox(width: 4.w),
+                  SizedBox(width: ResponsiveHelper.getSpacing(context) * 0.17),
                 ],
                 Text(
                   value,
                   style: AppTextStyles.heading.copyWith(
-                    fontSize: 24.sp,
+                    fontSize: ResponsiveHelper.getFontSize(
+                      context,
+                      mobileSize: 24.0,
+                      tablet7Size: 26.0,
+                      tablet10Size: 28.0,
+                      largeTabletSize: 30.0,
+                    ),
                     color: isPositive ? Colors.green : Colors.red,
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 4.h),
+            SizedBox(height: ResponsiveHelper.getSpacing(context) * 0.17),
             Text(
               trend,
               style: AppTextStyles.body.copyWith(
                 color: AppColors.textSecondary,
-                fontSize: 12.sp,
+                fontSize: ResponsiveHelper.getFontSize(
+                  context,
+                  mobileSize: 12.0,
+                  tablet7Size: 13.0,
+                  tablet10Size: 14.0,
+                  largeTabletSize: 15.0,
+                ),
               ),
             ),
           ],
@@ -308,10 +346,12 @@ class _ChartsScreenState extends State<ChartsScreen> {
     required Widget chartWidget,
   }) {
     return Container(
-      padding: EdgeInsets.all(12.w),
+      padding: ResponsiveHelper.getCardPadding(context),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(
+          ResponsiveHelper.getBorderRadius(context),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -326,27 +366,41 @@ class _ChartsScreenState extends State<ChartsScreen> {
           Row(
             children: [
               Container(
-                padding: EdgeInsets.all(6.w),
+                padding: EdgeInsets.all(
+                  ResponsiveHelper.getSpacing(context) * 0.25,
+                ),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(6.r),
+                  borderRadius: BorderRadius.circular(
+                    ResponsiveHelper.getBorderRadius(context),
+                  ),
                 ),
-                child: Icon(icon, color: color, size: 20.sp),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: ResponsiveHelper.getIconSize(context),
+                ),
               ),
-              SizedBox(width: 8.w),
+              SizedBox(width: ResponsiveHelper.getSpacing(context) * 0.33),
               Expanded(
                 child: Text(
                   title,
                   textAlign: TextAlign.center,
                   style: AppTextStyles.subheading.copyWith(
-                    fontSize: 16.sp,
+                    fontSize: ResponsiveHelper.getFontSize(
+                      context,
+                      mobileSize: 16.0,
+                      tablet7Size: 18.0,
+                      tablet10Size: 20.0,
+                      largeTabletSize: 22.0,
+                    ),
                     color: AppColors.textPrimary,
                   ),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: ResponsiveHelper.getSpacing(context) * 0.67),
           chartWidget,
         ],
       ),

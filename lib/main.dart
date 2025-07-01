@@ -36,9 +36,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: const Size(375, 812), // iPhone X design size
+      // Design size optimized for tablets (10-inch tablet as base)
+      designSize: const Size(800, 1200),
       minTextAdapt: true,
       splitScreenMode: true,
+      // Ensure proper scaling for different screen densities
       builder: (context, child) {
         return MultiProvider(
           providers: [

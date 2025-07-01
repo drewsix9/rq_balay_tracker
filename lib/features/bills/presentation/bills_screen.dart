@@ -14,6 +14,7 @@ import '../../../core/logger/app_logger.dart';
 import '../../../core/providers/bills_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/utils/responsive_helper.dart';
 import '../data/month_bill_model.dart';
 
 class BillsScreen extends StatefulWidget {
@@ -82,14 +83,15 @@ class _BillsScreenState extends State<BillsScreen> {
           'My Bills',
           style: AppTextStyles.subheading.copyWith(
             color: AppColors.surface,
-            fontSize: 20.sp,
+            fontSize: ResponsiveHelper.getHeadingFontSize(context),
           ),
         ),
         backgroundColor: AppColors.primaryBlue,
+        toolbarHeight: ResponsiveHelper.getAppBarHeight(context),
         // leading: Builder(
         //   builder: (context) {
         //     return IconButton(
-        //       icon: Icon(Icons.menu, color: Colors.white, size: 24.sp),
+        //       icon: Icon(Icons.menu, color: Colors.white, size: ResponsiveHelper.getIconSize(context)),
         //       onPressed: () {
         //         Scaffold.of(context).openDrawer();
         //       },
@@ -121,7 +123,7 @@ class _BillsScreenState extends State<BillsScreen> {
                 AppLogger.d('currentBill.paid: ${currentBill.paid}');
                 if (currentBill.paid == 'Y') {
                   return Padding(
-                    padding: EdgeInsets.all(16.w),
+                    padding: ResponsiveHelper.getScreenPadding(context),
                     child: Skeletonizer(
                       // ignoreContainers: true,
                       enabled:
@@ -132,7 +134,9 @@ class _BillsScreenState extends State<BillsScreen> {
                       child: Container(
                         decoration: BoxDecoration(
                           // color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(12.r),
+                          borderRadius: BorderRadius.circular(
+                            ResponsiveHelper.getBorderRadius(context),
+                          ),
                           boxShadow: [
                             BoxShadow(
                               offset: const Offset(0, 4),
@@ -146,12 +150,18 @@ class _BillsScreenState extends State<BillsScreen> {
                           // elevation: 20,
                           color: AppColors.surface,
                           child: Padding(
-                            padding: EdgeInsets.all(16.w),
+                            padding: ResponsiveHelper.getCardPadding(context),
                             child: Center(
                               child: Text(
                                 'No Pending Payment',
                                 style: AppTextStyles.subheading.copyWith(
-                                  fontSize: 16.sp,
+                                  fontSize: ResponsiveHelper.getFontSize(
+                                    context,
+                                    mobileSize: 16.0,
+                                    tablet7Size: 18.0,
+                                    tablet10Size: 20.0,
+                                    largeTabletSize: 22.0,
+                                  ),
                                   color: AppColors.textPrimary,
                                 ),
                               ),
@@ -180,7 +190,12 @@ class _BillsScreenState extends State<BillsScreen> {
   Widget _buildTransactionList() {
     return Expanded(
       child: Padding(
-        padding: EdgeInsets.fromLTRB(16.w, 0.h, 16.w, 0.h),
+        padding: EdgeInsets.fromLTRB(
+          ResponsiveHelper.getPadding(context),
+          0.h,
+          ResponsiveHelper.getPadding(context),
+          0.h,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -189,10 +204,18 @@ class _BillsScreenState extends State<BillsScreen> {
                   Provider.of<BillsProvider>(context, listen: false).isLoading,
               child: Text(
                 'Transaction History',
-                style: AppTextStyles.subheading.copyWith(fontSize: 18.sp),
+                style: AppTextStyles.subheading.copyWith(
+                  fontSize: ResponsiveHelper.getHeadingFontSize(
+                    context,
+                    mobileSize: 18.0,
+                    tablet7Size: 20.0,
+                    tablet10Size: 22.0,
+                    largeTabletSize: 24.0,
+                  ),
+                ),
               ),
             ),
-            SizedBox(height: 12.h),
+            SizedBox(height: ResponsiveHelper.getSpacing(context) * 0.5),
             Consumer<BillsProvider>(
               builder: (context, provider, child) {
                 final transactions =
@@ -479,14 +502,19 @@ class BuildMonthBillCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.symmetric(
+        horizontal: ResponsiveHelper.getPadding(context),
+        vertical: ResponsiveHelper.getSpacing(context) * 0.25,
+      ),
       child: Skeletonizer(
         // ignoreContainers: true,
         enabled: Provider.of<BillsProvider>(context, listen: false).isLoading,
         child: Container(
           decoration: BoxDecoration(
             color: AppColors.surface,
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(
+              ResponsiveHelper.getBorderRadius(context),
+            ),
             boxShadow: [
               BoxShadow(
                 offset: const Offset(0, 4),
@@ -500,14 +528,21 @@ class BuildMonthBillCard extends StatelessWidget {
           child: ExpansionTile(
             initiallyExpanded: true,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(
+                ResponsiveHelper.getBorderRadius(context),
+              ),
             ),
             collapsedShape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(
+                ResponsiveHelper.getBorderRadius(context),
+              ),
             ),
             // showTrailingIcon: false,
             title: Padding(
-              padding: EdgeInsets.fromLTRB(8.w, 8.h, 0.w, 8.h),
+              padding: EdgeInsets.symmetric(
+                horizontal: ResponsiveHelper.getSpacing(context) * 0.25,
+                vertical: ResponsiveHelper.getSpacing(context) * 0.17,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -529,16 +564,26 @@ class BuildMonthBillCard extends StatelessWidget {
                             color: AppColors.primaryBlue,
                           ),
                         ),
-                        SizedBox(height: 8.h),
+                        SizedBox(
+                          height: ResponsiveHelper.getSpacing(context) * 0.33,
+                        ),
                         Text(
                           'Total Due',
                           style: AppTextStyles.body.copyWith(
-                            fontSize: 16.sp,
+                            fontSize: ResponsiveHelper.getFontSize(
+                              context,
+                              mobileSize: 16.0,
+                              tablet7Size: 17.0,
+                              tablet10Size: 18.0,
+                              largeTabletSize: 19.0,
+                            ),
                             fontWeight: FontWeight.w600,
                             color: AppColors.textSecondary,
                           ),
                         ),
-                        SizedBox(height: 2.h),
+                        SizedBox(
+                          height: ResponsiveHelper.getSpacing(context) * 0.17,
+                        ),
                         Text(
                           '₱ ${MoneyFormatter(amount: double.tryParse(currentBill.totalDue ?? '0') ?? 0).output.nonSymbol}',
                           style: AppTextStyles.heading.copyWith(
@@ -550,18 +595,25 @@ class BuildMonthBillCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  SizedBox(width: 8.w),
+                  SizedBox(width: ResponsiveHelper.getSpacing(context) * 0.25),
                   SizedBox(
-                    width: 100.w,
-                    height: 48.h,
+                    width:
+                        ResponsiveHelper.isTablet(context) ? 120.0.w : 100.0.w,
+                    height:
+                        ResponsiveHelper.isTablet(context) ? 44.0.h : 38.0.h,
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryBlue,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.r),
+                          borderRadius: BorderRadius.circular(
+                            ResponsiveHelper.getBorderRadius(context),
+                          ),
                         ),
                         elevation: 0,
-                        padding: EdgeInsets.symmetric(horizontal: 8.w),
+                        padding: EdgeInsets.symmetric(
+                          horizontal:
+                              ResponsiveHelper.getSpacing(context) * 0.25,
+                        ),
                       ),
                       onPressed: () {
                         // Handle Gcash payment
@@ -586,66 +638,51 @@ class BuildMonthBillCard extends StatelessWidget {
             ),
             children: [
               Padding(
-                padding: EdgeInsets.all(16.w),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                padding: EdgeInsets.symmetric(
+                  horizontal: ResponsiveHelper.getCardPaddingValue(context),
+                  vertical: ResponsiveHelper.getSpacing(context) * 0.25,
+                ),
+                child: Column(
                   children: [
-                    // Left column - Labels and Rates
-                    Expanded(
-                      flex: 2,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildUtilityLabel(
-                            title: 'Electricity',
-                            rate: '₱ ${currentBill.eRate ?? '0'}/kWh',
-                          ),
-                          _buildUtilityLabel(
-                            title: 'Water',
-                            rate:
-                                '₱ ${MoneyFormatter(amount: double.tryParse(currentBill.wRate ?? '0') ?? 0).output.nonSymbol}/m³',
-                          ),
-                          if (currentUser?.wifi == 'Y')
-                            _buildUtilityLabel(title: 'WiFi', rate: 'Monthly'),
-                          _buildUtilityLabel(title: 'Rent', rate: 'Monthly'),
-                        ],
-                      ),
+                    // Electricity Row
+                    _buildUtilityRow(
+                      context,
+                      label: 'Electricity',
+                      rate: '₱ ${currentBill.eRate ?? '0'}/kWh',
+                      amount: currentBill.eTotal ?? '0',
+                      showConsumption: true,
+                      total: double.tryParse(currentBill.eTotal ?? '0') ?? 0,
+                      rateValue: double.tryParse(currentBill.eRate ?? '1') ?? 1,
+                      unit: 'kWh',
                     ),
-                    // Right column - Amounts and Consumption
-                    Expanded(
-                      flex: 3,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          _buildUtilityAmount(
-                            amount: currentBill.eTotal ?? '0',
-                            showConsumption: true,
-                            total:
-                                double.tryParse(currentBill.eTotal ?? '0') ?? 0,
-                            rate:
-                                double.tryParse(currentBill.eRate ?? '1') ?? 1,
-                            unit: 'kWh',
-                          ),
-                          _buildUtilityAmount(
-                            amount: currentBill.wTotal ?? '0',
-                            showConsumption: true,
-                            total:
-                                double.tryParse(currentBill.wTotal ?? '0') ?? 0,
-                            rate:
-                                double.tryParse(currentBill.wRate ?? '1') ?? 1,
-                            unit: 'm³',
-                          ),
-                          if (currentUser?.wifi == 'Y')
-                            _buildUtilityAmount(
-                              amount: currentBill.wifi ?? '0',
-                              showConsumption: false,
-                            ),
-                          _buildUtilityAmount(
-                            amount: currentBill.monthlyRate ?? '0',
-                            showConsumption: false,
-                          ),
-                        ],
+                    // Water Row
+                    _buildUtilityRow(
+                      context,
+                      label: 'Water',
+                      rate:
+                          '₱ ${MoneyFormatter(amount: double.tryParse(currentBill.wRate ?? '0') ?? 0).output.nonSymbol}/m³',
+                      amount: currentBill.wTotal ?? '0',
+                      showConsumption: true,
+                      total: double.tryParse(currentBill.wTotal ?? '0') ?? 0,
+                      rateValue: double.tryParse(currentBill.wRate ?? '1') ?? 1,
+                      unit: 'm³',
+                    ),
+                    // WiFi Row (conditional)
+                    if (currentUser?.wifi == 'Y')
+                      _buildUtilityRow(
+                        context,
+                        label: 'WiFi',
+                        rate: 'Monthly',
+                        amount: currentBill.wifi ?? '0',
+                        showConsumption: false,
                       ),
+                    // Rent Row
+                    _buildUtilityRow(
+                      context,
+                      label: 'Rent',
+                      rate: 'Monthly',
+                      amount: currentBill.monthlyRate ?? '0',
+                      showConsumption: false,
                     ),
                   ],
                 ),
@@ -657,9 +694,116 @@ class BuildMonthBillCard extends StatelessWidget {
     );
   }
 
-  Widget _buildUtilityLabel({required String title, required String rate}) {
-    return SizedBox(
-      height: 60.h,
+  Widget _buildUtilityRow(
+    BuildContext context, {
+    required String label,
+    required String rate,
+    required String amount,
+    required bool showConsumption,
+    double total = 0,
+    double rateValue = 1,
+    String unit = '',
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        vertical: ResponsiveHelper.getSpacing(context) * 0.25,
+      ),
+      child: Row(
+        children: [
+          // Left side - Label and Rate
+          Expanded(
+            flex: 2,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: AppTextStyles.subheading.copyWith(
+                    fontSize: ResponsiveHelper.getFontSize(
+                      context,
+                      mobileSize: 16.0,
+                      tablet7Size: 17.0,
+                      tablet10Size: 18.0,
+                      largeTabletSize: 19.0,
+                    ),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: ResponsiveHelper.getSpacing(context) * 0.17),
+                Text(
+                  rate,
+                  style: AppTextStyles.caption.copyWith(
+                    fontSize: ResponsiveHelper.getFontSize(
+                      context,
+                      mobileSize: 14.0,
+                      tablet7Size: 15.0,
+                      tablet10Size: 16.0,
+                      largeTabletSize: 17.0,
+                    ),
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Right side - Amount and Consumption
+          Expanded(
+            flex: 3,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '₱ ${MoneyFormatter(amount: double.tryParse(amount) ?? 0).output.nonSymbol}',
+                  style: AppTextStyles.body.copyWith(
+                    fontSize: ResponsiveHelper.getFontSize(
+                      context,
+                      mobileSize: 16.0,
+                      tablet7Size: 17.0,
+                      tablet10Size: 18.0,
+                      largeTabletSize: 19.0,
+                    ),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (showConsumption) ...[
+                  SizedBox(height: ResponsiveHelper.getSpacing(context) * 0.17),
+                  Text(
+                    () {
+                      if (rateValue > 0) {
+                        final consumption = total / rateValue;
+                        return '${consumption.toStringAsFixed(2)} $unit';
+                      }
+                      return '0.00 $unit';
+                    }(),
+                    style: AppTextStyles.caption.copyWith(
+                      fontSize: ResponsiveHelper.getFontSize(
+                        context,
+                        mobileSize: 12.0,
+                        tablet7Size: 13.0,
+                        tablet10Size: 14.0,
+                        largeTabletSize: 15.0,
+                      ),
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUtilityLabel(
+    BuildContext context, {
+    required String title,
+    required String rate,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        vertical: ResponsiveHelper.getSpacing(context) * 0.25,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -667,15 +811,27 @@ class BuildMonthBillCard extends StatelessWidget {
           Text(
             title,
             style: AppTextStyles.subheading.copyWith(
-              fontSize: 16.sp,
+              fontSize: ResponsiveHelper.getFontSize(
+                context,
+                mobileSize: 16.0,
+                tablet7Size: 17.0,
+                tablet10Size: 18.0,
+                largeTabletSize: 19.0,
+              ),
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 2.h),
+          SizedBox(height: ResponsiveHelper.getSpacing(context) * 0.17),
           Text(
             rate,
             style: AppTextStyles.caption.copyWith(
-              fontSize: 14.sp,
+              fontSize: ResponsiveHelper.getFontSize(
+                context,
+                mobileSize: 14.0,
+                tablet7Size: 15.0,
+                tablet10Size: 16.0,
+                largeTabletSize: 17.0,
+              ),
               color: Colors.grey[600],
             ),
           ),
@@ -684,15 +840,18 @@ class BuildMonthBillCard extends StatelessWidget {
     );
   }
 
-  Widget _buildUtilityAmount({
+  Widget _buildUtilityAmount(
+    BuildContext context, {
     required String amount,
     required bool showConsumption,
     double total = 0,
     double rate = 1,
     String unit = '',
   }) {
-    return SizedBox(
-      height: 60.h,
+    return Container(
+      padding: EdgeInsets.symmetric(
+        vertical: ResponsiveHelper.getSpacing(context) * 0.25,
+      ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -700,12 +859,18 @@ class BuildMonthBillCard extends StatelessWidget {
           Text(
             '₱ ${MoneyFormatter(amount: double.tryParse(amount) ?? 0).output.nonSymbol}',
             style: AppTextStyles.body.copyWith(
-              fontSize: 16.sp,
+              fontSize: ResponsiveHelper.getFontSize(
+                context,
+                mobileSize: 16.0,
+                tablet7Size: 17.0,
+                tablet10Size: 18.0,
+                largeTabletSize: 19.0,
+              ),
               fontWeight: FontWeight.bold,
             ),
           ),
           if (showConsumption) ...[
-            SizedBox(height: 2.h),
+            SizedBox(height: ResponsiveHelper.getSpacing(context) * 0.17),
             Text(
               () {
                 if (rate > 0) {
@@ -715,7 +880,13 @@ class BuildMonthBillCard extends StatelessWidget {
                 return '0.00 $unit';
               }(),
               style: AppTextStyles.caption.copyWith(
-                fontSize: 12.sp,
+                fontSize: ResponsiveHelper.getFontSize(
+                  context,
+                  mobileSize: 12.0,
+                  tablet7Size: 13.0,
+                  tablet10Size: 14.0,
+                  largeTabletSize: 15.0,
+                ),
                 color: Colors.grey[600],
               ),
             ),

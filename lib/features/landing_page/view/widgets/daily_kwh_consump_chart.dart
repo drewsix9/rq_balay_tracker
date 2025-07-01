@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:rq_balay_tracker/core/theme/app_colors.dart';
 import 'package:rq_balay_tracker/core/theme/app_text_styles.dart';
+import 'package:rq_balay_tracker/core/utils/responsive_helper.dart';
 import 'package:rq_balay_tracker/features/landing_page/viewmodel/landing_page_viewmodel.dart';
 
 class DailyKwhConsumpChart extends StatefulWidget {
@@ -23,11 +24,21 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
       builder: (context) {
         if (widget.provider.isLoading) {
           return Container(
-            width: 350.w,
-            height: 300.h,
+            width:
+                ResponsiveHelper.isTablet(context)
+                    ? MediaQuery.of(context).size.width *
+                        0.95 // Use 95% of screen width on tablets
+                    : ResponsiveHelper.getChartWidth(context),
+            height:
+                ResponsiveHelper.isTablet(context)
+                    ? MediaQuery.of(context).size.height *
+                        0.6 // Use 60% of screen height on tablets
+                    : ResponsiveHelper.getChartHeight(context),
             decoration: BoxDecoration(
               color: AppColors.surface,
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(
+                ResponsiveHelper.getBorderRadius(context),
+              ),
             ),
             child: const Center(
               child: CircularProgressIndicator(color: AppColors.primaryBlue),
@@ -35,13 +46,24 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
           );
         }
 
-        if (widget.provider.dailyChartData.isEmpty) {
+        if (widget.provider.dailyChartData.isEmpty ||
+            widget.provider.dailyKWhConsumpList.dailyKwhConsump!.length <= 2) {
           return Container(
-            width: 1920.w,
-            height: 300.h,
+            width:
+                ResponsiveHelper.isTablet(context)
+                    ? MediaQuery.of(context).size.width *
+                        0.95 // Use 95% of screen width on tablets
+                    : ResponsiveHelper.getChartWidth(context),
+            height:
+                ResponsiveHelper.isTablet(context)
+                    ? MediaQuery.of(context).size.height *
+                        0.6 // Use 60% of screen height on tablets
+                    : ResponsiveHelper.getChartHeight(context),
             decoration: BoxDecoration(
               color: AppColors.surface,
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(
+                ResponsiveHelper.getBorderRadius(context),
+              ),
               boxShadow: [
                 BoxShadow(
                   offset: const Offset(0, 4),
@@ -57,13 +79,21 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
                 children: [
                   Icon(
                     Icons.bar_chart_outlined,
-                    size: 48.sp,
+                    size: ResponsiveHelper.getIconSize(context),
                     color: AppColors.textMuted,
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: ResponsiveHelper.getSpacing(context) * 0.33),
                   Text(
                     'No consumption data available',
-                    style: AppTextStyles.muted.copyWith(fontSize: 16.sp),
+                    style: AppTextStyles.muted.copyWith(
+                      fontSize: ResponsiveHelper.getFontSize(
+                        context,
+                        mobileSize: 16.0,
+                        tablet7Size: 18.0,
+                        tablet10Size: 20.0,
+                        largeTabletSize: 22.0,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -115,7 +145,7 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
                               begin: Alignment.bottomRight,
                               end: Alignment.topLeft,
                             ),
-                    width: 12.w,
+                    width: ResponsiveHelper.isTablet(context) ? 20.0.w : 12.0.w,
                     borderRadius: BorderRadius.zero,
                     backDrawRodData: BackgroundBarChartRodData(
                       show: true,
@@ -128,11 +158,21 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
             }).toList();
 
         return Container(
-          width: 1920.w,
-          height: 300.h,
+          width:
+              ResponsiveHelper.isTablet(context)
+                  ? MediaQuery.of(context).size.width *
+                      0.95 // Use 95% of screen width on tablets
+                  : ResponsiveHelper.getChartWidth(context),
+          height:
+              ResponsiveHelper.isTablet(context)
+                  ? MediaQuery.of(context).size.height *
+                      0.6 // Use 60% of screen height on tablets
+                  : ResponsiveHelper.getChartHeight(context),
           decoration: BoxDecoration(
             color: AppColors.surface,
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(
+              ResponsiveHelper.getBorderRadius(context),
+            ),
             boxShadow: [
               BoxShadow(
                 offset: const Offset(0, 4),
@@ -143,20 +183,33 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
             ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(
+              ResponsiveHelper.getBorderRadius(context),
+            ),
             child: Padding(
-              padding: EdgeInsets.only(top: 8.h),
+              padding: EdgeInsets.only(
+                top: ResponsiveHelper.getSpacing(context) * 0.33,
+              ),
               child: Row(
                 children: [
                   // Side label for "kWh"
                   RotatedBox(
                     quarterTurns: 3,
                     child: Padding(
-                      padding: EdgeInsets.only(bottom: 4.h, top: 4.h),
+                      padding: EdgeInsets.only(
+                        bottom: ResponsiveHelper.getSpacing(context) * 0.17,
+                        top: ResponsiveHelper.getSpacing(context) * 0.17,
+                      ),
                       child: Text(
                         'Wh',
                         style: AppTextStyles.caption.copyWith(
-                          fontSize: 12.sp,
+                          fontSize: ResponsiveHelper.getFontSize(
+                            context,
+                            mobileSize: 12.0,
+                            tablet7Size: 14.0,
+                            tablet10Size: 16.0,
+                            largeTabletSize: 18.0,
+                          ),
                           color: AppColors.textMuted,
                           fontWeight: FontWeight.w600,
                         ),
@@ -191,11 +244,17 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
                             fitInsideVertically: true,
                             fitInsideHorizontally: true,
                             tooltipPadding: EdgeInsets.symmetric(
-                              horizontal: 16.w,
-                              vertical: 12.h,
+                              horizontal:
+                                  ResponsiveHelper.getSpacing(context) * 0.67,
+                              vertical:
+                                  ResponsiveHelper.getSpacing(context) * 0.5,
                             ),
-                            tooltipMargin: 8.h,
-                            maxContentWidth: 200.w,
+                            tooltipMargin:
+                                ResponsiveHelper.getSpacing(context) * 0.33,
+                            maxContentWidth:
+                                ResponsiveHelper.isTablet(context)
+                                    ? 300.0.w
+                                    : 200.0.w,
                             getTooltipColor:
                                 (touchedSpot) =>
                                     AppColors.surface.withValues(alpha: 0.8),
@@ -216,6 +275,13 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
                                   color: AppColors.textPrimary,
                                   fontWeight: FontWeight.w600,
                                   height: 1.4,
+                                  fontSize: ResponsiveHelper.getFontSize(
+                                    context,
+                                    mobileSize: 12.0,
+                                    tablet7Size: 14.0,
+                                    tablet10Size: 16.0,
+                                    largeTabletSize: 18.0,
+                                  ),
                                 ),
                               );
                             },
@@ -228,17 +294,29 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
                               minIncluded: false,
                               showTitles: true,
                               reservedSize:
-                                  widget.provider.yDailyMaxKWh > 10000
-                                      ? 45.w
-                                      : 35.w,
+                                  ResponsiveHelper.isTablet(context)
+                                      ? 60.0.w
+                                      : (widget.provider.yDailyMaxKWh > 10000
+                                          ? 45.0.w
+                                          : 35.0.w),
                               interval: (chartMaxY - chartMinY) / 4,
                               getTitlesWidget:
                                   (value, meta) => Padding(
-                                    padding: EdgeInsets.only(right: 8.w),
+                                    padding: EdgeInsets.only(
+                                      right:
+                                          ResponsiveHelper.getSpacing(context) *
+                                          0.33,
+                                    ),
                                     child: Text(
                                       '${value.toInt()}',
                                       style: AppTextStyles.caption.copyWith(
-                                        fontSize: 11.sp,
+                                        fontSize: ResponsiveHelper.getFontSize(
+                                          context,
+                                          mobileSize: 11.0,
+                                          tablet7Size: 12.0,
+                                          tablet10Size: 13.0,
+                                          largeTabletSize: 14.0,
+                                        ),
                                         color: AppColors.textMuted,
                                       ),
                                     ),
@@ -260,11 +338,21 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
                                   return const SizedBox.shrink();
                                 }
                                 return Padding(
-                                  padding: EdgeInsets.only(top: 8.h),
+                                  padding: EdgeInsets.only(
+                                    top:
+                                        ResponsiveHelper.getSpacing(context) *
+                                        0.33,
+                                  ),
                                   child: Text(
                                     widget.provider.dailyTimeLabels[idx],
                                     style: AppTextStyles.caption.copyWith(
-                                      fontSize: 10.sp,
+                                      fontSize: ResponsiveHelper.getFontSize(
+                                        context,
+                                        mobileSize: 10.0,
+                                        tablet7Size: 11.0,
+                                        tablet10Size: 12.0,
+                                        largeTabletSize: 13.0,
+                                      ),
                                       color: AppColors.textMuted,
                                     ),
                                   ),
@@ -286,7 +374,10 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
                           getDrawingHorizontalLine: (value) {
                             return FlLine(
                               color: AppColors.textMuted.withValues(alpha: 0.3),
-                              strokeWidth: 1,
+                              strokeWidth:
+                                  ResponsiveHelper.isTablet(context)
+                                      ? 1.5
+                                      : 1.0,
                               dashArray: [5, 5],
                             );
                           },
@@ -295,7 +386,8 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
                           show: false,
                           border: Border.all(
                             color: AppColors.border.withValues(alpha: 0.5),
-                            width: 1,
+                            width:
+                                ResponsiveHelper.isTablet(context) ? 1.5 : 1.0,
                           ),
                         ),
                         extraLinesData: ExtraLinesData(
@@ -307,7 +399,10 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
                                       color: AppColors.warning.withValues(
                                         alpha: 0.3,
                                       ),
-                                      strokeWidth: 1,
+                                      strokeWidth:
+                                          ResponsiveHelper.isTablet(context)
+                                              ? 2.0
+                                              : 1.0,
                                       dashArray: [10, 5],
                                       label: HorizontalLineLabel(
                                         show: true,
@@ -315,7 +410,14 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
                                             (line) =>
                                                 'High Usage @ ${widget.provider.yDailyMaxKWh.toStringAsFixed(2)} Wh',
                                         style: AppTextStyles.caption.copyWith(
-                                          fontSize: 10.sp,
+                                          fontSize:
+                                              ResponsiveHelper.getFontSize(
+                                                context,
+                                                mobileSize: 10.0,
+                                                tablet7Size: 11.0,
+                                                tablet10Size: 12.0,
+                                                largeTabletSize: 13.0,
+                                              ),
                                           color: AppColors.warning,
                                         ),
                                       ),

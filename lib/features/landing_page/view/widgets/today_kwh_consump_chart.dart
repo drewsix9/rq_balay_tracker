@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:rq_balay_tracker/core/theme/app_colors.dart';
 import 'package:rq_balay_tracker/core/theme/app_text_styles.dart';
+import 'package:rq_balay_tracker/core/utils/responsive_helper.dart';
 import 'package:rq_balay_tracker/features/landing_page/viewmodel/landing_page_viewmodel.dart';
 
 class TodayKwhConsumpChart extends StatelessWidget {
@@ -21,10 +22,20 @@ class TodayKwhConsumpChart extends StatelessWidget {
       builder: (context) {
         if (provider.isLoading) {
           return Container(
-            width: 350.w,
-            height: 300.h,
+            width:
+                ResponsiveHelper.isTablet(context)
+                    ? MediaQuery.of(context).size.width *
+                        0.95 // Use 95% of screen width on tablets
+                    : ResponsiveHelper.getChartWidth(context),
+            height:
+                ResponsiveHelper.isTablet(context)
+                    ? MediaQuery.of(context).size.height *
+                        0.6 // Use 60% of screen height on tablets
+                    : ResponsiveHelper.getChartHeight(context),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(
+                ResponsiveHelper.getBorderRadius(context),
+              ),
             ),
             child: const Center(
               child: CircularProgressIndicator(color: AppColors.primaryBlue),
@@ -34,11 +45,21 @@ class TodayKwhConsumpChart extends StatelessWidget {
 
         if (provider.todayChartData.isEmpty) {
           return Container(
-            width: 1920.w,
-            height: 300.h,
+            width:
+                ResponsiveHelper.isTablet(context)
+                    ? MediaQuery.of(context).size.width *
+                        0.95 // Use 95% of screen width on tablets
+                    : ResponsiveHelper.getChartWidth(context),
+            height:
+                ResponsiveHelper.isTablet(context)
+                    ? MediaQuery.of(context).size.height *
+                        0.6 // Use 60% of screen height on tablets
+                    : ResponsiveHelper.getChartHeight(context),
             decoration: BoxDecoration(
               color: AppColors.surface,
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(
+                ResponsiveHelper.getBorderRadius(context),
+              ),
               boxShadow: [
                 BoxShadow(
                   offset: const Offset(0, 4),
@@ -54,13 +75,21 @@ class TodayKwhConsumpChart extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.show_chart_outlined,
-                    size: 48.sp,
+                    size: ResponsiveHelper.getIconSize(context),
                     color: AppColors.textMuted,
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: ResponsiveHelper.getSpacing(context) * 0.33),
                   Text(
                     'No consumption data available',
-                    style: AppTextStyles.muted.copyWith(fontSize: 16.sp),
+                    style: AppTextStyles.muted.copyWith(
+                      fontSize: ResponsiveHelper.getFontSize(
+                        context,
+                        mobileSize: 16.0,
+                        tablet7Size: 18.0,
+                        tablet10Size: 20.0,
+                        largeTabletSize: 22.0,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -99,11 +128,21 @@ class TodayKwhConsumpChart extends StatelessWidget {
         }
 
         return Container(
-          width: 1920.w,
-          height: 300.h,
+          width:
+              ResponsiveHelper.isTablet(context)
+                  ? MediaQuery.of(context).size.width *
+                      0.95 // Use 95% of screen width on tablets
+                  : ResponsiveHelper.getChartWidth(context),
+          height:
+              ResponsiveHelper.isTablet(context)
+                  ? MediaQuery.of(context).size.height *
+                      0.6 // Use 60% of screen height on tablets
+                  : ResponsiveHelper.getChartHeight(context),
           decoration: BoxDecoration(
             color: AppColors.surface,
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(
+              ResponsiveHelper.getBorderRadius(context),
+            ),
             boxShadow: [
               BoxShadow(
                 offset: const Offset(0, 4),
@@ -114,24 +153,42 @@ class TodayKwhConsumpChart extends StatelessWidget {
             ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(
+              ResponsiveHelper.getBorderRadius(context),
+            ),
             child: Padding(
-              padding: EdgeInsets.only(top: 8.h),
+              padding: EdgeInsets.only(
+                top: ResponsiveHelper.getSpacing(context) * 0.33,
+              ),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: SizedBox(
-                  width: _calculateChartWidth(),
+                  width:
+                      ResponsiveHelper.isTablet(context)
+                          ? _calculateChartWidth(
+                            context,
+                          ) // Use calculated width for proper scrolling on tablets
+                          : _calculateChartWidth(context),
                   child: Row(
                     children: [
                       // Side label for "Wh"
                       RotatedBox(
                         quarterTurns: 3,
                         child: Padding(
-                          padding: EdgeInsets.only(bottom: 4.h, top: 4.h),
+                          padding: EdgeInsets.only(
+                            bottom: ResponsiveHelper.getSpacing(context) * 0.17,
+                            top: ResponsiveHelper.getSpacing(context) * 0.17,
+                          ),
                           child: Text(
                             'Wh',
                             style: AppTextStyles.caption.copyWith(
-                              fontSize: 12.sp,
+                              fontSize: ResponsiveHelper.getFontSize(
+                                context,
+                                mobileSize: 12.0,
+                                tablet7Size: 14.0,
+                                tablet10Size: 16.0,
+                                largeTabletSize: 18.0,
+                              ),
                               color: AppColors.textMuted,
                               fontWeight: FontWeight.w600,
                             ),
@@ -141,8 +198,10 @@ class TodayKwhConsumpChart extends StatelessWidget {
                       // Chart
                       SizedBox(
                         width:
-                            _calculateChartWidth() -
-                            50.w, // Subtract space for y-axis label
+                            _calculateChartWidth(context) -
+                            (ResponsiveHelper.isTablet(context)
+                                ? 80.0.w
+                                : 50.0.w), // Responsive space for y-axis label
                         child: LineChart(
                           LineChartData(
                             minX: 0,
@@ -167,7 +226,10 @@ class TodayKwhConsumpChart extends StatelessWidget {
                                   begin: Alignment.bottomRight,
                                   end: Alignment.topLeft,
                                 ),
-                                barWidth: 3,
+                                barWidth:
+                                    ResponsiveHelper.isTablet(context)
+                                        ? 4.0
+                                        : 3.0,
                                 belowBarData: BarAreaData(
                                   gradient: const LinearGradient(
                                     colors: [
@@ -191,7 +253,10 @@ class TodayKwhConsumpChart extends StatelessWidget {
                                     index,
                                   ) {
                                     return FlDotCirclePainter(
-                                      radius: 4.r,
+                                      radius:
+                                          ResponsiveHelper.isTablet(context)
+                                              ? 5.0.r
+                                              : 4.0.r,
                                       color: AppColors.primaryBlue,
                                       strokeWidth: 1,
                                       strokeColor: Colors.white,
@@ -233,6 +298,13 @@ class TodayKwhConsumpChart extends StatelessWidget {
                                         color: AppColors.textPrimary,
                                         fontWeight: FontWeight.w600,
                                         height: 1.4,
+                                        fontSize: ResponsiveHelper.getFontSize(
+                                          context,
+                                          mobileSize: 12.0,
+                                          tablet7Size: 14.0,
+                                          tablet10Size: 16.0,
+                                          largeTabletSize: 18.0,
+                                        ),
                                       ),
                                     );
                                   }).toList();
@@ -245,15 +317,31 @@ class TodayKwhConsumpChart extends StatelessWidget {
                                   maxIncluded: false,
                                   minIncluded: false,
                                   showTitles: true,
-                                  reservedSize: 40.w,
+                                  reservedSize:
+                                      ResponsiveHelper.isTablet(context)
+                                          ? 50.0.w
+                                          : 40.0.w,
                                   interval: (chartMaxY - chartMinY) / 4,
                                   getTitlesWidget:
                                       (value, meta) => Padding(
-                                        padding: EdgeInsets.only(right: 8.w),
+                                        padding: EdgeInsets.only(
+                                          right:
+                                              ResponsiveHelper.getSpacing(
+                                                context,
+                                              ) *
+                                              0.33,
+                                        ),
                                         child: Text(
                                           (value.toDouble()).toStringAsFixed(2),
                                           style: AppTextStyles.caption.copyWith(
-                                            fontSize: 11.sp,
+                                            fontSize:
+                                                ResponsiveHelper.getFontSize(
+                                                  context,
+                                                  mobileSize: 11.0,
+                                                  tablet7Size: 12.0,
+                                                  tablet10Size: 13.0,
+                                                  largeTabletSize: 14.0,
+                                                ),
                                             color: AppColors.textMuted,
                                           ),
                                         ),
@@ -263,7 +351,10 @@ class TodayKwhConsumpChart extends StatelessWidget {
                               bottomTitles: AxisTitles(
                                 sideTitles: SideTitles(
                                   showTitles: true,
-                                  reservedSize: 30.h,
+                                  reservedSize:
+                                      ResponsiveHelper.isTablet(context)
+                                          ? 40.0.h
+                                          : 30.0.h,
                                   interval: 1,
                                   maxIncluded: false,
                                   getTitlesWidget: (value, meta) {
@@ -274,14 +365,27 @@ class TodayKwhConsumpChart extends StatelessWidget {
                                       return const SizedBox.shrink();
                                     }
                                     return Padding(
-                                      padding: EdgeInsets.only(top: 8.h),
+                                      padding: EdgeInsets.only(
+                                        top:
+                                            ResponsiveHelper.getSpacing(
+                                              context,
+                                            ) *
+                                            0.33,
+                                      ),
                                       child: Text(
                                         provider.todayTimeLabels[idx]
                                             .split(':')
                                             .take(2)
                                             .join(':'),
                                         style: AppTextStyles.caption.copyWith(
-                                          fontSize: 10.sp,
+                                          fontSize:
+                                              ResponsiveHelper.getFontSize(
+                                                context,
+                                                mobileSize: 10.0,
+                                                tablet7Size: 11.0,
+                                                tablet10Size: 12.0,
+                                                largeTabletSize: 13.0,
+                                              ),
                                           color: AppColors.textMuted,
                                         ),
                                       ),
@@ -305,7 +409,10 @@ class TodayKwhConsumpChart extends StatelessWidget {
                                   color: AppColors.textMuted.withValues(
                                     alpha: 0.3,
                                   ),
-                                  strokeWidth: 1,
+                                  strokeWidth:
+                                      ResponsiveHelper.isTablet(context)
+                                          ? 1.5
+                                          : 1.0,
                                   dashArray: [5, 5],
                                 );
                               },
@@ -314,7 +421,10 @@ class TodayKwhConsumpChart extends StatelessWidget {
                               show: false,
                               border: Border.all(
                                 color: AppColors.border.withValues(alpha: 0.5),
-                                width: 1,
+                                width:
+                                    ResponsiveHelper.isTablet(context)
+                                        ? 1.5
+                                        : 1.0,
                               ),
                             ),
                             extraLinesData: ExtraLinesData(
@@ -326,18 +436,27 @@ class TodayKwhConsumpChart extends StatelessWidget {
                                           color: AppColors.warning.withValues(
                                             alpha: 0.3,
                                           ),
-                                          strokeWidth: 1,
+                                          strokeWidth:
+                                              ResponsiveHelper.isTablet(context)
+                                                  ? 2.0
+                                                  : 1.0,
                                           dashArray: [10, 5],
                                           label: HorizontalLineLabel(
                                             show: true,
                                             labelResolver:
                                                 (line) =>
                                                     'High Usage @ ${provider.yHourlyMaxKWh.toStringAsFixed(2)} Wh',
-                                            style: AppTextStyles.caption
-                                                .copyWith(
-                                                  fontSize: 10.sp,
-                                                  color: AppColors.warning,
-                                                ),
+                                            style: AppTextStyles.caption.copyWith(
+                                              fontSize:
+                                                  ResponsiveHelper.getFontSize(
+                                                    context,
+                                                    mobileSize: 10.0,
+                                                    tablet7Size: 11.0,
+                                                    tablet10Size: 12.0,
+                                                    largeTabletSize: 13.0,
+                                                  ),
+                                              color: AppColors.warning,
+                                            ),
                                           ),
                                         ),
                                       ]
@@ -357,9 +476,9 @@ class TodayKwhConsumpChart extends StatelessWidget {
     );
   }
 
-  double _calculateChartWidth() {
-    // Base width for the container
-    double baseWidth = 1920.w;
+  double _calculateChartWidth(BuildContext context) {
+    // Much larger base width for tablets to make chart more prominent
+    double baseWidth = ResponsiveHelper.isTablet(context) ? 3200.0.w : 1920.0.w;
 
     // If no data, return base width
     if (provider.todayChartData.isEmpty) {
@@ -367,16 +486,24 @@ class TodayKwhConsumpChart extends StatelessWidget {
     }
 
     // Calculate width based on number of data points
-    // Use configurable spacing or default to 80.w
-    double minWidthPerPoint = dataPointSpacing ?? 80.w;
+    // Use much larger spacing for tablets to prevent data congestion
+    double minWidthPerPoint =
+        dataPointSpacing ??
+        (ResponsiveHelper.isTablet(context)
+            ? 300.0.w
+            : 80.0.w); // Increased spacing for tablets
     double calculatedWidth = provider.todayChartData.length * minWidthPerPoint;
 
-    // Add extra space for the y-axis label and padding
-    double totalWidth = calculatedWidth + 50.w;
+    // Add extra space for the y-axis label and padding - more space for tablets
+    double yAxisSpace = ResponsiveHelper.isTablet(context) ? 120.0.w : 50.0.w;
+    double totalWidth = calculatedWidth + yAxisSpace;
 
-    // Ensure minimum width and maximum reasonable width
+    // Ensure minimum width and much higher maximum width for tablets
     double minWidth = baseWidth;
-    double maxWidth = 4000.w; // Increased maximum width
+    double maxWidth =
+        ResponsiveHelper.isTablet(context)
+            ? 10000.0.w
+            : 4000.0.w; // Increased max width
 
     return totalWidth.clamp(minWidth, maxWidth);
   }

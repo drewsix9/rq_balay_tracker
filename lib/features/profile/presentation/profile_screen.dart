@@ -5,6 +5,7 @@ import 'package:rq_balay_tracker/core/global/current_user_model.dart';
 import 'package:rq_balay_tracker/core/theme/app_colors.dart';
 import 'package:rq_balay_tracker/core/theme/app_text_styles.dart';
 import 'package:rq_balay_tracker/core/usecases/user_shared_pref.dart';
+import 'package:rq_balay_tracker/core/utils/responsive_helper.dart';
 import 'package:rq_balay_tracker/features/auth/presentation/login_screen.dart';
 import 'package:rq_balay_tracker/features/profile/presentation/widgets/edit_profile_dialog.dart';
 
@@ -115,27 +116,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return AlertDialog(
           backgroundColor: AppColors.surface,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.r),
+            borderRadius: BorderRadius.circular(
+              ResponsiveHelper.getBorderRadius(context),
+            ),
           ),
           title: Row(
             children: [
               Container(
-                padding: EdgeInsets.all(8.w),
+                padding: EdgeInsets.all(
+                  ResponsiveHelper.getSpacing(context) * 0.33,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEF4444).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12.r),
+                  borderRadius: BorderRadius.circular(
+                    ResponsiveHelper.getBorderRadius(context),
+                  ),
                 ),
                 child: Icon(
                   Icons.logout,
-                  size: 24.sp,
+                  size: ResponsiveHelper.getIconSize(context),
                   color: const Color(0xFFEF4444),
                 ),
               ),
-              SizedBox(width: 12.w),
+              SizedBox(width: ResponsiveHelper.getSpacing(context) * 0.5),
               Text(
                 'Confirm Logout',
                 style: AppTextStyles.heading.copyWith(
-                  fontSize: 18.sp,
+                  fontSize: ResponsiveHelper.getHeadingFontSize(
+                    context,
+                    mobileSize: 18.0,
+                    tablet7Size: 20.0,
+                    tablet10Size: 22.0,
+                    largeTabletSize: 24.0,
+                  ),
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
                 ),
@@ -145,7 +158,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           content: Text(
             'Are you sure you want to logout? You will need to login again to access your account.',
             style: AppTextStyles.body.copyWith(
-              fontSize: 16.sp,
+              fontSize: ResponsiveHelper.getFontSize(
+                context,
+                mobileSize: 16.0,
+                tablet7Size: 17.0,
+                tablet10Size: 18.0,
+                largeTabletSize: 19.0,
+              ),
               color: AppColors.textSecondary,
               height: 1.5,
             ),
@@ -154,16 +173,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               style: TextButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                padding: EdgeInsets.symmetric(
+                  horizontal: ResponsiveHelper.getSpacing(context) * 0.67,
+                  vertical: ResponsiveHelper.getSpacing(context) * 0.5,
+                ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.r),
+                  borderRadius: BorderRadius.circular(
+                    ResponsiveHelper.getBorderRadius(context),
+                  ),
                   side: BorderSide(color: AppColors.border),
                 ),
               ),
               child: Text(
                 'Cancel',
                 style: AppTextStyles.body.copyWith(
-                  fontSize: 16.sp,
+                  fontSize: ResponsiveHelper.getFontSize(
+                    context,
+                    mobileSize: 16.0,
+                    tablet7Size: 17.0,
+                    tablet10Size: 18.0,
+                    largeTabletSize: 19.0,
+                  ),
                   fontWeight: FontWeight.w600,
                   color: AppColors.textSecondary,
                 ),
@@ -176,15 +206,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFEF4444),
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                padding: EdgeInsets.symmetric(
+                  horizontal: ResponsiveHelper.getSpacing(context) * 0.67,
+                  vertical: ResponsiveHelper.getSpacing(context) * 0.5,
+                ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.r),
+                  borderRadius: BorderRadius.circular(
+                    ResponsiveHelper.getBorderRadius(context),
+                  ),
                 ),
               ),
               child: Text(
                 'Logout',
                 style: AppTextStyles.body.copyWith(
-                  fontSize: 16.sp,
+                  fontSize: ResponsiveHelper.getFontSize(
+                    context,
+                    mobileSize: 16.0,
+                    tablet7Size: 17.0,
+                    tablet10Size: 18.0,
+                    largeTabletSize: 19.0,
+                  ),
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),
