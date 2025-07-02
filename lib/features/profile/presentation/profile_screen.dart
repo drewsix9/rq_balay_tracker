@@ -7,7 +7,6 @@ import 'package:rq_balay_tracker/core/theme/app_text_styles.dart';
 import 'package:rq_balay_tracker/core/usecases/user_shared_pref.dart';
 import 'package:rq_balay_tracker/core/utils/responsive_helper.dart';
 import 'package:rq_balay_tracker/features/auth/presentation/login_screen.dart';
-import 'package:rq_balay_tracker/features/profile/presentation/widgets/edit_profile_dialog.dart';
 
 import '../../../core/logger/app_logger.dart';
 import '../../../core/services/api_service.dart';
@@ -246,11 +245,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
         leading: IconButton(
           icon: const Icon(Icons.settings),
           onPressed: () {
-            showDialog(
-              context: context,
-              builder:
-                  (context) =>
-                      EditProfileDialog(user: user, onSave: _updateProfile),
+            // showDialog(
+            //   context: context,
+            //   builder: (context) => EditProfileDialog(
+            //     user: user,
+            //     onSave: _updateProfile,
+            //   ),
+            // );
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.info, color: Colors.white, size: 20),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Editing is not available for testers.',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                backgroundColor: Colors.orange[700],
+                duration: Duration(seconds: 4),
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
             );
           },
           tooltip: 'Edit Profile',
@@ -509,13 +534,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             icon: Icons.edit,
                             label: 'Edit Profile',
                             onTap: () {
-                              showDialog(
-                                context: context,
-                                builder:
-                                    (context) => EditProfileDialog(
-                                      user: user,
-                                      onSave: _updateProfile,
-                                    ),
+                              // showDialog(
+                              //   context: context,
+                              //   builder:
+                              //       (context) => EditProfileDialog(
+                              //         user: user,
+                              //         onSave: _updateProfile,
+                              //       )
+                              // );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.info,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'Editing is not available for testers.',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  backgroundColor: Colors.orange[700],
+                                  duration: Duration(seconds: 4),
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
                               );
                             },
                             color: AppColors.primaryBlue,
