@@ -215,7 +215,7 @@ class _DailyKwhConsumpChartState extends State<DailyKwhConsumpChart> {
                   Expanded(
                     child: BarChart(
                       BarChartData(
-                        alignment: BarChartAlignment.spaceBetween,
+                        alignment: BarChartAlignment.spaceAround,
                         minY: chartMinY,
                         maxY: chartMaxY,
                         barGroups: barGroups,

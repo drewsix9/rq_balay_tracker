@@ -58,15 +58,15 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now,
             // so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // signingConfig = signingConfigs.getByName("debug")
             signingConfig = signingConfigs.getByName("release")
             
             // Custom APK naming with version name and version code
-            setProperty("archivesBaseName", "balay-rq-v${flutter.versionName}-${flutter.versionCode}")
+            // setProperty("archivesBaseName", "balay-rq-v${flutter.versionName}-${flutter.versionCode}")
         }
         debug {
             // Custom APK naming for debug builds
-            setProperty("archivesBaseName", "balay-rq-debug-v${flutter.versionName}-${flutter.versionCode}")
+            // setProperty("archivesBaseName", "balay-rq-debug-v${flutter.versionName}-${flutter.versionCode}")
         }
     }
 }

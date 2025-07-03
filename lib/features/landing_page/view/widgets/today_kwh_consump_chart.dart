@@ -255,7 +255,7 @@ class TodayKwhConsumpChart extends StatelessWidget {
                                     return FlDotCirclePainter(
                                       radius:
                                           ResponsiveHelper.isTablet(context)
-                                              ? 5.0.r
+                                              ? 8.0.r
                                               : 4.0.r,
                                       color: AppColors.primaryBlue,
                                       strokeWidth: 1,
