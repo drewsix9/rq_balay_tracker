@@ -21,6 +21,7 @@ class ProfileScreenViewmodel extends ChangeNotifier {
   Future<void> getCurrentUser() async {
     _isLoading = true;
     notifyListeners();
+    await Future.delayed(const Duration(seconds: 1));
     _currentUser = await UserSharedPref.getCurrentUser();
     _isLoading = false;
     notifyListeners();
