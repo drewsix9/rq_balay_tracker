@@ -7,6 +7,7 @@ class EditProfileDialogProvider extends ChangeNotifier {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
+  CurrentUserModel? _user;
 
   bool _isLoading = false;
   bool _obscurePassword = true;
@@ -61,8 +62,9 @@ class EditProfileDialogProvider extends ChangeNotifier {
   }
 
   void initializeControllers(CurrentUserModel? user) {
-    phoneController.text = user?.mobileno ?? '';
-    emailController.text = user?.email ?? '';
+    _user = user;
+    phoneController.text = _user?.mobileno ?? '';
+    emailController.text = _user?.email ?? '';
     passwordController.clear();
     confirmPasswordController.clear();
     _isPasswordChanged = false;

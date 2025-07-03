@@ -1,30 +1,45 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/global/current_user_model.dart';
+import '../../../core/logger/app_logger.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/usecases/user_shared_pref.dart';
 
 class ProfileScreenViewmodel extends ChangeNotifier {
-  bool _isLoading = false;
+  bool _isLoading = true;
   CurrentUserModel? _currentUser;
+  String? _error;
+
   bool get isLoading => _isLoading;
+  CurrentUserModel? get currentUser => _currentUser;
+  String? get error => _error;
 
   void setIsLoading(bool value) {
     _isLoading = value;
     notifyListeners();
   }
 
-  CurrentUserModel? get currentUser => _currentUser;
+  void _setError(String? error) {
+    _error = error;
+    notifyListeners();
+  }
 
   Future<void> getCurrentUser() async {
+    _setError(null);
     _isLoading = true;
     notifyListeners();
-    await Future.delayed(const Duration(milliseconds: 500));
-    _currentUser = await UserSharedPref.getCurrentUser();
-    _isLoading = false;
-    notifyListeners();
+    try {
+      await Future.delayed(const Duration(milliseconds: 500));
+      _currentUser = await UserSharedPref.getCurrentUser();
+    } catch (e) {
+      _setError('Failed to load user profile: $e');
+      AppLogger.e('Error getting current user: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   Future<void> updateProfile({
@@ -33,6 +48,7 @@ class ProfileScreenViewmodel extends ChangeNotifier {
     String? password,
     BuildContext? context,
   }) async {
+    _setError(null);
     setIsLoading(true);
     try {
       await ApiService.updateProfile(
@@ -74,6 +90,7 @@ class ProfileScreenViewmodel extends ChangeNotifier {
         );
       }
     } catch (e) {
+      _setError('Failed to update profile: $e');
       if (context!.mounted) {
         ScaffoldMessenger.of(
           context,

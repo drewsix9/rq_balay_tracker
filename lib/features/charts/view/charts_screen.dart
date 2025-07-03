@@ -70,17 +70,12 @@ class _ChartsScreenState extends State<ChartsScreen> {
 
   Future<void> _onRefresh() async {
     try {
-      await Future.delayed(const Duration(milliseconds: 500));
-
       if (!mounted) return;
-
       final chartsViewModel = Provider.of<ChartsViewModel>(
         context,
         listen: false,
       );
-
       await chartsViewModel.reload();
-
       _refreshController!.refreshCompleted();
     } catch (e) {
       _refreshController!.refreshFailed();

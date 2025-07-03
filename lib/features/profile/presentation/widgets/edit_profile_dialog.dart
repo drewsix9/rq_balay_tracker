@@ -30,8 +30,13 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
   @override
   void initState() {
     super.initState();
-    _provider = EditProfileDialogProvider();
-    _provider.initializeControllers(widget.user);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _provider = Provider.of<EditProfileDialogProvider>(
+        context,
+        listen: false,
+      );
+      _provider.initializeControllers(widget.user);
+    });
   }
 
   @override
@@ -44,11 +49,8 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
   Widget build(BuildContext context) {
     return Consumer<EditProfileDialogProvider>(
       builder: (context, provider, child) {
-        return WillPopScope(
-          onWillPop: () async {
-            _handleClose(provider);
-            return false; // Prevent default pop behavior
-          },
+        return PopScope(
+          canPop: true,
           child: Dialog(
             backgroundColor: Colors.transparent,
             child: Container(
