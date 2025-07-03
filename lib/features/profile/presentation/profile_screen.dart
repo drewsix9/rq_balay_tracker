@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
-import 'package:rq_balay_tracker/core/global/current_user_model.dart';
+import 'package:provider/provider.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:rq_balay_tracker/core/theme/app_colors.dart';
 import 'package:rq_balay_tracker/core/theme/app_text_styles.dart';
 import 'package:rq_balay_tracker/core/usecases/user_shared_pref.dart';
@@ -9,9 +10,9 @@ import 'package:rq_balay_tracker/core/utils/responsive_helper.dart';
 import 'package:rq_balay_tracker/features/auth/presentation/login_screen.dart';
 
 import '../../../core/logger/app_logger.dart';
-import '../../../core/services/api_service.dart';
 import '../../../core/usecases/month_bill_shared_pref.dart';
 import '../../../core/usecases/transaction_history_shared_pref.dart';
+import '../viewmodel/profile_screen_viewmodel.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -21,77 +22,36 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  CurrentUserModel? _currentUser;
-  bool _isLoading = false;
+  RefreshController? _refreshController;
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
-  }
-
-  Future<void> _loadUserData() async {
-    final user = await UserSharedPref.getCurrentUser();
-    setState(() {
-      _currentUser = user;
+    _refreshController = RefreshController(initialRefresh: false);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Provider.of<ProfileScreenViewmodel>(
+        context,
+        listen: false,
+      ).getCurrentUser();
     });
   }
 
-  Future<void> _updateProfile({
-    String? phone,
-    String? email,
-    String? password,
-  }) async {
-    setState(() => _isLoading = true);
+  Future<void> _onRefresh() async {
     try {
-      await ApiService.updateProfile(
-        unit: _currentUser?.unit ?? '',
-        phone: phone ?? _currentUser?.mobileno ?? '',
-        email: email ?? _currentUser?.email ?? '',
-        password: password,
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      if (!mounted) return;
+
+      final profileViewModel = Provider.of<ProfileScreenViewmodel>(
+        context,
+        listen: false,
       );
-      await Future.delayed(const Duration(seconds: 1));
-      if (mounted) {
-        setState(() {
-          if (_currentUser != null) {
-            _currentUser = _currentUser!.copyWith(
-              mobileno: phone ?? _currentUser!.mobileno,
-              email: email ?? _currentUser!.email,
-            );
-          }
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.check_circle, color: Colors.white, size: 20),
-                SizedBox(width: 8),
-                Text(
-                  'Profile updated successfully',
-                  style: AppTextStyles.buttonText.copyWith(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: AppColors.success,
-            duration: Duration(seconds: 3),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        );
-      }
+
+      await profileViewModel.getCurrentUser();
+
+      _refreshController!.refreshCompleted();
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
-      }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+      _refreshController!.refreshFailed();
     }
   }
 
@@ -237,365 +197,394 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   @override
+  void dispose() {
+    _refreshController?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final user = _currentUser;
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.settings),
-          onPressed: () {
-            // showDialog(
-            //   context: context,
-            //   builder: (context) => EditProfileDialog(
-            //     user: user,
-            //     onSave: _updateProfile,
-            //   ),
-            // );
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Row(
-                  children: [
-                    Icon(Icons.info, color: Colors.white, size: 20),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Editing is not available for testers.',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
+    return Consumer<ProfileScreenViewmodel>(
+      builder: (context, provider, child) {
+        final user = provider.currentUser;
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: () {
+                // showDialog(
+                //   context: context,
+                //   builder: (context) => EditProfileDialog(
+                //     user: user,
+                //     onSave: provider.updateProfile,
+                //   ),
+                // );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: [
+                        Icon(Icons.info, color: Colors.white, size: 20),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Editing is not available for testers.',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-                backgroundColor: Colors.orange[700],
-                duration: Duration(seconds: 4),
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                    backgroundColor: Colors.orange[700],
+                    duration: Duration(seconds: 4),
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                );
+              },
+              tooltip: 'Edit Profile',
+            ),
+            title: Text(
+              'My Profile',
+              style: AppTextStyles.subheading.copyWith(
+                color: AppColors.surface,
+                fontSize: 20.sp,
               ),
-            );
-          },
-          tooltip: 'Edit Profile',
-        ),
-        title: Text(
-          'My Profile',
-          style: AppTextStyles.subheading.copyWith(
-            color: AppColors.surface,
-            fontSize: 20.sp,
+            ),
+            backgroundColor: AppColors.primaryBlue,
+            elevation: 0,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.logout),
+                onPressed: _showLogoutConfirmation,
+                tooltip: 'Logout',
+              ),
+            ],
           ),
-        ),
-        backgroundColor: AppColors.primaryBlue,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _showLogoutConfirmation,
-            tooltip: 'Logout',
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(20.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Profile Header Card
-              Container(
-                decoration: BoxDecoration(
-                  gradient: AppGradients.primaryBlueGradient,
-                  borderRadius: BorderRadius.circular(20.r),
-                  boxShadow: [
-                    BoxShadow(
-                      offset: const Offset(0, 8),
-                      blurRadius: 24,
-                      spreadRadius: 0,
-                      color: AppColors.primaryBlue.withValues(alpha: 0.3),
-                    ),
-                  ],
-                ),
-                padding: EdgeInsets.all(24.w),
-                margin: EdgeInsets.only(bottom: 20.h),
+          body: SmartRefresher(
+            onRefresh: _onRefresh,
+            controller: _refreshController!,
+            header: ClassicHeader(refreshStyle: RefreshStyle.Follow),
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              child: Padding(
+                padding: EdgeInsets.all(20.w),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Enhanced Avatar
+                    // Profile Header Card
                     Container(
                       decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 4.w),
+                        gradient: AppGradients.primaryBlueGradient,
+                        borderRadius: BorderRadius.circular(20.r),
                         boxShadow: [
                           BoxShadow(
-                            offset: const Offset(0, 4),
-                            blurRadius: 12,
+                            offset: const Offset(0, 8),
+                            blurRadius: 24,
                             spreadRadius: 0,
-                            color: Colors.black.withValues(alpha: 0.2),
+                            color: AppColors.primaryBlue.withValues(alpha: 0.3),
                           ),
                         ],
                       ),
-                      child: CircleAvatar(
-                        radius: 50.r,
-                        backgroundColor: Colors.white.withValues(alpha: 0.2),
-                        child: Text(
-                          (user != null && user.name.isNotEmpty)
-                              ? user.name
-                                  .trim()
-                                  .split(' ')
-                                  .map((e) => e.isNotEmpty ? e[0] : '')
-                                  .take(2)
-                                  .join()
-                                  .toUpperCase()
-                              : '?',
-                          style: AppTextStyles.heading.copyWith(
-                            color: Colors.white,
-                            fontSize: 36.sp,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 16.h),
-                    // User Name
-                    Text(
-                      user?.name ?? 'User Name',
-                      style: AppTextStyles.heading.copyWith(
-                        fontSize: 28.sp,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                        letterSpacing: 0.5,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 8.h),
-                    // Unit Badge
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 8.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(20.r),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.3),
-                          width: 1,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
+                      padding: EdgeInsets.all(24.w),
+                      margin: EdgeInsets.only(bottom: 20.h),
+                      child: Column(
                         children: [
-                          Icon(
-                            Icons.meeting_room,
-                            size: 16.sp,
-                            color: Colors.white,
+                          // Enhanced Avatar
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 4.w,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  offset: const Offset(0, 4),
+                                  blurRadius: 12,
+                                  spreadRadius: 0,
+                                  color: Colors.black.withValues(alpha: 0.2),
+                                ),
+                              ],
+                            ),
+                            child: CircleAvatar(
+                              radius: 50.r,
+                              backgroundColor: Colors.white.withValues(
+                                alpha: 0.2,
+                              ),
+                              child: Text(
+                                (user != null && user.name.isNotEmpty)
+                                    ? user.name
+                                        .trim()
+                                        .split(' ')
+                                        .map((e) => e.isNotEmpty ? e[0] : '')
+                                        .take(2)
+                                        .join()
+                                        .toUpperCase()
+                                    : '?',
+                                style: AppTextStyles.heading.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 36.sp,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
                           ),
-                          SizedBox(width: 6.w),
+                          SizedBox(height: 16.h),
+                          // User Name
                           Text(
-                            'Unit ${user?.unit ?? ''}',
-                            style: AppTextStyles.body.copyWith(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
+                            user?.name ?? 'User Name',
+                            style: AppTextStyles.heading.copyWith(
+                              fontSize: 28.sp,
+                              fontWeight: FontWeight.w800,
                               color: Colors.white,
+                              letterSpacing: 0.5,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 8.h),
+                          // Unit Badge
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16.w,
+                              vertical: 8.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(20.r),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.3),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.meeting_room,
+                                  size: 16.sp,
+                                  color: Colors.white,
+                                ),
+                                SizedBox(width: 6.w),
+                                Text(
+                                  'Unit ${user?.unit ?? ''}',
+                                  style: AppTextStyles.body.copyWith(
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
-              ),
 
-              // Information Cards
-              _buildInfoCard(
-                title: 'Account Details',
-                icon: Icons.person_outline,
-                children: [
-                  _buildInfoRow(
-                    icon: Icons.attach_money,
-                    label: 'Monthly Rate',
-                    value: NumberFormat.currency(
-                      symbol: '₱',
-                      decimalDigits: 2,
-                    ).format(double.tryParse(user!.monthlyRate) ?? 0),
-                    valueColor: AppColors.textPrimary,
-                    iconColor: AppColors.primaryBlue,
-                  ),
-                  SizedBox(height: 16.h),
-                  _buildInfoRow(
-                    icon: Icons.wifi,
-                    label: 'WiFi Status',
-                    value:
-                        user.wifi.isNotEmpty && user.wifi.toLowerCase() == 'y'
-                            ? 'Available'
-                            : 'Unavailable',
-                    valueColor:
-                        user.wifi.isNotEmpty && user.wifi.toLowerCase() == 'y'
-                            ? const Color(0xFF039855)
-                            : const Color(0xFFB42318),
-                    iconColor: AppColors.primaryBlue,
-                    customValue:
-                        user.wifi.isNotEmpty && user.wifi.toLowerCase() == 'y'
-                            ? _buildStatusChip('Available', true)
-                            : _buildStatusChip('Unavailable', false),
-                  ),
-                  if (user.startDate.isNotEmpty ?? false) ...[
-                    SizedBox(height: 16.h),
-                    _buildInfoRow(
-                      icon: Icons.calendar_today,
-                      label: 'Start Date',
-                      value: DateFormat(
-                        'MMM dd, yyyy',
-                      ).format(DateTime.parse(user.startDate)),
-                      valueColor: AppColors.textPrimary,
-                      iconColor: AppColors.primaryBlue,
-                    ),
-                  ],
-                ],
-              ),
-
-              SizedBox(height: 16.h),
-
-              _buildInfoCard(
-                title: 'Contact Information',
-                icon: Icons.contact_phone,
-                children: [
-                  _buildInfoRow(
-                    icon: Icons.phone,
-                    label: 'Mobile Number',
-                    value: user.mobileno ?? 'Not provided',
-                    valueColor: AppColors.textPrimary,
-                    iconColor: AppColors.primaryBlue,
-                  ),
-                  SizedBox(height: 16.h),
-                  _buildInfoRow(
-                    icon: Icons.email,
-                    label: 'Email',
-                    value:
-                        user.email?.isEmpty ?? true
-                            ? 'Not provided'
-                            : user.email ?? '',
-                    valueColor: AppColors.textPrimary,
-                    iconColor: AppColors.primaryBlue,
-                  ),
-                ],
-              ),
-
-              // Quick Actions Card
-              SizedBox(height: 16.h),
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(16.r),
-                  boxShadow: [
-                    BoxShadow(
-                      offset: const Offset(0, 2),
-                      blurRadius: 8,
-                      spreadRadius: 0,
-                      color: Colors.black.withValues(alpha: 0.05),
-                    ),
-                  ],
-                ),
-                padding: EdgeInsets.all(20.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+                    // Information Cards
+                    _buildInfoCard(
+                      title: 'Account Details',
+                      icon: Icons.person_outline,
                       children: [
-                        Container(
-                          padding: EdgeInsets.all(8.w),
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryBlue.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
-                          child: Icon(
-                            Icons.settings,
-                            size: 20.sp,
-                            color: AppColors.primaryBlue,
-                          ),
+                        _buildInfoRow(
+                          icon: Icons.attach_money,
+                          label: 'Monthly Rate',
+                          value: NumberFormat.currency(
+                            symbol: '₱',
+                            decimalDigits: 2,
+                          ).format(double.tryParse(user!.monthlyRate) ?? 0),
+                          valueColor: AppColors.textPrimary,
+                          iconColor: AppColors.primaryBlue,
                         ),
-                        SizedBox(width: 12.w),
-                        Text(
-                          'Quick Actions',
-                          style: AppTextStyles.heading.copyWith(
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
+                        SizedBox(height: 16.h),
+                        _buildInfoRow(
+                          icon: Icons.wifi,
+                          label: 'WiFi Status',
+                          value:
+                              user.wifi.isNotEmpty &&
+                                      user.wifi.toLowerCase() == 'y'
+                                  ? 'Available'
+                                  : 'Unavailable',
+                          valueColor:
+                              user.wifi.isNotEmpty &&
+                                      user.wifi.toLowerCase() == 'y'
+                                  ? const Color(0xFF039855)
+                                  : const Color(0xFFB42318),
+                          iconColor: AppColors.primaryBlue,
+                          customValue:
+                              user.wifi.isNotEmpty &&
+                                      user.wifi.toLowerCase() == 'y'
+                                  ? _buildStatusChip('Available', true)
+                                  : _buildStatusChip('Unavailable', false),
+                        ),
+                        if (user.startDate.isNotEmpty ?? false) ...[
+                          SizedBox(height: 16.h),
+                          _buildInfoRow(
+                            icon: Icons.calendar_today,
+                            label: 'Start Date',
+                            value: DateFormat(
+                              'MMM dd, yyyy',
+                            ).format(DateTime.parse(user.startDate)),
+                            valueColor: AppColors.textPrimary,
+                            iconColor: AppColors.primaryBlue,
                           ),
+                        ],
+                      ],
+                    ),
+
+                    SizedBox(height: 16.h),
+
+                    _buildInfoCard(
+                      title: 'Contact Information',
+                      icon: Icons.contact_phone,
+                      children: [
+                        _buildInfoRow(
+                          icon: Icons.phone,
+                          label: 'Mobile Number',
+                          value: user.mobileno ?? 'Not provided',
+                          valueColor: AppColors.textPrimary,
+                          iconColor: AppColors.primaryBlue,
+                        ),
+                        SizedBox(height: 16.h),
+                        _buildInfoRow(
+                          icon: Icons.email,
+                          label: 'Email',
+                          value:
+                              user.email?.isEmpty ?? true
+                                  ? 'Not provided'
+                                  : user.email ?? '',
+                          valueColor: AppColors.textPrimary,
+                          iconColor: AppColors.primaryBlue,
                         ),
                       ],
                     ),
+
+                    // Quick Actions Card
                     SizedBox(height: 16.h),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildActionButton(
-                            icon: Icons.edit,
-                            label: 'Edit Profile',
-                            onTap: () {
-                              // showDialog(
-                              //   context: context,
-                              //   builder:
-                              //       (context) => EditProfileDialog(
-                              //         user: user,
-                              //         onSave: _updateProfile,
-                              //       )
-                              // );
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.info,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                      SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          'Editing is not available for testers.',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(16.r),
+                        boxShadow: [
+                          BoxShadow(
+                            offset: const Offset(0, 2),
+                            blurRadius: 8,
+                            spreadRadius: 0,
+                            color: Colors.black.withValues(alpha: 0.05),
+                          ),
+                        ],
+                      ),
+                      padding: EdgeInsets.all(20.w),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(8.w),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryBlue.withValues(
+                                    alpha: 0.1,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12.r),
+                                ),
+                                child: Icon(
+                                  Icons.settings,
+                                  size: 20.sp,
+                                  color: AppColors.primaryBlue,
+                                ),
+                              ),
+                              SizedBox(width: 12.w),
+                              Text(
+                                'Quick Actions',
+                                style: AppTextStyles.heading.copyWith(
+                                  fontSize: 18.sp,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 16.h),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildActionButton(
+                                  icon: Icons.edit,
+                                  label: 'Edit Profile',
+                                  onTap: () {
+                                    // showDialog(
+                                    //   context: context,
+                                    //   builder:
+                                    //       (context) => EditProfileDialog(
+                                    //         user: user,
+                                    //         onSave: provider.updateProfile,
+                                    //       )
+                                    // );
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.info,
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                            SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                'Editing is not available for testers.',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        backgroundColor: Colors.orange[700],
+                                        duration: Duration(seconds: 4),
+                                        behavior: SnackBarBehavior.floating,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
                                           ),
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                  backgroundColor: Colors.orange[700],
-                                  duration: Duration(seconds: 4),
-                                  behavior: SnackBarBehavior.floating,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
+                                    );
+                                  },
+                                  color: AppColors.primaryBlue,
                                 ),
-                              );
-                            },
-                            color: AppColors.primaryBlue,
+                              ),
+                              SizedBox(width: 12.w),
+                              Expanded(
+                                child: _buildActionButton(
+                                  icon: Icons.logout,
+                                  label: 'Logout',
+                                  onTap: _showLogoutConfirmation,
+                                  color: const Color(0xFFEF4444),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        SizedBox(width: 12.w),
-                        Expanded(
-                          child: _buildActionButton(
-                            icon: Icons.logout,
-                            label: 'Logout',
-                            onTap: _showLogoutConfirmation,
-                            color: const Color(0xFFEF4444),
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
+
+                    // Bottom padding
+                    SizedBox(height: 20.h),
                   ],
                 ),
               ),
-
-              // Bottom padding
-              SizedBox(height: 20.h),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

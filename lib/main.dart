@@ -15,6 +15,7 @@ import 'core/widgets/splash_screen.dart';
 import 'features/charts/viewmodel/charts_viewmodel.dart';
 import 'features/landing_page/viewmodel/landing_page_viewmodel.dart';
 import 'features/profile/viewmodel/edit_profile_dialog_provider.dart';
+import 'features/profile/viewmodel/profile_screen_viewmodel.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -62,6 +63,7 @@ class MyApp extends StatelessWidget {
             ChangeNotifierProvider(create: (_) => BiometricProvider()),
             ChangeNotifierProvider(create: (_) => LandingPageViewModel()),
             ChangeNotifierProvider(create: (_) => EditProfileDialogProvider()),
+            ChangeNotifierProvider(create: (_) => ProfileScreenViewmodel()),
           ],
           child: MaterialApp(
             debugShowCheckedModeBanner: false,

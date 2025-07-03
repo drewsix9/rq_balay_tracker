@@ -24,9 +24,7 @@ class ChartsScreen extends StatefulWidget {
 }
 
 class _ChartsScreenState extends State<ChartsScreen> {
-  final RefreshController _refreshController = RefreshController(
-    initialRefresh: false,
-  );
+  RefreshController? _refreshController;
   String? _lastError;
 
   void _showErrorSnackBar(String title, String message) {
@@ -51,6 +49,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
   @override
   void initState() {
     super.initState();
+    _refreshController = RefreshController(initialRefresh: false);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       String unit = await UnitSharedPref.getUnit() ?? '';
       final transactionHistory = await ApiService.getTransactionHistory(unit);
@@ -65,7 +64,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
 
   @override
   void dispose() {
-    _refreshController.dispose();
+    _refreshController!.dispose();
     super.dispose();
   }
 
@@ -82,9 +81,9 @@ class _ChartsScreenState extends State<ChartsScreen> {
 
       await chartsViewModel.reload();
 
-      _refreshController.refreshCompleted();
+      _refreshController!.refreshCompleted();
     } catch (e) {
-      _refreshController.refreshFailed();
+      _refreshController!.refreshFailed();
     }
   }
 
@@ -133,7 +132,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
             }
 
             return SmartRefresher(
-              controller: _refreshController,
+              controller: _refreshController!,
               onRefresh: _onRefresh,
               header: ClassicHeader(refreshStyle: RefreshStyle.Follow),
               child: CustomScrollView(

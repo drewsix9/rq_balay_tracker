@@ -40,10 +40,13 @@ class LandingPageViewModel extends ChangeNotifier {
   }
 
   Future<void> getTodayKWhConsump(String? unit) async {
+    _isLoading = true;
+    notifyListeners();
     final todayKWhConsump = await ApiService.getTodaykWhConsump(unit: unit!);
     _hourlyKWhConsumpList = HourlyKwhConsumpModel.fromMap(todayKWhConsump!);
     await HourlyKwhConsumSharedPref.saveHourlyKwhConsum(_hourlyKWhConsumpList);
     _readingPairs = ReadingPair.generateReadingPair(_hourlyKWhConsumpList)!;
+    _isLoading = false;
     notifyListeners();
   }
 
