@@ -49,6 +49,7 @@ dependencies:
   persistent_bottom_nav_bar_v2: ^6.0.1
   provider: ^6.1.5
   pull_to_refresh_flutter3: ^2.0.2
+  responsive_framework: ^1.5.1
   screenshot: ^3.0.0
   shared_preferences: ^2.5.3
   shimmer: ^3.0.0

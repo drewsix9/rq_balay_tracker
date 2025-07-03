@@ -41,17 +41,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _onRefresh() async {
     try {
-      await Future.delayed(const Duration(milliseconds: 500));
-
       if (!mounted) return;
-
       final profileViewModel = Provider.of<ProfileScreenViewmodel>(
         context,
         listen: false,
       );
-
       await profileViewModel.getCurrentUser();
-
       _refreshController!.refreshCompleted();
     } catch (e) {
       _refreshController!.refreshFailed();
