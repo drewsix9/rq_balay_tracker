@@ -23,14 +23,13 @@ class LandingPageScreen extends StatefulWidget {
 }
 
 class _LandingPageScreenState extends State<LandingPageScreen> {
-  final RefreshController _refreshController = RefreshController(
-    initialRefresh: false,
-  );
+  RefreshController? _refreshController;
   late CurrentUserModel? user;
 
   @override
   void initState() {
     super.initState();
+    _refreshController = RefreshController(initialRefresh: false);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final unit = await UnitSharedPref.getUnit();
       if (mounted) {
@@ -50,15 +49,15 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
         listen: false,
       );
       await landingPageViewModel.getTodayKWhConsump(unit);
-      _refreshController.refreshCompleted();
+      _refreshController!.refreshCompleted();
     } catch (e) {
-      _refreshController.refreshFailed();
+      _refreshController!.refreshFailed();
     }
   }
 
   @override
   void dispose() {
-    _refreshController.dispose();
+    _refreshController!.dispose();
     super.dispose();
   }
 
@@ -90,7 +89,7 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
       // drawer: SidePanel(),
       body: SmartRefresher(
         onRefresh: _onRefresh,
-        controller: _refreshController,
+        controller: _refreshController!,
         header: ClassicHeader(refreshStyle: RefreshStyle.Follow),
         physics: const AlwaysScrollableScrollPhysics(),
         child: SingleChildScrollView(

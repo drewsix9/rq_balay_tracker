@@ -25,9 +25,7 @@ class BillsScreen extends StatefulWidget {
 }
 
 class _BillsScreenState extends State<BillsScreen> {
-  final RefreshController _refreshController = RefreshController(
-    initialRefresh: false,
-  );
+  RefreshController? _refreshController;
   String? _lastError;
 
   void _showErrorSnackBar(String title, String message) {
@@ -52,9 +50,16 @@ class _BillsScreenState extends State<BillsScreen> {
   @override
   void initState() {
     super.initState();
+    _refreshController = RefreshController(initialRefresh: false);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<BillsProvider>(context, listen: false).initialize();
     });
+  }
+
+  @override
+  void dispose() {
+    _refreshController?.dispose();
+    super.dispose();
   }
 
   @override
@@ -246,16 +251,16 @@ class _BillsScreenState extends State<BillsScreen> {
                         ).isLoading,
                     child: Scrollbar(
                       child: SmartRefresher(
-                        controller: _refreshController,
+                        controller: _refreshController!,
                         onRefresh: () async {
                           try {
                             await Provider.of<BillsProvider>(
                               context,
                               listen: false,
                             ).reload();
-                            _refreshController.refreshCompleted();
+                            _refreshController?.refreshCompleted();
                           } catch (e) {
-                            _refreshController.refreshFailed();
+                            _refreshController?.refreshFailed();
                             _showErrorSnackBar(
                               'Error',
                               'Failed to refresh data',
