@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:rq_balay_tracker/core/theme/app_colors.dart';
 import 'package:rq_balay_tracker/core/theme/app_text_styles.dart';
 import 'package:rq_balay_tracker/core/utils/responsive_helper.dart';
+import 'package:rq_balay_tracker/features/landing_page/view/widgets/shimmer/today_kwh_chart_shimmer.dart';
 import 'package:rq_balay_tracker/features/landing_page/viewmodel/landing_page_viewmodel.dart';
 
 class TodayKwhConsumpChart extends StatelessWidget {
@@ -21,26 +22,7 @@ class TodayKwhConsumpChart extends StatelessWidget {
     return Builder(
       builder: (context) {
         if (provider.isLoading) {
-          return Container(
-            width:
-                ResponsiveHelper.isTablet(context)
-                    ? MediaQuery.of(context).size.width *
-                        0.95 // Use 95% of screen width on tablets
-                    : ResponsiveHelper.getChartWidth(context),
-            height:
-                ResponsiveHelper.isTablet(context)
-                    ? MediaQuery.of(context).size.height *
-                        0.6 // Use 60% of screen height on tablets
-                    : ResponsiveHelper.getChartHeight(context),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(
-                ResponsiveHelper.getBorderRadius(context),
-              ),
-            ),
-            child: const Center(
-              child: CircularProgressIndicator(color: AppColors.primaryBlue),
-            ),
-          );
+          return const TodayKwhChartShimmer();
         }
 
         if (provider.todayChartData.isEmpty) {
