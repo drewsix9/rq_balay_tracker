@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/logger/app_logger.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/utils/responsive_helper.dart';
 import '../../viewmodel/charts_viewmodel.dart';
 
 abstract class BaseMonthlyConsumptionChart extends StatefulWidget {
@@ -39,7 +40,7 @@ class _BaseMonthlyConsumptionChartState
   @override
   Widget build(BuildContext context) {
     Widget chartContent = AspectRatio(
-      aspectRatio: 1.5,
+      aspectRatio: ResponsiveHelper.isTablet(context) ? 2.0 : 1.5,
       child: FutureBuilder<List<double>>(
         future: widget.getConsumptionData(context.read<ChartsViewModel>()),
         builder: (context, snapshot) {
@@ -47,7 +48,9 @@ class _BaseMonthlyConsumptionChartState
             return Container(
               decoration: BoxDecoration(
                 color: AppColors.background,
-                borderRadius: BorderRadius.circular(12.r),
+                borderRadius: BorderRadius.circular(
+                  ResponsiveHelper.getBorderRadius(context),
+                ),
               ),
               child: const Center(
                 child: CircularProgressIndicator(color: AppColors.primaryBlue),
@@ -57,7 +60,9 @@ class _BaseMonthlyConsumptionChartState
             return Container(
               decoration: BoxDecoration(
                 color: AppColors.background,
-                borderRadius: BorderRadius.circular(12.r),
+                borderRadius: BorderRadius.circular(
+                  ResponsiveHelper.getBorderRadius(context),
+                ),
               ),
               child: Center(
                 child: Column(
@@ -65,13 +70,23 @@ class _BaseMonthlyConsumptionChartState
                   children: [
                     Icon(
                       Icons.error_outline,
-                      size: 32.sp,
+                      size: ResponsiveHelper.getIconSize(context),
                       color: AppColors.textMuted,
                     ),
-                    SizedBox(height: 4.h),
+                    SizedBox(
+                      height: ResponsiveHelper.getSpacing(context) * 0.17,
+                    ),
                     Text(
                       'Error loading data',
-                      style: AppTextStyles.muted.copyWith(fontSize: 14.sp),
+                      style: AppTextStyles.muted.copyWith(
+                        fontSize: ResponsiveHelper.getFontSize(
+                          context,
+                          mobileSize: 14.0,
+                          tablet7Size: 15.0,
+                          tablet10Size: 16.0,
+                          largeTabletSize: 17.0,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -81,7 +96,9 @@ class _BaseMonthlyConsumptionChartState
             return Container(
               decoration: BoxDecoration(
                 color: AppColors.background,
-                borderRadius: BorderRadius.circular(12.r),
+                borderRadius: BorderRadius.circular(
+                  ResponsiveHelper.getBorderRadius(context),
+                ),
               ),
               child: Center(
                 child: Column(
@@ -89,13 +106,23 @@ class _BaseMonthlyConsumptionChartState
                   children: [
                     Icon(
                       Icons.bar_chart_outlined,
-                      size: 32.sp,
+                      size: ResponsiveHelper.getIconSize(context),
                       color: AppColors.textMuted,
                     ),
-                    SizedBox(height: 4.h),
+                    SizedBox(
+                      height: ResponsiveHelper.getSpacing(context) * 0.17,
+                    ),
                     Text(
                       'No data available',
-                      style: AppTextStyles.muted.copyWith(fontSize: 14.sp),
+                      style: AppTextStyles.muted.copyWith(
+                        fontSize: ResponsiveHelper.getFontSize(
+                          context,
+                          mobileSize: 14.0,
+                          tablet7Size: 15.0,
+                          tablet10Size: 16.0,
+                          largeTabletSize: 17.0,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -110,7 +137,9 @@ class _BaseMonthlyConsumptionChartState
                 return Container(
                   decoration: BoxDecoration(
                     color: AppColors.background,
-                    borderRadius: BorderRadius.circular(12.r),
+                    borderRadius: BorderRadius.circular(
+                      ResponsiveHelper.getBorderRadius(context),
+                    ),
                   ),
                   child: const Center(
                     child: CircularProgressIndicator(
@@ -122,12 +151,22 @@ class _BaseMonthlyConsumptionChartState
                 return Container(
                   decoration: BoxDecoration(
                     color: AppColors.background,
-                    borderRadius: BorderRadius.circular(12.r),
+                    borderRadius: BorderRadius.circular(
+                      ResponsiveHelper.getBorderRadius(context),
+                    ),
                   ),
                   child: Center(
                     child: Text(
                       'Error: ${barChartSnapshot.error}',
-                      style: AppTextStyles.muted.copyWith(fontSize: 14.sp),
+                      style: AppTextStyles.muted.copyWith(
+                        fontSize: ResponsiveHelper.getFontSize(
+                          context,
+                          mobileSize: 14.0,
+                          tablet7Size: 15.0,
+                          tablet10Size: 16.0,
+                          largeTabletSize: 17.0,
+                        ),
+                      ),
                     ),
                   ),
                 );
@@ -135,12 +174,22 @@ class _BaseMonthlyConsumptionChartState
                 return Container(
                   decoration: BoxDecoration(
                     color: AppColors.background,
-                    borderRadius: BorderRadius.circular(12.r),
+                    borderRadius: BorderRadius.circular(
+                      ResponsiveHelper.getBorderRadius(context),
+                    ),
                   ),
                   child: Center(
                     child: Text(
                       'No chart data',
-                      style: AppTextStyles.muted.copyWith(fontSize: 14.sp),
+                      style: AppTextStyles.muted.copyWith(
+                        fontSize: ResponsiveHelper.getFontSize(
+                          context,
+                          mobileSize: 14.0,
+                          tablet7Size: 15.0,
+                          tablet10Size: 16.0,
+                          largeTabletSize: 17.0,
+                        ),
+                      ),
                     ),
                   ),
                 );
@@ -161,10 +210,14 @@ class _BaseMonthlyConsumptionChartState
     }
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 8.w),
+      margin: EdgeInsets.symmetric(
+        horizontal: ResponsiveHelper.getSpacing(context) * 0.33,
+      ),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(
+          ResponsiveHelper.getBorderRadius(context),
+        ),
         boxShadow: [
           BoxShadow(
             offset: const Offset(0, 2),
@@ -175,8 +228,13 @@ class _BaseMonthlyConsumptionChartState
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16.r),
-        child: Padding(padding: EdgeInsets.all(12.w), child: chartContent),
+        borderRadius: BorderRadius.circular(
+          ResponsiveHelper.getBorderRadius(context),
+        ),
+        child: Padding(
+          padding: ResponsiveHelper.getCardPadding(context),
+          child: chartContent,
+        ),
       ),
     );
   }
@@ -203,15 +261,23 @@ class _BaseMonthlyConsumptionChartState
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            reservedSize: 32.w,
+            reservedSize: ResponsiveHelper.isTablet(context) ? 40.0.w : 32.0.w,
             interval: (chartMaxY - chartMinY) / 4,
             getTitlesWidget:
                 (value, meta) => Padding(
-                  padding: EdgeInsets.only(right: 4.w),
+                  padding: EdgeInsets.only(
+                    right: ResponsiveHelper.getSpacing(context) * 0.17,
+                  ),
                   child: Text(
                     '${value.toInt()}',
                     style: AppTextStyles.caption.copyWith(
-                      fontSize: 10.sp,
+                      fontSize: ResponsiveHelper.getFontSize(
+                        context,
+                        mobileSize: 10.0,
+                        tablet7Size: 11.0,
+                        tablet10Size: 12.0,
+                        largeTabletSize: 13.0,
+                      ),
                       color: AppColors.textMuted,
                     ),
                   ),
@@ -225,7 +291,7 @@ class _BaseMonthlyConsumptionChartState
             showTitles: true,
             getTitlesWidget:
                 (value, meta) => getTitles(value, meta, consumption),
-            reservedSize: 32.h,
+            reservedSize: ResponsiveHelper.isTablet(context) ? 65.0.h : 32.0.h,
           ),
         ),
       ),
@@ -263,9 +329,13 @@ class _BaseMonthlyConsumptionChartState
         touchTooltipData: BarTouchTooltipData(
           fitInsideVertically: true,
           fitInsideHorizontally: true,
-          tooltipPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-          tooltipMargin: 4.h,
-          maxContentWidth: 160.w,
+          tooltipPadding: EdgeInsets.symmetric(
+            horizontal: ResponsiveHelper.getSpacing(context) * 0.5,
+            vertical: ResponsiveHelper.getSpacing(context) * 0.33,
+          ),
+          tooltipMargin: ResponsiveHelper.getSpacing(context) * 0.17,
+          maxContentWidth:
+              ResponsiveHelper.isTablet(context) ? 200.0.w : 160.0.w,
           getTooltipColor:
               (touchedSpot) => AppColors.surface.withValues(alpha: 0.8),
           getTooltipItem: getBarTooltipItem(),
@@ -329,7 +399,13 @@ class _BaseMonthlyConsumptionChartState
   Widget getTitles(double value, TitleMeta meta, List<double> consumption) {
     var style = AppTextStyles.caption.copyWith(
       color: AppColors.textMuted,
-      fontSize: 11.sp,
+      fontSize: ResponsiveHelper.getFontSize(
+        context,
+        mobileSize: 11.0,
+        tablet7Size: 12.0,
+        tablet10Size: 13.0,
+        largeTabletSize: 14.0,
+      ),
       fontWeight: FontWeight.w500,
     );
 
@@ -378,8 +454,13 @@ class _BaseMonthlyConsumptionChartState
     }
     return SideTitleWidget(
       meta: meta,
-      space: 4,
-      child: Padding(padding: EdgeInsets.only(top: 4.h), child: text),
+      space: ResponsiveHelper.getSpacing(context) * 0.17,
+      child: Padding(
+        padding: EdgeInsets.only(
+          top: ResponsiveHelper.getSpacing(context) * 0.17,
+        ),
+        child: text,
+      ),
     );
   }
 
@@ -414,8 +495,8 @@ class _BaseMonthlyConsumptionChartState
       return makeGroupData(
         int.tryParse(months[index]) ?? 0,
         limitedConsumption[index],
-        12.w,
-        8.h,
+        ResponsiveHelper.isTablet(context) ? 16.0.w : 12.0.w,
+        ResponsiveHelper.isTablet(context) ? 12.0.h : 8.0.h,
         AppColors.primaryBlue,
       );
     });
@@ -437,7 +518,9 @@ class _BaseMonthlyConsumptionChartState
           gradient:
               y > 0 ? widget.chartGradient : AppGradients.primaryBlueGradient,
           width: width,
-          borderRadius: BorderRadius.circular(4.r),
+          borderRadius: BorderRadius.circular(
+            ResponsiveHelper.getChartRodBorderRadius(context),
+          ),
           backDrawRodData: BackgroundBarChartRodData(
             show: true,
             toY: y > 0 ? y : 0,

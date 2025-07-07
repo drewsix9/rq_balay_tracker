@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
 import 'core/theme/app_colors.dart';
+import 'core/utils/responsive_helper.dart';
 import 'features/bills/presentation/bills_screen.dart';
 import 'features/charts/view/charts_screen.dart';
 import 'features/landing_page/view/landing_page_screen.dart';
@@ -22,15 +22,30 @@ class _HomeScreenState extends State<HomeScreen> {
       tabs: [
         PersistentTabConfig(
           screen: LandingPageScreen(),
-          item: ItemConfig(icon: Icon(Icons.home), title: "Home"),
+          item: ItemConfig(
+            icon: Icon(Icons.home, size: ResponsiveHelper.getIconSize(context)),
+            title: "Home",
+          ),
         ),
         PersistentTabConfig(
           screen: BillsScreen(),
-          item: ItemConfig(icon: Icon(Icons.receipt_long), title: "Bills"),
+          item: ItemConfig(
+            icon: Icon(
+              Icons.receipt_long,
+              size: ResponsiveHelper.getIconSize(context),
+            ),
+            title: "Bills",
+          ),
         ),
         PersistentTabConfig(
           screen: ChartsScreen(),
-          item: ItemConfig(icon: Icon(Icons.bar_chart), title: "Charts"),
+          item: ItemConfig(
+            icon: Icon(
+              Icons.bar_chart,
+              size: ResponsiveHelper.getIconSize(context),
+            ),
+            title: "Charts",
+          ),
         ),
         // PersistentTabConfig(
         //   screen: NotificationTestWidget(),
@@ -41,16 +56,26 @@ class _HomeScreenState extends State<HomeScreen> {
         // ),
         PersistentTabConfig(
           screen: ProfileScreen(),
-          item: ItemConfig(icon: Icon(Icons.person), title: "Profile"),
+          item: ItemConfig(
+            icon: Icon(
+              Icons.person,
+              size: ResponsiveHelper.getIconSize(context),
+            ),
+            title: "Profile",
+          ),
         ),
       ],
       navBarBuilder:
           (navBarConfig) => Style6BottomNavBar(
             navBarConfig: navBarConfig,
             navBarDecoration: NavBarDecoration(
-              padding: EdgeInsets.symmetric(vertical: 12.h),
+              padding: EdgeInsets.symmetric(
+                vertical: ResponsiveHelper.getSpacing(context) * 0.5,
+              ),
               color: AppColors.background,
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(
+                ResponsiveHelper.getBorderRadius(context),
+              ),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.1),

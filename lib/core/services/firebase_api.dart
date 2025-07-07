@@ -151,8 +151,6 @@ class FirebaseApi {
           message.notification?.body ??
           message.data['body'] ??
           'You have a new message';
-      final String? imageUrl =
-          message.notification?.android?.imageUrl ?? message.data['image'];
 
       // Show the notification
       await _localNotifications.show(

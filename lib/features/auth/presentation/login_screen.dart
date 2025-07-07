@@ -18,6 +18,8 @@ import '../../../core/theme/app_text_styles.dart';
 import '../../../core/usecases/fcm_token_shared_pref.dart';
 import '../../../core/usecases/unit_shared_pref.dart';
 import '../../../core/usecases/user_shared_pref.dart';
+import '../../../core/utils/responsive_helper.dart';
+import '../../../core/utils/snackbar_utils.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_input_field.dart';
 
@@ -42,74 +44,6 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
-  void _showErrorSnackBar(String title, String message) {
-    if (!mounted) return;
-
-    final snackBar = SnackBar(
-      content: Row(
-        children: [
-          Icon(Icons.error, color: Colors.white, size: 20),
-          SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                ),
-                Text(message, style: TextStyle(fontSize: 12)),
-              ],
-            ),
-          ),
-        ],
-      ),
-      backgroundColor: Colors.red[600],
-      duration: Duration(seconds: 4),
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-    );
-
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(snackBar);
-  }
-
-  void _showSuccessSnackBar(String title, String message) {
-    if (!mounted) return;
-
-    final snackBar = SnackBar(
-      content: Row(
-        children: [
-          Icon(Icons.check_circle, color: Colors.white, size: 20),
-          SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                ),
-                Text(message, style: TextStyle(fontSize: 12)),
-              ],
-            ),
-          ),
-        ],
-      ),
-      backgroundColor: Colors.green[600],
-      duration: Duration(seconds: 3),
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-    );
-
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(snackBar);
-  }
-
   Future<void> _handleBiometricLogin() async {
     final biometricProvider = Provider.of<BiometricProvider>(
       context,
@@ -117,16 +51,16 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (!biometricProvider.isDeviceSupported) {
-      _showErrorSnackBar(
-        'Not Supported',
+      SnackBarUtils.showWarning(
+        context,
         'Biometric authentication is not supported on this device.',
       );
       return;
     }
 
     if (!biometricProvider.canCheckBiometrics) {
-      _showErrorSnackBar(
-        'Not Available',
+      SnackBarUtils.showWarning(
+        context,
         'No biometrics are available on this device.',
       );
       return;
@@ -151,10 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
             UserSharedPref.saveCurrentUser(CurrentUserModel.fromMap(response));
 
             if (mounted) {
-              _showSuccessSnackBar(
-                'Biometric Login',
-                'Biometric Login successful',
-              );
+              SnackBarUtils.showSuccess(context, 'Biometric Login successful');
               // Navigate after a short delay to allow the snackbar to be visible
               Future.delayed(Duration(milliseconds: 1500), () {
                 if (context.mounted) {
@@ -166,8 +97,8 @@ class _LoginScreenState extends State<LoginScreen> {
               });
             }
           } else {
-            _showErrorSnackBar(
-              'Invalid Session',
+            SnackBarUtils.showError(
+              context,
               'Your session has expired. Please login manually.',
             );
             // Clear invalid cached data
@@ -175,15 +106,15 @@ class _LoginScreenState extends State<LoginScreen> {
             await UserSharedPref.clearCurrentUser();
           }
         } else {
-          _showErrorSnackBar(
-            'No Saved Session',
+          SnackBarUtils.showWarning(
+            context,
             'Please login manually first to enable biometric login.',
           );
         }
       }
     } catch (e) {
       if (mounted) {
-        _showErrorSnackBar('Authentication Error', e.toString());
+        SnackBarUtils.showError(context, e.toString());
       }
     } finally {
       if (mounted) {
@@ -198,120 +129,173 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.all(16.w),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: 400.w),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Balay RQ',
-                        style: AppTextStyles.heading.copyWith(fontSize: 32.sp),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 24.h),
-                      AppInputField(
-                        hint: 'Room Number',
-                        controller: _roomIdController,
-                        keyboardType: TextInputType.number,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter a room number';
-                          }
-                          return null;
-                        },
-                      ),
-                      AppInputField(
-                        isPassword: true,
-                        hint: 'Password',
-                        controller: _passwordController,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter a password';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: 18.h),
-                      SizedBox(
-                        width: double.infinity,
-                        child: AppButton(
-                          label: 'Login',
-                          isLoading: _isLoading,
-                          onPressed: () async {
-                            if (_formKey.currentState?.validate() ?? false) {
-                              setState(() => _isLoading = true);
-                              await _handleLogin(context);
-                              setState(() => _isLoading = false);
-                            }
-                            _passwordController.clear();
-                          },
+            padding: ResponsiveHelper.getScreenPadding(context),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: ResponsiveHelper.getMaxWidth(context),
+              ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Logo and Title
+                    Column(
+                      children: [
+                        SizedBox(
+                          width:
+                              ResponsiveHelper.isTablet(context)
+                                  ? 200.0.w
+                                  : 100.0.w,
+                          height:
+                              ResponsiveHelper.isTablet(context)
+                                  ? 200.0.h
+                                  : 100.0.h,
+                          child: Image.asset(
+                            'lib/core/logo/logo2.png',
+                            fit: BoxFit.contain,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 12.h),
-                      Consumer<BiometricProvider>(
-                        builder: (context, biometricProvider, child) {
-                          if (!biometricProvider.isDeviceSupported ||
-                              !biometricProvider.canCheckBiometrics) {
-                            return const SizedBox.shrink();
-                          }
-
-                          // Get the first available biometric type
-                          final biometricType =
-                              biometricProvider.availableBiometrics.isNotEmpty
-                                  ? biometricProvider.availableBiometrics.first
-                                  : null;
-
-                          return Center(
-                            child: Container(
-                              width: 64.w,
-                              height: 64.w,
-                              decoration: BoxDecoration(
-                                color: AppColors.surface,
-                                borderRadius: BorderRadius.circular(12.r),
-                                boxShadow: [
-                                  BoxShadow(
-                                    offset: const Offset(0, 4),
-                                    blurRadius: 6,
-                                    spreadRadius: -1,
-                                    color: Colors.black.withValues(alpha: 0.1),
-                                  ),
-                                ],
-                              ),
-                              child: IconButton(
-                                onPressed:
-                                    _isLoading ? null : _handleBiometricLogin,
-                                icon:
-                                    _isLoading
-                                        ? SizedBox(
-                                          width: 48.w,
-                                          height: 48.h,
-                                          child: CircularProgressIndicator(
-                                            valueColor:
-                                                AlwaysStoppedAnimation<Color>(
-                                                  AppColors.primaryBlue,
-                                                ),
-                                            strokeWidth: 2,
-                                          ),
-                                        )
-                                        : Image.asset(
-                                          biometricType == BiometricType.face
-                                              ? 'lib/core/images/face-id.png'
-                                              : 'lib/core/images/fingerprint.png',
-                                          width: 48.w,
-                                          height: 48.h,
-                                          color: AppColors.primaryBlue,
-                                        ),
-                              ),
+                        SizedBox(height: ResponsiveHelper.getSpacing(context)),
+                        Text(
+                          'Balay RQ',
+                          style: AppTextStyles.heading.copyWith(
+                            fontSize: ResponsiveHelper.getHeadingFontSize(
+                              context,
+                              mobileSize: 24.0,
+                              tablet7Size: 28.0,
+                              tablet10Size: 32.0,
+                              largeTabletSize: 36.0,
                             ),
-                          );
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        SizedBox(
+                          height: ResponsiveHelper.getSpacing(context) * 0.25,
+                        ),
+                        Text(
+                          'Track your electricity and water consumption',
+                          style: AppTextStyles.body.copyWith(
+                            fontSize: ResponsiveHelper.getFontSize(
+                              context,
+                              mobileSize: 14.0,
+                              tablet7Size: 16.0,
+                              tablet10Size: 18.0,
+                              largeTabletSize: 20.0,
+                            ),
+                            color: AppColors.textSecondary,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: ResponsiveHelper.getSpacing(context) * 2),
+                    AppInputField(
+                      hint: 'Room Number',
+                      controller: _roomIdController,
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Please enter a room number';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(
+                      height: ResponsiveHelper.getSpacing(context) * 0.5,
+                    ),
+                    AppInputField(
+                      isPassword: true,
+                      hint: 'Password',
+                      controller: _passwordController,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Please enter a password';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(
+                      height: ResponsiveHelper.getSpacing(context) * 0.5,
+                    ),
+                    SizedBox(height: 18.h),
+                    SizedBox(
+                      width: double.infinity,
+                      child: AppButton(
+                        label: 'Login',
+                        isLoading: _isLoading,
+                        onPressed: () async {
+                          if (_formKey.currentState?.validate() ?? false) {
+                            setState(() => _isLoading = true);
+                            await _handleLogin(context);
+                            setState(() => _isLoading = false);
+                          }
+                          _passwordController.clear();
                         },
                       ),
-                    ],
-                  ),
+                    ),
+                    SizedBox(height: 12.h),
+                    Consumer<BiometricProvider>(
+                      builder: (context, biometricProvider, child) {
+                        if (!biometricProvider.isDeviceSupported ||
+                            !biometricProvider.canCheckBiometrics) {
+                          return const SizedBox.shrink();
+                        }
+
+                        // Get the first available biometric type
+                        final biometricType =
+                            biometricProvider.availableBiometrics.isNotEmpty
+                                ? biometricProvider.availableBiometrics.first
+                                : null;
+
+                        return Center(
+                          child: Container(
+                            width: 64.w,
+                            height: 64.w,
+                            decoration: BoxDecoration(
+                              color: AppColors.surface,
+                              borderRadius: BorderRadius.circular(12.r),
+                              boxShadow: [
+                                BoxShadow(
+                                  offset: const Offset(0, 4),
+                                  blurRadius: 6,
+                                  spreadRadius: -1,
+                                  color: Colors.black.withValues(alpha: 0.1),
+                                ),
+                              ],
+                            ),
+                            child: IconButton(
+                              onPressed:
+                                  _isLoading ? null : _handleBiometricLogin,
+                              icon:
+                                  _isLoading
+                                      ? SizedBox(
+                                        width: 48.w,
+                                        height: 48.h,
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                AppColors.primaryBlue,
+                                              ),
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                      : Image.asset(
+                                        biometricType == BiometricType.face
+                                            ? 'lib/core/images/face-id.png'
+                                            : 'lib/core/images/fingerprint.png',
+                                        width: 48.w,
+                                        height: 48.h,
+                                        color: AppColors.primaryBlue,
+                                      ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -353,7 +337,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
 
         if (context.mounted) {
-          _showSuccessSnackBar('Login', 'Login successful');
+          SnackBarUtils.showSuccess(context, 'Login successful');
           // Navigate after a short delay to allow the snackbar to be visible
           Future.delayed(Duration(milliseconds: 1500), () {
             if (context.mounted) {
@@ -365,20 +349,20 @@ class _LoginScreenState extends State<LoginScreen> {
           });
         }
       } else {
-        _showErrorSnackBar('Login Failed', 'Incorrect Room Number or Password');
+        SnackBarUtils.showError(context, 'Incorrect Room Number or Password');
       }
     } on SocketException {
-      _showErrorSnackBar(
-        'Connection Error',
+      SnackBarUtils.showError(
+        context,
         'No internet connection. Please check your network settings.',
       );
     } on TimeoutException {
-      _showErrorSnackBar(
-        'Timeout Error',
+      SnackBarUtils.showError(
+        context,
         'Connection timed out. Please check your internet connection.',
       );
     } catch (e) {
-      _showErrorSnackBar('Error', 'An error occurred: $e');
+      SnackBarUtils.showError(context, 'An error occurred: $e');
     }
   }
 }

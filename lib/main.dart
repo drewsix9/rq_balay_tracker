@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'core/logger/app_logger.dart';
 import 'core/providers/bills_provider.dart';
 import 'core/providers/biometric_provider.dart';
 import 'core/services/firebase_api.dart';
@@ -14,6 +15,7 @@ import 'core/widgets/splash_screen.dart';
 import 'features/charts/viewmodel/charts_viewmodel.dart';
 import 'features/landing_page/viewmodel/landing_page_viewmodel.dart';
 import 'features/profile/viewmodel/edit_profile_dialog_provider.dart';
+import 'features/profile/viewmodel/profile_screen_viewmodel.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -35,8 +37,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Determine device width to set designSize dynamically
+    final mediaQuery = MediaQueryData.fromView(WidgetsBinding.instance.window);
+    final deviceWidth = mediaQuery.size.width;
+    Size designSize;
+    if (deviceWidth < 600) {
+      designSize = const Size(375, 812);
+    } else if (deviceWidth < 800) {
+      designSize = const Size(800, 1200);
+    } else {
+      designSize = const Size(1200, 1600);
+    }
+
+    AppLogger.d('Design Size: $designSize');
+
     return ScreenUtilInit(
-      designSize: const Size(375, 812), // iPhone X design size
+      designSize: designSize,
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
@@ -47,6 +63,7 @@ class MyApp extends StatelessWidget {
             ChangeNotifierProvider(create: (_) => BiometricProvider()),
             ChangeNotifierProvider(create: (_) => LandingPageViewModel()),
             ChangeNotifierProvider(create: (_) => EditProfileDialogProvider()),
+            ChangeNotifierProvider(create: (_) => ProfileScreenViewmodel()),
           ],
           child: MaterialApp(
             debugShowCheckedModeBanner: false,

@@ -44,7 +44,7 @@ class _SplashScreenState extends State<SplashScreen>
       if (!mounted) return;
       final initialMessage =
           await FirebaseMessaging.instance.getInitialMessage();
-      if (initialMessage != null) {
+      if (initialMessage != null && context.mounted) {
         await FirebaseApi.instance.handleNotificationTap(
           context,
           initialMessage,

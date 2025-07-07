@@ -18,7 +18,7 @@ import '../model/water_consumption_chart_model.dart';
 class ChartsViewModel extends ChangeNotifier {
   MonthTotalModel? _monthTotal;
   UsageTrendModel? _usageTrend;
-  bool _isLoading = false;
+  bool _isLoading = true;
   String? _error;
   ElectricityConsumptionChartModel? _electricityChartModel;
   WaterConsumptionChartModel? _waterChartModel;
@@ -105,12 +105,18 @@ class ChartsViewModel extends ChangeNotifier {
 
   Future<void> reload() async {
     _setError(null);
+    _isLoading = true;
+    notifyListeners();
     try {
+      await Future.delayed(const Duration(milliseconds: 500));
       String unit = await UnitSharedPref.getUnit() ?? '';
       final transactionHistory = await ApiService.getTransactionHistory(unit);
       await initialize(transactionHistory.transactionHistory!);
     } catch (e) {
       _setError(e.toString());
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
