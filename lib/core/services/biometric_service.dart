@@ -12,15 +12,18 @@ class BiometricService {
   bool _isDeviceSupported = false;
   bool _canCheckBiometrics = false;
   List<BiometricType> _availableBiometrics = [];
+  String? _error;
 
   bool get isAuthenticating => _isAuthenticating;
   bool get isDeviceSupported => _isDeviceSupported;
   bool get canCheckBiometrics => _canCheckBiometrics;
   List<BiometricType> get availableBiometrics => _availableBiometrics;
+  String? get error => _error;
 
   /// Initialize biometric service and check device support
   Future<void> initialize() async {
     try {
+      _error = null;
       _isDeviceSupported = await _auth.isDeviceSupported();
       if (_isDeviceSupported) {
         await _checkBiometrics();
@@ -29,6 +32,7 @@ class BiometricService {
     } catch (e) {
       AppLogger.e('Error initializing biometric service: $e');
       _isDeviceSupported = false;
+      _error = 'Failed to initialize biometric service: $e';
     }
   }
 
@@ -88,9 +92,13 @@ class BiometricService {
     String localizedReason = 'Please authenticate using biometrics',
     bool stickyAuth = true,
   }) async {
-    if (!_isDeviceSupported || !_canCheckBiometrics) return false;
+    if (!_isDeviceSupported || !_canCheckBiometrics) {
+      _error = 'Device does not support biometric authentication';
+      return false;
+    }
 
     try {
+      _error = null;
       _isAuthenticating = true;
       final bool authenticated = await _auth.authenticate(
         localizedReason: localizedReason,
@@ -100,17 +108,26 @@ class BiometricService {
         ),
       );
       _isAuthenticating = false;
+
+      if (!authenticated) {
+        _error = 'Authentication was cancelled or failed';
+      }
+
       return authenticated;
     } on PlatformException catch (e) {
       _isAuthenticating = false;
       if (e.code == auth_error.notAvailable) {
+        _error = 'No biometrics available on this device';
         AppLogger.e('No biometrics available on this device');
       } else if (e.code == auth_error.notEnrolled) {
+        _error = 'No biometrics enrolled on this device';
         AppLogger.e('No biometrics enrolled on this device');
       } else if (e.code == auth_error.lockedOut ||
           e.code == auth_error.permanentlyLockedOut) {
+        _error = 'Biometric authentication is locked out';
         AppLogger.e('Biometric authentication is locked out');
       } else {
+        _error = 'Authentication error: ${e.message}';
         AppLogger.e('Error during biometric authentication: ${e.message}');
       }
       return false;
@@ -123,5 +140,10 @@ class BiometricService {
       await _auth.stopAuthentication();
       _isAuthenticating = false;
     }
+  }
+
+  /// Clear any stored error
+  void clearError() {
+    _error = null;
   }
 }

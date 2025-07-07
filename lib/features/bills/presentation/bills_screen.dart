@@ -6,7 +6,9 @@ import 'package:intl/intl.dart';
 import 'package:money_formatter/money_formatter.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
-import 'package:skeletonizer/skeletonizer.dart';
+import 'package:rq_balay_tracker/features/bills/presentation/shimmers/bill_card_shimmer.dart';
+import 'package:rq_balay_tracker/features/bills/presentation/shimmers/transaction_list_shimmer.dart';
+import 'package:rq_balay_tracker/features/bills/presentation/shimmers/transaction_title_shimmer.dart';
 
 import '../../../core/global/current_user_model.dart';
 import '../../../core/logger/app_logger.dart';
@@ -87,108 +89,129 @@ class _BillsScreenState extends State<BillsScreen> {
       ),
       // drawer: SidePanel(),
       body: SafeArea(
-        child: Column(
-          children: [
-            Consumer<BillsProvider>(
-              builder: (context, billsProvider, child) {
-                // Handle error state
-                if (billsProvider.error != null &&
-                    billsProvider.error != _lastError) {
-                  _lastError = billsProvider.error;
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    SnackBarUtils.showError(context, billsProvider.error!);
-                  });
-                }
+        child: SmartRefresher(
+          onRefresh: () async {
+            try {
+              await Provider.of<BillsProvider>(context, listen: false).reload();
+              _refreshController?.refreshCompleted();
+            } catch (e) {
+              _refreshController?.refreshFailed();
+              SnackBarUtils.showError(context, 'Failed to refresh data');
+            }
+          },
+          controller: _refreshController!,
+          header: ClassicHeader(refreshStyle: RefreshStyle.Follow),
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            child: Column(
+              children: [
+                Consumer<BillsProvider>(
+                  builder: (context, billsProvider, child) {
+                    // Handle error state
+                    if (billsProvider.error != null &&
+                        billsProvider.error != _lastError) {
+                      _lastError = billsProvider.error;
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        SnackBarUtils.showError(context, billsProvider.error!);
+                      });
+                    }
 
-                final currentBill = billsProvider.currentBill;
-                if (currentBill == null) {
-                  return const Expanded(
-                    child: Center(child: Text('No bill data available')),
-                  );
-                }
-                AppLogger.d('currentBill.paid: ${currentBill.paid}');
-                if (currentBill.paid == 'Y') {
-                  return Padding(
-                    padding: ResponsiveHelper.getScreenPadding(context),
-                    child: Skeletonizer(
-                      // ignoreContainers: true,
-                      enabled:
-                          Provider.of<BillsProvider>(
-                            context,
-                            listen: false,
-                          ).isLoading,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          // color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(
-                            ResponsiveHelper.getBorderRadius(context),
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              offset: const Offset(0, 4),
-                              blurRadius: 6,
-                              spreadRadius: -1,
-                              color: Colors.black.withValues(alpha: 0.1),
+                    // Show shimmer when loading
+                    if (billsProvider.isLoading) {
+                      print(
+                        'BILL CARD: SHOW SHIMMER - isLoading: ${billsProvider.isLoading}',
+                      );
+                      return const BillCardShimmer();
+                    }
+
+                    final currentBill = billsProvider.currentBill;
+                    if (currentBill == null) {
+                      return const Center(
+                        child: Text('No bill data available'),
+                      );
+                    }
+                    AppLogger.d('currentBill.paid: ${currentBill.paid}');
+                    if (currentBill.paid == 'Y') {
+                      return Padding(
+                        padding: ResponsiveHelper.getScreenPadding(context),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            // color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(
+                              ResponsiveHelper.getBorderRadius(context),
                             ),
-                          ],
-                        ),
-                        child: Card(
-                          // elevation: 20,
-                          color: AppColors.surface,
-                          child: Padding(
-                            padding: ResponsiveHelper.getCardPadding(context),
-                            child: Center(
-                              child: Text(
-                                'No Pending Payment',
-                                style: AppTextStyles.subheading.copyWith(
-                                  fontSize: ResponsiveHelper.getFontSize(
-                                    context,
-                                    mobileSize: 16.0,
-                                    tablet7Size: 18.0,
-                                    tablet10Size: 20.0,
-                                    largeTabletSize: 22.0,
+                            boxShadow: [
+                              BoxShadow(
+                                offset: const Offset(0, 4),
+                                blurRadius: 6,
+                                spreadRadius: -1,
+                                color: Colors.black.withValues(alpha: 0.1),
+                              ),
+                            ],
+                          ),
+                          child: Card(
+                            // elevation: 20,
+                            color: AppColors.surface,
+                            child: Padding(
+                              padding: ResponsiveHelper.getCardPadding(context),
+                              child: Center(
+                                child: Text(
+                                  'No Pending Payment',
+                                  style: AppTextStyles.subheading.copyWith(
+                                    fontSize: ResponsiveHelper.getFontSize(
+                                      context,
+                                      mobileSize: 16.0,
+                                      tablet7Size: 18.0,
+                                      tablet10Size: 20.0,
+                                      largeTabletSize: 22.0,
+                                    ),
+                                    color: AppColors.textPrimary,
                                   ),
-                                  color: AppColors.textPrimary,
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  );
-                }
+                      );
+                    }
 
-                return BuildMonthBillCard(
-                  currentUnit: billsProvider.currentUnit,
-                  currentUser: billsProvider.currentUser,
-                  currentBill: currentBill,
-                );
-              },
+                    return BuildMonthBillCard(
+                      currentUnit: billsProvider.currentUnit,
+                      currentUser: billsProvider.currentUser,
+                      currentBill: currentBill,
+                    );
+                  },
+                ),
+                _buildTransactionList(),
+              ],
             ),
-            _buildTransactionList(),
-          ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildTransactionList() {
-    return Expanded(
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          ResponsiveHelper.getPadding(context),
-          0.h,
-          ResponsiveHelper.getPadding(context),
-          0.h,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Skeletonizer(
-              enabled:
-                  Provider.of<BillsProvider>(context, listen: false).isLoading,
-              child: Text(
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        ResponsiveHelper.getPadding(context),
+        0.h,
+        ResponsiveHelper.getPadding(context),
+        0.h,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Consumer<BillsProvider>(
+            builder: (context, provider, child) {
+              if (provider.isLoading) {
+                print(
+                  'TRANSACTION TITLE: SHOW SHIMMER - isLoading: ${provider.isLoading}',
+                );
+                return const TransactionTitleShimmer();
+              }
+              return Text(
                 'Transaction History',
                 style: AppTextStyles.subheading.copyWith(
                   fontSize: ResponsiveHelper.getHeadingFontSize(
@@ -199,207 +222,173 @@ class _BillsScreenState extends State<BillsScreen> {
                     largeTabletSize: 24.0,
                   ),
                 ),
-              ),
-            ),
-            SizedBox(height: ResponsiveHelper.getSpacing(context) * 0.5),
-            Consumer<BillsProvider>(
-              builder: (context, provider, child) {
-                final transactions =
-                    provider.transactionHistory?.transactionHistory ?? [];
+              );
+            },
+          ),
+          SizedBox(height: ResponsiveHelper.getSpacing(context) * 0.5),
+          Consumer<BillsProvider>(
+            builder: (context, provider, child) {
+              if (provider.isLoading) {
+                print(
+                  'TRANSACTION LIST: SHOW SHIMMER - isLoading: ${provider.isLoading}',
+                );
+                return const TransactionListShimmer();
+              }
 
-                if (transactions.isEmpty) {
-                  return Center(
-                    child: Text(
-                      'No transaction history',
-                      style: AppTextStyles.muted.copyWith(fontSize: 14.sp),
-                    ),
-                  );
-                }
+              final transactions =
+                  provider.transactionHistory?.transactionHistory ?? [];
 
-                // Trim the last object from the list
-                final trimmedTransactions =
-                    transactions.length > 1
-                        ? transactions.sublist(0, transactions.length - 1)
-                        : transactions;
+              if (transactions.isEmpty) {
+                return Center(
+                  child: Text(
+                    'No transaction history',
+                    style: AppTextStyles.muted.copyWith(fontSize: 14.sp),
+                  ),
+                );
+              }
 
-                return Expanded(
-                  child: Skeletonizer(
-                    ignoreContainers: true,
-                    enabled:
-                        Provider.of<BillsProvider>(
-                          context,
-                          listen: false,
-                        ).isLoading,
-                    child: Scrollbar(
-                      child: SmartRefresher(
-                        controller: _refreshController!,
-                        onRefresh: () async {
-                          try {
-                            await Provider.of<BillsProvider>(
-                              context,
-                              listen: false,
-                            ).reload();
-                            _refreshController?.refreshCompleted();
-                          } catch (e) {
-                            _refreshController?.refreshFailed();
-                            SnackBarUtils.showError(
-                              context,
-                              'Failed to refresh data',
-                            );
-                          }
-                        },
-                        header: ClassicHeader(
-                          refreshStyle: RefreshStyle.Follow,
-                        ),
-                        child: ListView.separated(
-                          separatorBuilder:
-                              (context, index) => SizedBox(height: 12.h),
+              // Trim the last object from the list
+              final trimmedTransactions =
+                  transactions.length > 1
+                      ? transactions.sublist(0, transactions.length - 1)
+                      : transactions;
 
-                          itemCount: trimmedTransactions.length,
-                          itemBuilder: (context, index) {
-                            final transaction = trimmedTransactions[index];
-                            return Container(
-                              decoration: BoxDecoration(
-                                color: AppColors.surface,
-                                borderRadius: BorderRadius.circular(12.r),
-                                boxShadow: [
-                                  BoxShadow(
-                                    offset: const Offset(0, 4),
-                                    blurRadius: 6,
-                                    spreadRadius: -1,
-                                    color: Colors.black.withValues(alpha: 0.1),
+              return Scrollbar(
+                child: ListView.separated(
+                  separatorBuilder: (context, index) => SizedBox(height: 12.h),
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: trimmedTransactions.length,
+                  itemBuilder: (context, index) {
+                    final transaction = trimmedTransactions[index];
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(12.r),
+                        boxShadow: [
+                          BoxShadow(
+                            offset: const Offset(0, 4),
+                            blurRadius: 6,
+                            spreadRadius: -1,
+                            color: Colors.black.withValues(alpha: 0.1),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12.r),
+                        child: ExpansionTile(
+                          childrenPadding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                              color: AppColors.navActive.withValues(alpha: 0.3),
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          tilePadding: EdgeInsets.symmetric(horizontal: 16.w),
+                          backgroundColor: Colors.white,
+                          collapsedBackgroundColor: AppColors.surface,
+                          collapsedIconColor: AppColors.textMuted,
+                          iconColor: AppColors.textMuted,
+                          collapsedTextColor: AppColors.textMuted,
+                          textColor: AppColors.textMuted,
+                          title: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                DateFormat('MMMM d, yyyy').format(
+                                  DateTime.parse(
+                                    transaction.date ??
+                                        DateTime.now().toString(),
+                                  ),
+                                ),
+                                style: AppTextStyles.subheading.copyWith(
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 4.w,
+                                  vertical: 2.h,
+                                ),
+                                decoration: BoxDecoration(
+                                  color:
+                                      transaction.paid == 'Y'
+                                          ? AppColors.success
+                                          : AppColors.warning,
+                                  borderRadius: BorderRadius.circular(4.r),
+                                ),
+                                child: Text(
+                                  transaction.paid == 'Y' ? 'Paid' : 'Pending',
+                                  style: AppTextStyles.body.copyWith(
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.all(16.w),
+                              child: Column(
+                                children: [
+                                  _buildBillDetailRow(
+                                    'Electricity',
+                                    transaction.eTotal ?? '0',
+                                    '₱${transaction.eRate}/kWh',
+                                  ),
+                                  SizedBox(height: 12.h),
+                                  _buildBillDetailRow(
+                                    'Water',
+                                    transaction.wTotal ?? '0',
+                                    '₱${transaction.wRate}/m³',
+                                  ),
+                                  if (transaction.wifi != null &&
+                                      transaction.wifi != '0.00') ...[
+                                    SizedBox(height: 12.h),
+                                    _buildBillDetailRow(
+                                      'WiFi',
+                                      transaction.wifi ?? '0',
+                                      'Monthly',
+                                    ),
+                                  ],
+                                  SizedBox(height: 12.h),
+                                  _buildBillDetailRow(
+                                    'Rent',
+                                    transaction.monthlyRate ?? '0',
+                                    'Monthly',
+                                  ),
+                                  SizedBox(height: 12.h),
+                                  Container(
+                                    height: 1,
+                                    color: AppColors.divider,
+                                  ),
+                                  SizedBox(height: 12.h),
+                                  _buildBillDetailRow(
+                                    'Total Due',
+                                    '${transaction.totalDue}',
+                                    '',
+                                    isTotal: true,
                                   ),
                                 ],
                               ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(12.r),
-                                child: ExpansionTile(
-                                  childrenPadding: EdgeInsets.symmetric(
-                                    horizontal: 16.w,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(
-                                      color: AppColors.navActive.withValues(
-                                        alpha: 0.3,
-                                      ),
-                                      width: 1,
-                                    ),
-                                    borderRadius: BorderRadius.circular(12.r),
-                                  ),
-                                  tilePadding: EdgeInsets.symmetric(
-                                    horizontal: 16.w,
-                                  ),
-                                  backgroundColor: Colors.white,
-                                  collapsedBackgroundColor: AppColors.surface,
-                                  collapsedIconColor: AppColors.textMuted,
-                                  iconColor: AppColors.textMuted,
-                                  collapsedTextColor: AppColors.textMuted,
-                                  textColor: AppColors.textMuted,
-                                  title: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        DateFormat('MMMM d, yyyy').format(
-                                          DateTime.parse(
-                                            transaction.date ??
-                                                DateTime.now().toString(),
-                                          ),
-                                        ),
-                                        style: AppTextStyles.subheading
-                                            .copyWith(
-                                              fontSize: 16.sp,
-                                              fontWeight: FontWeight.w600,
-                                              color: AppColors.textPrimary,
-                                            ),
-                                      ),
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 4.w,
-                                          vertical: 2.h,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color:
-                                              transaction.paid == 'Y'
-                                                  ? AppColors.success
-                                                  : AppColors.warning,
-                                          borderRadius: BorderRadius.circular(
-                                            4.r,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          transaction.paid == 'Y'
-                                              ? 'Paid'
-                                              : 'Pending',
-                                          style: AppTextStyles.body.copyWith(
-                                            fontSize: 14.sp,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.all(16.w),
-                                      child: Column(
-                                        children: [
-                                          _buildBillDetailRow(
-                                            'Electricity',
-                                            transaction.eTotal ?? '0',
-                                            '₱${transaction.eRate}/kWh',
-                                          ),
-                                          SizedBox(height: 12.h),
-                                          _buildBillDetailRow(
-                                            'Water',
-                                            transaction.wTotal ?? '0',
-                                            '₱${transaction.wRate}/m³',
-                                          ),
-                                          if (transaction.wifi != null &&
-                                              transaction.wifi != '0.00') ...[
-                                            SizedBox(height: 12.h),
-                                            _buildBillDetailRow(
-                                              'WiFi',
-                                              transaction.wifi ?? '0',
-                                              'Monthly',
-                                            ),
-                                          ],
-                                          SizedBox(height: 12.h),
-                                          _buildBillDetailRow(
-                                            'Rent',
-                                            transaction.monthlyRate ?? '0',
-                                            'Monthly',
-                                          ),
-                                          SizedBox(height: 12.h),
-                                          Container(
-                                            height: 1,
-                                            color: AppColors.divider,
-                                          ),
-                                          SizedBox(height: 12.h),
-                                          _buildBillDetailRow(
-                                            'Total Due',
-                                            '${transaction.totalDue}',
-                                            '',
-                                            isTotal: true,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -487,198 +476,193 @@ class BuildMonthBillCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLoading =
+        Provider.of<BillsProvider>(context, listen: false).isLoading;
+    if (isLoading) {
+      return const BillCardShimmer();
+    }
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: ResponsiveHelper.getPadding(context),
         vertical: ResponsiveHelper.getSpacing(context) * 0.25,
       ),
-      child: Skeletonizer(
-        // ignoreContainers: true,
-        enabled: Provider.of<BillsProvider>(context, listen: false).isLoading,
-        child: Container(
-          decoration: BoxDecoration(
-            color: AppColors.surface,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(
+            ResponsiveHelper.getBorderRadius(context),
+          ),
+          boxShadow: [
+            BoxShadow(
+              offset: const Offset(0, 4),
+              blurRadius: 6,
+              spreadRadius: -1,
+              color: Colors.black.withValues(alpha: 0.1),
+            ),
+          ],
+        ),
+        // Before it was wrapped in a Card, now it is not
+        child: ExpansionTile(
+          initiallyExpanded: true,
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(
               ResponsiveHelper.getBorderRadius(context),
             ),
-            boxShadow: [
-              BoxShadow(
-                offset: const Offset(0, 4),
-                blurRadius: 6,
-                spreadRadius: -1,
-                color: Colors.black.withValues(alpha: 0.1),
-              ),
-            ],
           ),
-          // Before it was wrapped in a Card, now it is not
-          child: ExpansionTile(
-            initiallyExpanded: true,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(
-                ResponsiveHelper.getBorderRadius(context),
-              ),
+          collapsedShape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(
+              ResponsiveHelper.getBorderRadius(context),
             ),
-            collapsedShape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(
-                ResponsiveHelper.getBorderRadius(context),
-              ),
+          ),
+          // showTrailingIcon: false,
+          title: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: ResponsiveHelper.getSpacing(context) * 0.25,
+              vertical: ResponsiveHelper.getSpacing(context) * 0.17,
             ),
-            // showTrailingIcon: false,
-            title: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: ResponsiveHelper.getSpacing(context) * 0.25,
-                vertical: ResponsiveHelper.getSpacing(context) * 0.17,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          DateFormat('MMMM yyyy').format(
-                            DateTime.parse(
-                              currentBill.date ??
-                                  DateTime.now().toIso8601String(),
-                            ),
-                          ),
-                          style: AppTextStyles.heading.copyWith(
-                            fontSize: 20.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primaryBlue,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        DateFormat('MMMM yyyy').format(
+                          DateTime.parse(
+                            currentBill.date ??
+                                DateTime.now().toIso8601String(),
                           ),
                         ),
-                        SizedBox(
-                          height: ResponsiveHelper.getSpacing(context) * 0.33,
+                        style: AppTextStyles.heading.copyWith(
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primaryBlue,
                         ),
-                        Text(
-                          'Total Due',
-                          style: AppTextStyles.body.copyWith(
-                            fontSize: ResponsiveHelper.getFontSize(
-                              context,
-                              mobileSize: 16.0,
-                              tablet7Size: 17.0,
-                              tablet10Size: 18.0,
-                              largeTabletSize: 19.0,
-                            ),
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textSecondary,
+                      ),
+                      SizedBox(
+                        height: ResponsiveHelper.getSpacing(context) * 0.33,
+                      ),
+                      Text(
+                        'Total Due',
+                        style: AppTextStyles.body.copyWith(
+                          fontSize: ResponsiveHelper.getFontSize(
+                            context,
+                            mobileSize: 16.0,
+                            tablet7Size: 17.0,
+                            tablet10Size: 18.0,
+                            largeTabletSize: 19.0,
                           ),
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textSecondary,
                         ),
-                        SizedBox(
-                          height: ResponsiveHelper.getSpacing(context) * 0.17,
+                      ),
+                      SizedBox(
+                        height: ResponsiveHelper.getSpacing(context) * 0.17,
+                      ),
+                      Text(
+                        '₱ ${MoneyFormatter(amount: double.tryParse(currentBill.totalDue ?? '0') ?? 0).output.nonSymbol}',
+                        style: AppTextStyles.heading.copyWith(
+                          fontSize: 28.sp,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.textPrimary,
                         ),
-                        Text(
-                          '₱ ${MoneyFormatter(amount: double.tryParse(currentBill.totalDue ?? '0') ?? 0).output.nonSymbol}',
-                          style: AppTextStyles.heading.copyWith(
-                            fontSize: 28.sp,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.textPrimary,
-                          ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: ResponsiveHelper.getSpacing(context) * 0.25),
+                SizedBox(
+                  width: ResponsiveHelper.isTablet(context) ? 160.0.w : 100.0.w,
+                  height: ResponsiveHelper.isTablet(context) ? 96.0.h : 38.0.h,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryBlue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          ResponsiveHelper.getBorderRadius(context),
                         ),
-                      ],
+                      ),
+                      elevation: 0,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: ResponsiveHelper.getSpacing(context) * 0.25,
+                      ),
+                    ),
+                    onPressed: () {
+                      // Handle Gcash payment
+                    },
+                    icon: Icon(
+                      Icons.account_balance_wallet,
+                      size: ResponsiveHelper.isTablet(context) ? 24.sp : 18.sp,
+                      color: Colors.white,
+                    ),
+                    label: Text(
+                      'Pay GCash',
+                      style: AppTextStyles.buttonText.copyWith(
+                        fontSize:
+                            ResponsiveHelper.isTablet(context) ? 16.sp : 12.sp,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                  SizedBox(width: ResponsiveHelper.getSpacing(context) * 0.25),
-                  SizedBox(
-                    width:
-                        ResponsiveHelper.isTablet(context) ? 160.0.w : 100.0.w,
-                    height:
-                        ResponsiveHelper.isTablet(context) ? 96.0.h : 38.0.h,
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryBlue,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            ResponsiveHelper.getBorderRadius(context),
-                          ),
-                        ),
-                        elevation: 0,
-                        padding: EdgeInsets.symmetric(
-                          horizontal:
-                              ResponsiveHelper.getSpacing(context) * 0.25,
-                        ),
-                      ),
-                      onPressed: () {
-                        // Handle Gcash payment
-                      },
-                      icon: Icon(
-                        Icons.account_balance_wallet,
-                        size:
-                            ResponsiveHelper.isTablet(context) ? 24.sp : 18.sp,
-                        color: Colors.white,
-                      ),
-                      label: Text(
-                        'Pay GCash',
-                        style: AppTextStyles.buttonText.copyWith(
-                          fontSize:
-                              ResponsiveHelper.isTablet(context)
-                                  ? 16.sp
-                                  : 12.sp,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                ),
+              ],
+            ),
+          ),
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: ResponsiveHelper.getCardPaddingValue(context),
+                vertical: ResponsiveHelper.getSpacing(context) * 0.25,
+              ),
+              child: Column(
+                children: [
+                  // Electricity Row
+                  _buildUtilityRow(
+                    context,
+                    label: 'Electricity',
+                    rate: '₱ ${currentBill.eRate ?? '0'}/kWh',
+                    amount: currentBill.eTotal ?? '0',
+                    showConsumption: true,
+                    total: double.tryParse(currentBill.eTotal ?? '0') ?? 0,
+                    rateValue: double.tryParse(currentBill.eRate ?? '1') ?? 1,
+                    unit: 'kWh',
+                  ),
+                  // Water Row
+                  _buildUtilityRow(
+                    context,
+                    label: 'Water',
+                    rate:
+                        '₱ ${MoneyFormatter(amount: double.tryParse(currentBill.wRate ?? '0') ?? 0).output.nonSymbol}/m³',
+                    amount: currentBill.wTotal ?? '0',
+                    showConsumption: true,
+                    total: double.tryParse(currentBill.wTotal ?? '0') ?? 0,
+                    rateValue: double.tryParse(currentBill.wRate ?? '1') ?? 1,
+                    unit: 'm³',
+                  ),
+                  // WiFi Row (conditional)
+                  if (currentUser?.wifi == 'Y')
+                    _buildUtilityRow(
+                      context,
+                      label: 'WiFi',
+                      rate: 'Monthly',
+                      amount: currentBill.wifi ?? '0',
+                      showConsumption: false,
                     ),
+                  // Rent Row
+                  _buildUtilityRow(
+                    context,
+                    label: 'Rent',
+                    rate: 'Monthly',
+                    amount: currentBill.monthlyRate ?? '0',
+                    showConsumption: false,
                   ),
                 ],
               ),
             ),
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: ResponsiveHelper.getCardPaddingValue(context),
-                  vertical: ResponsiveHelper.getSpacing(context) * 0.25,
-                ),
-                child: Column(
-                  children: [
-                    // Electricity Row
-                    _buildUtilityRow(
-                      context,
-                      label: 'Electricity',
-                      rate: '₱ ${currentBill.eRate ?? '0'}/kWh',
-                      amount: currentBill.eTotal ?? '0',
-                      showConsumption: true,
-                      total: double.tryParse(currentBill.eTotal ?? '0') ?? 0,
-                      rateValue: double.tryParse(currentBill.eRate ?? '1') ?? 1,
-                      unit: 'kWh',
-                    ),
-                    // Water Row
-                    _buildUtilityRow(
-                      context,
-                      label: 'Water',
-                      rate:
-                          '₱ ${MoneyFormatter(amount: double.tryParse(currentBill.wRate ?? '0') ?? 0).output.nonSymbol}/m³',
-                      amount: currentBill.wTotal ?? '0',
-                      showConsumption: true,
-                      total: double.tryParse(currentBill.wTotal ?? '0') ?? 0,
-                      rateValue: double.tryParse(currentBill.wRate ?? '1') ?? 1,
-                      unit: 'm³',
-                    ),
-                    // WiFi Row (conditional)
-                    if (currentUser?.wifi == 'Y')
-                      _buildUtilityRow(
-                        context,
-                        label: 'WiFi',
-                        rate: 'Monthly',
-                        amount: currentBill.wifi ?? '0',
-                        showConsumption: false,
-                      ),
-                    // Rent Row
-                    _buildUtilityRow(
-                      context,
-                      label: 'Rent',
-                      rate: 'Monthly',
-                      amount: currentBill.monthlyRate ?? '0',
-                      showConsumption: false,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+          ],
         ),
       ),
     );

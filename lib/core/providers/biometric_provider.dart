@@ -61,15 +61,35 @@ class BiometricProvider with ChangeNotifier {
   }) async {
     try {
       _setError(null);
+      AppLogger.d('BiometricProvider: Starting biometric authentication');
+      AppLogger.d(
+        'BiometricProvider: Device supported: ${_biometricService.isDeviceSupported}',
+      );
+      AppLogger.d(
+        'BiometricProvider: Can check biometrics: ${_biometricService.canCheckBiometrics}',
+      );
+      AppLogger.d(
+        'BiometricProvider: Available biometrics: ${_biometricService.availableBiometrics}',
+      );
+
       final bool authenticated = await _biometricService
           .authenticateWithBiometrics(localizedReason: localizedReason);
+
+      AppLogger.d('BiometricProvider: Authentication result: $authenticated');
+
       if (!authenticated) {
-        _setError('Biometric authentication failed');
+        final serviceError = _biometricService.error;
+        final errorMessage = serviceError ?? 'Biometric authentication failed';
+        _setError(errorMessage);
+        AppLogger.e('BiometricProvider: Authentication failed - $errorMessage');
+      } else {
+        AppLogger.d('BiometricProvider: Authentication successful');
       }
       return authenticated;
     } catch (e) {
-      _setError('Biometric authentication error: $e');
-      AppLogger.e('Error during biometric authentication: $e');
+      final errorMessage = 'Biometric authentication error: $e';
+      _setError(errorMessage);
+      AppLogger.e('BiometricProvider: $errorMessage');
       return false;
     }
   }

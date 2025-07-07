@@ -64,6 +64,12 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _onRefresh();
+        },
+        child: Icon(Icons.refresh),
+      ),
       appBar: AppBar(
         elevation: 0,
         title: Text(
