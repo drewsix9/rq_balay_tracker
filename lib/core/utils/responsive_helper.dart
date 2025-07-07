@@ -166,7 +166,7 @@ class ResponsiveHelper {
 
   // Chart dimensions for tablets
   static double getChartHeight(BuildContext context) {
-    if (isMobile(context)) return 300.0.h;
+    if (isMobile(context)) return 330.0.h;
     if (isTablet7Inch(context)) {
       return 500.0.h; // Increased from 400.0.h for 7-inch tablets
     }
