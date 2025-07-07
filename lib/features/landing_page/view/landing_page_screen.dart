@@ -14,6 +14,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/usecases/unit_shared_pref.dart';
 import '../../../core/usecases/user_shared_pref.dart';
+import '../../../core/utils/snackbar_utils.dart';
 import '../viewmodel/landing_page_viewmodel.dart';
 
 class LandingPageScreen extends StatefulWidget {
@@ -26,6 +27,7 @@ class LandingPageScreen extends StatefulWidget {
 class _LandingPageScreenState extends State<LandingPageScreen> {
   RefreshController? _refreshController;
   late CurrentUserModel? user;
+  String? _lastError;
 
   @override
   void initState() {
@@ -51,17 +53,26 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
 
   Future<void> _onRefresh() async {
     final unit = await UnitSharedPref.getUnit();
+    final landingPageViewModel = Provider.of<LandingPageViewModel>(
+      context,
+      listen: false,
+    );
+    landingPageViewModel.toggleLoading(true);
+    await Future.delayed(const Duration(seconds: 2));
     try {
-      await Future.delayed(const Duration(milliseconds: 500));
       if (!mounted) return;
-      final landingPageViewModel = Provider.of<LandingPageViewModel>(
-        context,
-        listen: false,
-      );
       await landingPageViewModel.getTodayKWhConsump(unit);
       _refreshController!.refreshCompleted();
     } catch (e) {
+      if (mounted) {
+        _lastError = e.toString();
+        SnackBarUtils.showError(context, _lastError!);
+      }
       _refreshController!.refreshFailed();
+    } finally {
+      if (mounted) {
+        landingPageViewModel.toggleLoading(false);
+      }
     }
   }
 
@@ -74,12 +85,12 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          testLoading();
-        },
-        child: Icon(Icons.refresh),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     testLoading();
+      //   },
+      //   child: Icon(Icons.refresh),
+      // ),
       appBar: AppBar(
         elevation: 0,
         title: Text(

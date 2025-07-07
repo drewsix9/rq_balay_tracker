@@ -39,6 +39,11 @@ class LandingPageViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void toggleLoading(bool status) {
+    _isLoading = status;
+    notifyListeners();
+  }
+
   Future<void> getTodayKWhConsump(String? unit) async {
     _isLoading = true;
     notifyListeners();

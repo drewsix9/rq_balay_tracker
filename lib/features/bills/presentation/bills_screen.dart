@@ -56,6 +56,23 @@ class _BillsScreenState extends State<BillsScreen> {
     }
   }
 
+  Future<void> _onRefresh() async {
+    final billsProvider = Provider.of<BillsProvider>(context, listen: false);
+    billsProvider.setLoading(true);
+    await Future.delayed(const Duration(seconds: 1));
+    try {
+      await billsProvider.reload();
+      _refreshController?.refreshCompleted();
+    } catch (e) {
+      _refreshController?.refreshFailed();
+      if (mounted) {
+        SnackBarUtils.showError(context, 'Failed to refresh data');
+      }
+    } finally {
+      billsProvider.setLoading(false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,15 +107,7 @@ class _BillsScreenState extends State<BillsScreen> {
       // drawer: SidePanel(),
       body: SafeArea(
         child: SmartRefresher(
-          onRefresh: () async {
-            try {
-              await Provider.of<BillsProvider>(context, listen: false).reload();
-              _refreshController?.refreshCompleted();
-            } catch (e) {
-              _refreshController?.refreshFailed();
-              SnackBarUtils.showError(context, 'Failed to refresh data');
-            }
-          },
+          onRefresh: _onRefresh,
           controller: _refreshController!,
           header: ClassicHeader(refreshStyle: RefreshStyle.Follow),
           physics: const AlwaysScrollableScrollPhysics(),
@@ -119,9 +128,6 @@ class _BillsScreenState extends State<BillsScreen> {
 
                     // Show shimmer when loading
                     if (billsProvider.isLoading) {
-                      print(
-                        'BILL CARD: SHOW SHIMMER - isLoading: ${billsProvider.isLoading}',
-                      );
                       return const BillCardShimmer();
                     }
 
@@ -206,9 +212,6 @@ class _BillsScreenState extends State<BillsScreen> {
           Consumer<BillsProvider>(
             builder: (context, provider, child) {
               if (provider.isLoading) {
-                print(
-                  'TRANSACTION TITLE: SHOW SHIMMER - isLoading: ${provider.isLoading}',
-                );
                 return const TransactionTitleShimmer();
               }
               return Text(
@@ -229,9 +232,6 @@ class _BillsScreenState extends State<BillsScreen> {
           Consumer<BillsProvider>(
             builder: (context, provider, child) {
               if (provider.isLoading) {
-                print(
-                  'TRANSACTION LIST: SHOW SHIMMER - isLoading: ${provider.isLoading}',
-                );
                 return const TransactionListShimmer();
               }
 

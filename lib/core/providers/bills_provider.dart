@@ -68,7 +68,7 @@ class BillsProvider with ChangeNotifier {
     if (_currentUnit == null) return;
 
     try {
-      _setLoading(true);
+      setLoading(true);
       final data = await ApiService.getMonthBill(_currentUnit!);
       if (data != null) {
         _currentBill = MonthBillModel.fromMap(data);
@@ -82,7 +82,7 @@ class BillsProvider with ChangeNotifier {
       _setError('An error occurred: $e');
       AppLogger.e('Error fetching current month bill: $e');
     } finally {
-      _setLoading(false);
+      setLoading(false);
     }
   }
 
@@ -102,7 +102,7 @@ class BillsProvider with ChangeNotifier {
     if (_currentUnit == null) return;
 
     try {
-      _setLoading(true);
+      setLoading(true);
       _transactionHistory = await ApiService.getTransactionHistory(
         _currentUnit!,
       );
@@ -115,7 +115,7 @@ class BillsProvider with ChangeNotifier {
       _setError('An error occurred: $e');
       AppLogger.e('Error fetching transaction history: $e');
     } finally {
-      _setLoading(false);
+      setLoading(false);
     }
   }
 
@@ -147,7 +147,7 @@ class BillsProvider with ChangeNotifier {
   }
 
   /// Set loading state and notify listeners
-  void _setLoading(bool value) {
+  void setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
   }
