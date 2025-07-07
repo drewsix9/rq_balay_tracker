@@ -1,9 +1,9 @@
-import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:rq_balay_tracker/core/utils/responsive_helper.dart';
+import 'package:rq_balay_tracker/core/utils/snackbar_utils.dart';
 import 'package:rq_balay_tracker/features/charts/model/month_total_model.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -26,25 +26,6 @@ class ChartsScreen extends StatefulWidget {
 class _ChartsScreenState extends State<ChartsScreen> {
   RefreshController? _refreshController;
   String? _lastError;
-
-  void _showErrorSnackBar(String title, String message) {
-    if (!mounted) return;
-
-    final snackBar = SnackBar(
-      elevation: 0,
-      behavior: SnackBarBehavior.floating,
-      backgroundColor: Colors.transparent,
-      content: AwesomeSnackbarContent(
-        title: title,
-        message: message,
-        contentType: ContentType.failure,
-      ),
-    );
-
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(snackBar);
-  }
 
   @override
   void initState() {
@@ -122,7 +103,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
                 chartsViewModel.error != _lastError) {
               _lastError = chartsViewModel.error;
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                _showErrorSnackBar('Error', chartsViewModel.error!);
+                SnackBarUtils.showError(context, chartsViewModel.error!);
               });
             }
 

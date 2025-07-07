@@ -1,4 +1,3 @@
-import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
@@ -8,6 +7,7 @@ import 'package:rq_balay_tracker/core/theme/app_colors.dart';
 import 'package:rq_balay_tracker/core/theme/app_text_styles.dart';
 import 'package:rq_balay_tracker/core/usecases/user_shared_pref.dart';
 import 'package:rq_balay_tracker/core/utils/responsive_helper.dart';
+import 'package:rq_balay_tracker/core/utils/snackbar_utils.dart';
 import 'package:rq_balay_tracker/features/auth/presentation/login_screen.dart';
 
 import '../../../core/logger/app_logger.dart';
@@ -197,25 +197,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _showErrorSnackBar(String title, String message) {
-    if (!mounted) return;
-
-    final snackBar = SnackBar(
-      elevation: 0,
-      behavior: SnackBarBehavior.floating,
-      backgroundColor: Colors.transparent,
-      content: AwesomeSnackbarContent(
-        title: title,
-        message: message,
-        contentType: ContentType.failure,
-      ),
-    );
-
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(snackBar);
-  }
-
   @override
   void dispose() {
     _refreshController?.dispose();
@@ -241,30 +222,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         onSave: provider.updateProfile,
                       ),
                 );
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Row(
-                      children: [
-                        Icon(Icons.info, color: Colors.white, size: 20),
-                        SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Editing is not available for testers.',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    backgroundColor: Colors.orange[700],
-                    duration: Duration(seconds: 4),
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
+                SnackBarUtils.showInfo(
+                  context,
+                  'Editing is not available for testers.',
                 );
               },
               tooltip: 'Edit Profile',
@@ -294,7 +254,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           if (provider.error != null && provider.error != _lastError) {
             _lastError = provider.error;
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              _showErrorSnackBar('Error', provider.error!);
+              SnackBarUtils.showError(context, provider.error!);
             });
           }
 
@@ -487,7 +447,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             false,
                                           ),
                                 ),
-                                if (user.startDate.isNotEmpty ?? false) ...[
+                                if (user.startDate.isNotEmpty) ...[
                                   SizedBox(height: 16.h),
                                   _buildInfoRow(
                                     icon: Icons.calendar_today,
@@ -609,40 +569,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             //         onSave: provider.updateProfile,
                                             //       )
                                             // );
-                                            ScaffoldMessenger.of(
+                                            SnackBarUtils.showInfo(
                                               context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: Row(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.info,
-                                                      color: Colors.white,
-                                                      size: 20,
-                                                    ),
-                                                    SizedBox(width: 8),
-                                                    Expanded(
-                                                      child: Text(
-                                                        'Editing is not available for testers.',
-                                                        style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 14,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                backgroundColor:
-                                                    Colors.orange[700],
-                                                duration: Duration(seconds: 4),
-                                                behavior:
-                                                    SnackBarBehavior.floating,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                ),
-                                              ),
+                                              'Editing is not available for testers.',
                                             );
                                           },
                                           color: AppColors.primaryBlue,

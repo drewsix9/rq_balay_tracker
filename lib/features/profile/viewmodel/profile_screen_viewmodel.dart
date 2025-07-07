@@ -3,9 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../core/global/current_user_model.dart';
 import '../../../core/logger/app_logger.dart';
 import '../../../core/services/api_service.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_text_styles.dart';
 import '../../../core/usecases/user_shared_pref.dart';
+import '../../../core/utils/snackbar_utils.dart';
 
 class ProfileScreenViewmodel extends ChangeNotifier {
   bool _isLoading = true;
@@ -65,36 +64,12 @@ class ProfileScreenViewmodel extends ChangeNotifier {
             email: email ?? _currentUser!.email,
           );
         }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.check_circle, color: Colors.white, size: 20),
-                SizedBox(width: 8),
-                Text(
-                  'Profile updated successfully',
-                  style: AppTextStyles.buttonText.copyWith(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: AppColors.success,
-            duration: Duration(seconds: 3),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        );
+        SnackBarUtils.showSuccess(context, 'Profile updated successfully');
       }
     } catch (e) {
       _setError('Failed to update profile: $e');
       if (context!.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        SnackBarUtils.showError(context, 'Failed to update profile: $e');
       }
     } finally {
       if (context!.mounted) setIsLoading(false);

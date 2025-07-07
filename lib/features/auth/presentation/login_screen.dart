@@ -19,6 +19,7 @@ import '../../../core/usecases/fcm_token_shared_pref.dart';
 import '../../../core/usecases/unit_shared_pref.dart';
 import '../../../core/usecases/user_shared_pref.dart';
 import '../../../core/utils/responsive_helper.dart';
+import '../../../core/utils/snackbar_utils.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_input_field.dart';
 
@@ -43,74 +44,6 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
-  void _showErrorSnackBar(String title, String message) {
-    if (!mounted) return;
-
-    final snackBar = SnackBar(
-      content: Row(
-        children: [
-          Icon(Icons.error, color: Colors.white, size: 20),
-          SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                ),
-                Text(message, style: TextStyle(fontSize: 12)),
-              ],
-            ),
-          ),
-        ],
-      ),
-      backgroundColor: Colors.red[600],
-      duration: Duration(seconds: 4),
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-    );
-
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(snackBar);
-  }
-
-  void _showSuccessSnackBar(String title, String message) {
-    if (!mounted) return;
-
-    final snackBar = SnackBar(
-      content: Row(
-        children: [
-          Icon(Icons.check_circle, color: Colors.white, size: 20),
-          SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                ),
-                Text(message, style: TextStyle(fontSize: 12)),
-              ],
-            ),
-          ),
-        ],
-      ),
-      backgroundColor: Colors.green[600],
-      duration: Duration(seconds: 3),
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-    );
-
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(snackBar);
-  }
-
   Future<void> _handleBiometricLogin() async {
     final biometricProvider = Provider.of<BiometricProvider>(
       context,
@@ -118,16 +51,16 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (!biometricProvider.isDeviceSupported) {
-      _showErrorSnackBar(
-        'Not Supported',
+      SnackBarUtils.showWarning(
+        context,
         'Biometric authentication is not supported on this device.',
       );
       return;
     }
 
     if (!biometricProvider.canCheckBiometrics) {
-      _showErrorSnackBar(
-        'Not Available',
+      SnackBarUtils.showWarning(
+        context,
         'No biometrics are available on this device.',
       );
       return;
@@ -152,10 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
             UserSharedPref.saveCurrentUser(CurrentUserModel.fromMap(response));
 
             if (mounted) {
-              _showSuccessSnackBar(
-                'Biometric Login',
-                'Biometric Login successful',
-              );
+              SnackBarUtils.showSuccess(context, 'Biometric Login successful');
               // Navigate after a short delay to allow the snackbar to be visible
               Future.delayed(Duration(milliseconds: 1500), () {
                 if (context.mounted) {
@@ -167,8 +97,8 @@ class _LoginScreenState extends State<LoginScreen> {
               });
             }
           } else {
-            _showErrorSnackBar(
-              'Invalid Session',
+            SnackBarUtils.showError(
+              context,
               'Your session has expired. Please login manually.',
             );
             // Clear invalid cached data
@@ -176,15 +106,15 @@ class _LoginScreenState extends State<LoginScreen> {
             await UserSharedPref.clearCurrentUser();
           }
         } else {
-          _showErrorSnackBar(
-            'No Saved Session',
+          SnackBarUtils.showWarning(
+            context,
             'Please login manually first to enable biometric login.',
           );
         }
       }
     } catch (e) {
       if (mounted) {
-        _showErrorSnackBar('Authentication Error', e.toString());
+        SnackBarUtils.showError(context, e.toString());
       }
     } finally {
       if (mounted) {
@@ -407,7 +337,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
 
         if (context.mounted) {
-          _showSuccessSnackBar('Login', 'Login successful');
+          SnackBarUtils.showSuccess(context, 'Login successful');
           // Navigate after a short delay to allow the snackbar to be visible
           Future.delayed(Duration(milliseconds: 1500), () {
             if (context.mounted) {
@@ -419,20 +349,20 @@ class _LoginScreenState extends State<LoginScreen> {
           });
         }
       } else {
-        _showErrorSnackBar('Login Failed', 'Incorrect Room Number or Password');
+        SnackBarUtils.showError(context, 'Incorrect Room Number or Password');
       }
     } on SocketException {
-      _showErrorSnackBar(
-        'Connection Error',
+      SnackBarUtils.showError(
+        context,
         'No internet connection. Please check your network settings.',
       );
     } on TimeoutException {
-      _showErrorSnackBar(
-        'Timeout Error',
+      SnackBarUtils.showError(
+        context,
         'Connection timed out. Please check your internet connection.',
       );
     } catch (e) {
-      _showErrorSnackBar('Error', 'An error occurred: $e');
+      SnackBarUtils.showError(context, 'An error occurred: $e');
     }
   }
 }

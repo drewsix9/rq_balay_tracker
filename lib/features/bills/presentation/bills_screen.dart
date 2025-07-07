@@ -1,5 +1,4 @@
 // lib/features/bills/presentation/bills_screen.dart
-import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -15,6 +14,7 @@ import '../../../core/providers/bills_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/responsive_helper.dart';
+import '../../../core/utils/snackbar_utils.dart';
 import '../data/month_bill_model.dart';
 
 class BillsScreen extends StatefulWidget {
@@ -27,25 +27,6 @@ class BillsScreen extends StatefulWidget {
 class _BillsScreenState extends State<BillsScreen> {
   RefreshController? _refreshController;
   String? _lastError;
-
-  void _showErrorSnackBar(String title, String message) {
-    if (!mounted) return;
-
-    final snackBar = SnackBar(
-      elevation: 0,
-      behavior: SnackBarBehavior.floating,
-      backgroundColor: Colors.transparent,
-      content: AwesomeSnackbarContent(
-        title: title,
-        message: message,
-        contentType: ContentType.failure,
-      ),
-    );
-
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(snackBar);
-  }
 
   @override
   void initState() {
@@ -68,7 +49,7 @@ class _BillsScreenState extends State<BillsScreen> {
     final billsProvider = Provider.of<BillsProvider>(context);
     if (billsProvider.error != null) {
       SchedulerBinding.instance.addPostFrameCallback((_) {
-        _showErrorSnackBar('Error', billsProvider.error!);
+        SnackBarUtils.showError(context, billsProvider.error!);
       });
     }
   }
@@ -115,7 +96,7 @@ class _BillsScreenState extends State<BillsScreen> {
                     billsProvider.error != _lastError) {
                   _lastError = billsProvider.error;
                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                    _showErrorSnackBar('Error', billsProvider.error!);
+                    SnackBarUtils.showError(context, billsProvider.error!);
                   });
                 }
 
@@ -261,8 +242,8 @@ class _BillsScreenState extends State<BillsScreen> {
                             _refreshController?.refreshCompleted();
                           } catch (e) {
                             _refreshController?.refreshFailed();
-                            _showErrorSnackBar(
-                              'Error',
+                            SnackBarUtils.showError(
+                              context,
                               'Failed to refresh data',
                             );
                           }
@@ -799,107 +780,6 @@ class BuildMonthBillCard extends StatelessWidget {
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildUtilityLabel(
-    BuildContext context, {
-    required String title,
-    required String rate,
-  }) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        vertical: ResponsiveHelper.getSpacing(context) * 0.25,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            title,
-            style: AppTextStyles.subheading.copyWith(
-              fontSize: ResponsiveHelper.getFontSize(
-                context,
-                mobileSize: 16.0,
-                tablet7Size: 17.0,
-                tablet10Size: 18.0,
-                largeTabletSize: 19.0,
-              ),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: ResponsiveHelper.getSpacing(context) * 0.17),
-          Text(
-            rate,
-            style: AppTextStyles.caption.copyWith(
-              fontSize: ResponsiveHelper.getFontSize(
-                context,
-                mobileSize: 14.0,
-                tablet7Size: 15.0,
-                tablet10Size: 16.0,
-                largeTabletSize: 17.0,
-              ),
-              color: Colors.grey[600],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildUtilityAmount(
-    BuildContext context, {
-    required String amount,
-    required bool showConsumption,
-    double total = 0,
-    double rate = 1,
-    String unit = '',
-  }) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        vertical: ResponsiveHelper.getSpacing(context) * 0.25,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Text(
-            '₱ ${MoneyFormatter(amount: double.tryParse(amount) ?? 0).output.nonSymbol}',
-            style: AppTextStyles.body.copyWith(
-              fontSize: ResponsiveHelper.getFontSize(
-                context,
-                mobileSize: 16.0,
-                tablet7Size: 17.0,
-                tablet10Size: 18.0,
-                largeTabletSize: 19.0,
-              ),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          if (showConsumption) ...[
-            SizedBox(height: ResponsiveHelper.getSpacing(context) * 0.17),
-            Text(
-              () {
-                if (rate > 0) {
-                  final consumption = total / rate;
-                  return '${consumption.toStringAsFixed(2)} $unit';
-                }
-                return '0.00 $unit';
-              }(),
-              style: AppTextStyles.caption.copyWith(
-                fontSize: ResponsiveHelper.getFontSize(
-                  context,
-                  mobileSize: 12.0,
-                  tablet7Size: 13.0,
-                  tablet10Size: 14.0,
-                  largeTabletSize: 15.0,
-                ),
-                color: Colors.grey[600],
-              ),
-            ),
-          ],
         ],
       ),
     );
