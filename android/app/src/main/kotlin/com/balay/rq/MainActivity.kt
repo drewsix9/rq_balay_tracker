@@ -1,7 +1,6 @@
 // android/app/src/main/kotlin/com/balay/rq/MainActivity.kt
 package com.balay.rq // Make sure this matches your namespace and application ID
 
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 
-class MainActivity: FlutterActivity() {
-}
+class MainActivity : FlutterFragmentActivity() {}

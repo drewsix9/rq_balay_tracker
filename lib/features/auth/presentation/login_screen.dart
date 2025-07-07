@@ -50,6 +50,18 @@ class _LoginScreenState extends State<LoginScreen> {
       listen: false,
     );
 
+    // Debug: Check provider state
+    AppLogger.d('Biometric Provider State:');
+    AppLogger.d('- isInitialized: ${biometricProvider.isInitialized}');
+    AppLogger.d('- isDeviceSupported: ${biometricProvider.isDeviceSupported}');
+    AppLogger.d(
+      '- canCheckBiometrics: ${biometricProvider.canCheckBiometrics}',
+    );
+    AppLogger.d(
+      '- availableBiometrics: ${biometricProvider.availableBiometrics}',
+    );
+    AppLogger.d('- error: ${biometricProvider.error}');
+
     if (!biometricProvider.isDeviceSupported) {
       SnackBarUtils.showWarning(
         context,
@@ -69,17 +81,24 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
+      AppLogger.d('Starting biometric authentication...');
       final bool authenticated = await biometricProvider
           .authenticateWithBiometrics(
             localizedReason: 'Please authenticate to login',
           );
 
-      if (authenticated && mounted) {
+      AppLogger.d('Authentication result: $authenticated');
+
+      if (authenticated) {
         // Get the cached unit ID
         final cachedUnitId = await UnitSharedPref.getUnit();
+        AppLogger.d('Cached unit ID: $cachedUnitId');
+
         if (cachedUnitId != null) {
           // Verify if the cached unit ID still exists in the database
           final response = await ApiService.biometricLogin(cachedUnitId);
+          AppLogger.d('API response: $response');
+
           if (response != null && response['unit'].toString().isNotEmpty) {
             // Update the current user data
             UserSharedPref.saveCurrentUser(CurrentUserModel.fromMap(response));
@@ -111,8 +130,20 @@ class _LoginScreenState extends State<LoginScreen> {
             'Please login manually first to enable biometric login.',
           );
         }
+      } else {
+        // Authentication failed - show more specific error
+        final error = biometricProvider.error;
+        if (error != null) {
+          SnackBarUtils.showError(context, 'Authentication failed: $error');
+        } else {
+          SnackBarUtils.showError(
+            context,
+            'Authentication was cancelled or failed',
+          );
+        }
       }
     } catch (e) {
+      AppLogger.e('Error during biometric login: $e');
       if (mounted) {
         SnackBarUtils.showError(context, e.toString());
       }
