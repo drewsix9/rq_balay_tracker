@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="graphics/feature_banner.png" alt="RQ Balay Tracker Feature Banner" width="100%" />
+</p>
+
 # RQ Balay Tracker
 
 A Flutter application for tracking electricity and water consumption with billing features.
@@ -181,9 +185,13 @@ flutter run
 
 ## Screenshots
 
-Screenshots of the app are available in the repository:
-
-- `mobile_01.png`, `mobile_02.png`, ...
-- `tablet_10_inch_01.png`, `tablet_7_inch_01.png`, ...
+<p align="center">
+  <img src="test/mobile/mobile_02.png" alt="Mobile Screenshot 2" width="250"/>
+  <img src="test/mobile/mobile_03.png" alt="Mobile Screenshot 3" width="250"/>
+  <img src="test/mobile/mobile_04.png" alt="Mobile Screenshot 4" width="250"/>
+  <img src="test/mobile/mobile_06.png" alt="Mobile Screenshot 6" width="250"/>
+  <img src="test/mobile/mobile_08.png" alt="Mobile Screenshot 8" width="250"/>
+  <img src="test/mobile/mobile_09.png" alt="Mobile Screenshot 9" width="250"/>
+</p>
 
 ---
