@@ -151,7 +151,17 @@ cd rq_balay_tracker
 flutter pub get
 ```
 
-### 4. Run the App
+### 4. Generate a New Signing Key (Keystore)
+
+If you do not have an existing signing key for your app, you need to generate a new one to sign your APK or app bundle for release. Run the following command in your project directory:
+
+```bash
+keytool -genkeypair -v -keystore android/app/upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+```
+
+You will be prompted to enter passwords and other information. Save these values securely and update your `key.properties` file accordingly. For more details, see the [Flutter Android deployment documentation](https://docs.flutter.dev/deployment/android).
+
+### 5. Run the App
 
 ```bash
 flutter run
