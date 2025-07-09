@@ -186,12 +186,12 @@ flutter run
 ## Screenshots
 
 <p align="center">
-  <img src="test/mobile/mobile_02.png" alt="Mobile Screenshot 2" width="250"/>
-  <img src="test/mobile/mobile_03.png" alt="Mobile Screenshot 3" width="250"/>
-  <img src="test/mobile/mobile_04.png" alt="Mobile Screenshot 4" width="250"/>
-  <img src="test/mobile/mobile_06.png" alt="Mobile Screenshot 6" width="250"/>
-  <img src="test/mobile/mobile_08.png" alt="Mobile Screenshot 8" width="250"/>
-  <img src="test/mobile/mobile_09.png" alt="Mobile Screenshot 9" width="250"/>
+  <img src="screenshots/mobile/mobile_02.png" alt="Mobile Screenshot 2" width="250"/>
+  <img src="screenshots/mobile/mobile_03.png" alt="Mobile Screenshot 3" width="250"/>
+  <img src="screenshots/mobile/mobile_04.png" alt="Mobile Screenshot 4" width="250"/>
+  <img src="screenshots/mobile/mobile_06.png" alt="Mobile Screenshot 6" width="250"/>
+  <img src="screenshots/mobile/mobile_08.png" alt="Mobile Screenshot 8" width="250"/>
+  <img src="screenshots/mobile/mobile_09.png" alt="Mobile Screenshot 9" width="250"/>
 </p>
 
 ---
