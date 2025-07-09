@@ -124,7 +124,8 @@ lib/
       view/           # Landing page screens, widgets, shimmers
       viewmodel/      # Landing page view models
     profile/
-      presentation/   # Profile screens, widgets, shimmers
+      model/          # Profile page models
+      view/           # Profile screens, widgets, shimmers
       viewmodel/      # Profile view models
 ```
 
