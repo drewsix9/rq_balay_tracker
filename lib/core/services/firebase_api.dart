@@ -4,7 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-import '../../features/auth/presentation/login_screen.dart';
+import '../../features/auth/view/login_screen.dart';
 import '../../home_screen.dart';
 import '../logger/app_logger.dart';
 import '../usecases/fcm_token_shared_pref.dart';

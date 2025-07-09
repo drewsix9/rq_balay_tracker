@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:local_auth/local_auth.dart';
 
-import '../logger/app_logger.dart';
-import '../services/biometric_service.dart';
+import '../../../core/logger/app_logger.dart';
+import '../../../core/services/biometric_service.dart';
 
 class BiometricProvider with ChangeNotifier {
   final BiometricService _biometricService = BiometricService();

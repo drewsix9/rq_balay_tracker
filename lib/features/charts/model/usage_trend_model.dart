@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rq_balay_tracker/core/logger/app_logger.dart';
 
-import '../../../features/bills/data/month_bill_model.dart';
+import '../../bills/model/month_bill_model.dart';
 
 class UsageTrendModel {
   final double trendPercentage;

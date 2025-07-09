@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:rq_balay_tracker/core/theme/app_colors.dart';
 import 'package:rq_balay_tracker/core/usecases/user_shared_pref.dart';
-import 'package:rq_balay_tracker/features/auth/presentation/login_screen.dart';
+import 'package:rq_balay_tracker/features/auth/view/login_screen.dart';
 import 'package:rq_balay_tracker/home_screen.dart';
 
 import '../services/firebase_api.dart';

@@ -1,4 +1,4 @@
-import '../../../features/bills/data/month_bill_model.dart';
+import '../../bills/model/month_bill_model.dart';
 
 class WaterConsumptionChartModel {
   final List<double> consumptions;

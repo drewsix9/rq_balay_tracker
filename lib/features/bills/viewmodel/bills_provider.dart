@@ -4,15 +4,15 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../../features/bills/data/month_bill_model.dart';
-import '../../features/bills/data/transaction_history_model.dart';
-import '../global/current_user_model.dart';
-import '../logger/app_logger.dart';
-import '../services/api_service.dart';
-import '../usecases/month_bill_shared_pref.dart';
-import '../usecases/transaction_history_shared_pref.dart';
-import '../usecases/unit_shared_pref.dart';
-import '../usecases/user_shared_pref.dart';
+import '../../../core/logger/app_logger.dart';
+import '../../../core/model/current_user_model.dart';
+import '../../../core/services/api_service.dart';
+import '../../../core/usecases/month_bill_shared_pref.dart';
+import '../../../core/usecases/transaction_history_shared_pref.dart';
+import '../../../core/usecases/unit_shared_pref.dart';
+import '../../../core/usecases/user_shared_pref.dart';
+import '../model/month_bill_model.dart';
+import '../model/transaction_history_model.dart';
 
 class BillsProvider with ChangeNotifier {
   String? _currentUnit;

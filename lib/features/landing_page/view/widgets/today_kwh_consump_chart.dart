@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:rq_balay_tracker/core/theme/app_colors.dart';
 import 'package:rq_balay_tracker/core/theme/app_text_styles.dart';
 import 'package:rq_balay_tracker/core/utils/responsive_helper.dart';
-import 'package:rq_balay_tracker/features/landing_page/view/widgets/shimmer/today_kwh_chart_shimmer.dart';
+import 'package:rq_balay_tracker/features/landing_page/view/shimmer/today_kwh_chart_shimmer.dart';
 import 'package:rq_balay_tracker/features/landing_page/viewmodel/landing_page_viewmodel.dart';
 
 class TodayKwhConsumpChart extends StatelessWidget {

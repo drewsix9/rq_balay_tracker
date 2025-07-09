@@ -11,7 +11,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/usecases/unit_shared_pref.dart';
 import '../model/usage_trend_model.dart';
-import '../viewmodel/charts_viewmodel.dart';
+import '../viewmodel/charts_provider.dart';
 import 'shimmers/combined_chart_card_shimmer.dart';
 import 'shimmers/summary_card_shimmer.dart';
 import 'widgets/monthly_elec_consump_chart.dart';
@@ -36,7 +36,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
       String unit = await UnitSharedPref.getUnit() ?? '';
       final transactionHistory = await ApiService.getTransactionHistory(unit);
       if (!mounted) return;
-      final chartsViewModel = Provider.of<ChartsViewModel>(
+      final chartsViewModel = Provider.of<ChartsProvider>(
         context,
         listen: false,
       );
@@ -53,7 +53,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
   Future<void> _onRefresh() async {
     try {
       if (!mounted) return;
-      final chartsViewModel = Provider.of<ChartsViewModel>(
+      final chartsViewModel = Provider.of<ChartsProvider>(
         context,
         listen: false,
       );
@@ -97,7 +97,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
       ),
       // drawer: SidePanel(),
       body: SafeArea(
-        child: Consumer<ChartsViewModel>(
+        child: Consumer<ChartsProvider>(
           builder: (context, chartsViewModel, child) {
             // Handle error state
             if (chartsViewModel.error != null &&
@@ -129,7 +129,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
                         horizontal: ResponsiveHelper.getPadding(context),
                         vertical: ResponsiveHelper.getSpacing(context) * 0.33,
                       ),
-                      child: Consumer<ChartsViewModel>(
+                      child: Consumer<ChartsProvider>(
                         builder: (context, chartsViewModel, child) {
                           if (chartsViewModel.isLoading) {
                             return const CombinedChartCardShimmer();
@@ -153,7 +153,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
                         horizontal: ResponsiveHelper.getPadding(context),
                         vertical: ResponsiveHelper.getSpacing(context) * 0.33,
                       ),
-                      child: Consumer<ChartsViewModel>(
+                      child: Consumer<ChartsProvider>(
                         builder: (context, chartsViewModel, child) {
                           if (chartsViewModel.isLoading) {
                             return const CombinedChartCardShimmer();
@@ -181,7 +181,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
   }
 
   Widget _buildSummaryCards() {
-    return Consumer<ChartsViewModel>(
+    return Consumer<ChartsProvider>(
       builder: (context, chartsViewModel, child) {
         if (chartsViewModel.isLoading) {
           return SizedBox(

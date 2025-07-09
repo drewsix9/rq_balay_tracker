@@ -7,12 +7,12 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/logger/app_logger.dart';
-import 'core/providers/bills_provider.dart';
-import 'core/providers/biometric_provider.dart';
 import 'core/services/firebase_api.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/splash_screen.dart';
-import 'features/charts/viewmodel/charts_viewmodel.dart';
+import 'features/auth/viewmodel/biometric_provider.dart';
+import 'features/bills/viewmodel/bills_provider.dart';
+import 'features/charts/viewmodel/charts_provider.dart';
 import 'features/landing_page/viewmodel/landing_page_viewmodel.dart';
 import 'features/profile/viewmodel/edit_profile_dialog_provider.dart';
 import 'features/profile/viewmodel/profile_screen_viewmodel.dart';
@@ -59,7 +59,7 @@ class MyApp extends StatelessWidget {
         return MultiProvider(
           providers: [
             ChangeNotifierProvider(create: (_) => BillsProvider()),
-            ChangeNotifierProvider(create: (_) => ChartsViewModel()),
+            ChangeNotifierProvider(create: (_) => ChartsProvider()),
             ChangeNotifierProvider(create: (_) => BiometricProvider()),
             ChangeNotifierProvider(create: (_) => LandingPageViewModel()),
             ChangeNotifierProvider(create: (_) => EditProfileDialogProvider()),

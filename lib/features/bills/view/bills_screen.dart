@@ -6,18 +6,18 @@ import 'package:intl/intl.dart';
 import 'package:money_formatter/money_formatter.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
-import 'package:rq_balay_tracker/features/bills/presentation/shimmers/bill_card_shimmer.dart';
-import 'package:rq_balay_tracker/features/bills/presentation/shimmers/transaction_list_shimmer.dart';
-import 'package:rq_balay_tracker/features/bills/presentation/shimmers/transaction_title_shimmer.dart';
+import 'package:rq_balay_tracker/features/bills/view/shimmers/bill_card_shimmer.dart';
+import 'package:rq_balay_tracker/features/bills/view/shimmers/transaction_list_shimmer.dart';
+import 'package:rq_balay_tracker/features/bills/view/shimmers/transaction_title_shimmer.dart';
 
-import '../../../core/global/current_user_model.dart';
 import '../../../core/logger/app_logger.dart';
-import '../../../core/providers/bills_provider.dart';
+import '../../../core/model/current_user_model.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/responsive_helper.dart';
 import '../../../core/utils/snackbar_utils.dart';
-import '../data/month_bill_model.dart';
+import '../model/month_bill_model.dart';
+import '../viewmodel/bills_provider.dart';
 
 class BillsScreen extends StatefulWidget {
   const BillsScreen({super.key});

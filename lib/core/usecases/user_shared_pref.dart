@@ -1,7 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../global/current_user_model.dart';
 import '../logger/app_logger.dart';
+import '../model/current_user_model.dart';
 
 class UserSharedPref {
   static const String _userKey = 'currentUser';

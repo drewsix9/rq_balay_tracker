@@ -3,10 +3,10 @@ import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
 import 'core/theme/app_colors.dart';
 import 'core/utils/responsive_helper.dart';
-import 'features/bills/presentation/bills_screen.dart';
+import 'features/bills/view/bills_screen.dart';
 import 'features/charts/view/charts_screen.dart';
 import 'features/landing_page/view/landing_page_screen.dart';
-import 'features/profile/presentation/profile_screen.dart';
+import 'features/profile/view/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

@@ -9,7 +9,7 @@ import '../../../core/theme/app_text_styles.dart';
 import '../../../core/usecases/month_bill_shared_pref.dart';
 import '../../../core/usecases/transaction_history_shared_pref.dart';
 import '../../../core/usecases/user_shared_pref.dart';
-import '../../auth/presentation/login_screen.dart';
+import '../../auth/view/login_screen.dart';
 
 class SidePanel extends StatelessWidget {
   const SidePanel({super.key});
