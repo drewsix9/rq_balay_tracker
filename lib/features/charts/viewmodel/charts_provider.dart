@@ -9,13 +9,13 @@ import '../../../core/services/api_service.dart';
 import '../../../core/usecases/electricity_consumption_shared_pref.dart';
 import '../../../core/usecases/unit_shared_pref.dart';
 import '../../../core/usecases/water_consumption_shared_pref.dart';
-import '../../bills/data/month_bill_model.dart';
+import '../../bills/model/month_bill_model.dart';
 import '../model/electricity_consumption.dart';
 import '../model/month_total_model.dart';
 import '../model/usage_trend_model.dart';
 import '../model/water_consumption_chart_model.dart';
 
-class ChartsViewModel extends ChangeNotifier {
+class ChartsProvider extends ChangeNotifier {
   MonthTotalModel? _monthTotal;
   UsageTrendModel? _usageTrend;
   bool _isLoading = true;

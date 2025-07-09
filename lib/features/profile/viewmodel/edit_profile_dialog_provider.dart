@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:rq_balay_tracker/core/global/current_user_model.dart';
+import 'package:rq_balay_tracker/core/model/current_user_model.dart';
 
 class EditProfileDialogProvider extends ChangeNotifier {
   final TextEditingController phoneController = TextEditingController();

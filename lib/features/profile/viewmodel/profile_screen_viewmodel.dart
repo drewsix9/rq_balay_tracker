@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/global/current_user_model.dart';
 import '../../../core/logger/app_logger.dart';
+import '../../../core/model/current_user_model.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/usecases/user_shared_pref.dart';
 import '../../../core/utils/snackbar_utils.dart';

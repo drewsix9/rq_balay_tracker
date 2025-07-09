@@ -8,16 +8,16 @@ import 'package:rq_balay_tracker/core/theme/app_text_styles.dart';
 import 'package:rq_balay_tracker/core/usecases/user_shared_pref.dart';
 import 'package:rq_balay_tracker/core/utils/responsive_helper.dart';
 import 'package:rq_balay_tracker/core/utils/snackbar_utils.dart';
-import 'package:rq_balay_tracker/features/auth/presentation/login_screen.dart';
+import 'package:rq_balay_tracker/features/auth/view/login_screen.dart';
 
 import '../../../core/logger/app_logger.dart';
 import '../../../core/usecases/month_bill_shared_pref.dart';
 import '../../../core/usecases/transaction_history_shared_pref.dart';
 import '../viewmodel/profile_screen_viewmodel.dart';
+import 'shimmer/info_card_shimmer.dart';
+import 'shimmer/profile_header_card_shimmer.dart';
+import 'shimmer/quick_actions_card_shimmer.dart';
 import 'widgets/edit_profile_dialog.dart';
-import 'widgets/shimmer/info_card_shimmer.dart';
-import 'widgets/shimmer/profile_header_card_shimmer.dart';
-import 'widgets/shimmer/quick_actions_card_shimmer.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

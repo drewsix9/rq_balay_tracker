@@ -7,7 +7,7 @@ import '../../../../core/logger/app_logger.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/responsive_helper.dart';
-import '../../viewmodel/charts_viewmodel.dart';
+import '../../viewmodel/charts_provider.dart';
 
 abstract class BaseMonthlyConsumptionChart extends StatefulWidget {
   final Key? chartKey;
@@ -28,9 +28,9 @@ abstract class BaseMonthlyConsumptionChart extends StatefulWidget {
       _BaseMonthlyConsumptionChartState();
 
   // Abstract methods to be implemented by child classes
-  Future<List<double>> getConsumptionData(ChartsViewModel provider);
+  Future<List<double>> getConsumptionData(ChartsProvider provider);
 
-  Future<List<String>> getMonthsData(ChartsViewModel provider);
+  Future<List<String>> getMonthsData(ChartsProvider provider);
 }
 
 class _BaseMonthlyConsumptionChartState
@@ -42,7 +42,7 @@ class _BaseMonthlyConsumptionChartState
     Widget chartContent = AspectRatio(
       aspectRatio: ResponsiveHelper.isTablet(context) ? 2.0 : 1.5,
       child: FutureBuilder<List<double>>(
-        future: widget.getConsumptionData(context.read<ChartsViewModel>()),
+        future: widget.getConsumptionData(context.read<ChartsProvider>()),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Container(
@@ -467,7 +467,7 @@ class _BaseMonthlyConsumptionChartState
   Future<List<BarChartGroupData>> _buildBarChartGroupData(
     BuildContext context,
   ) async {
-    var provider = Provider.of<ChartsViewModel>(context, listen: false);
+    var provider = Provider.of<ChartsProvider>(context, listen: false);
     var consumption = await widget.getConsumptionData(provider);
     var months = await widget.getMonthsData(provider);
     if (consumption.isEmpty || months.isEmpty) {

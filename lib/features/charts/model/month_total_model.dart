@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
 
-import '../../bills/data/month_bill_model.dart';
+import '../../bills/model/month_bill_model.dart';
 
 class MonthTotalModel {
   final double totalAmount;

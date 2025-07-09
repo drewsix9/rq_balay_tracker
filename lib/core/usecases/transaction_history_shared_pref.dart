@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../features/bills/data/transaction_history_model.dart';
+import '../../features/bills/model/transaction_history_model.dart';
 
 class TransactionHistorySharedPref {
   static const String _key = 'transaction_history';

@@ -8,9 +8,8 @@ import 'package:local_auth/local_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:rq_balay_tracker/home_screen.dart';
 
-import '../../../core/global/current_user_model.dart';
 import '../../../core/logger/app_logger.dart';
-import '../../../core/providers/biometric_provider.dart';
+import '../../../core/model/current_user_model.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/services/device_info_service.dart';
 import '../../../core/theme/app_colors.dart';
@@ -22,6 +21,7 @@ import '../../../core/utils/responsive_helper.dart';
 import '../../../core/utils/snackbar_utils.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_input_field.dart';
+import '../viewmodel/biometric_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

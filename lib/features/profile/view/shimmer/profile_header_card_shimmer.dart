@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../../../../core/theme/app_colors.dart';
-import '../../../../../core/utils/responsive_helper.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/responsive_helper.dart';
 
 class ProfileHeaderCardShimmer extends StatelessWidget {
   const ProfileHeaderCardShimmer({super.key});

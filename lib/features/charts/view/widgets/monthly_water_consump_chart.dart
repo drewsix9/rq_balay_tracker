@@ -1,5 +1,5 @@
 import '../../../../core/theme/app_colors.dart';
-import '../../viewmodel/charts_viewmodel.dart';
+import '../../viewmodel/charts_provider.dart';
 import 'base_monthly_consumption_chart.dart';
 
 class MonthlyWaterConsumptionWidget extends BaseMonthlyConsumptionChart {
@@ -13,12 +13,12 @@ class MonthlyWaterConsumptionWidget extends BaseMonthlyConsumptionChart {
        );
 
   @override
-  Future<List<double>> getConsumptionData(ChartsViewModel provider) async {
+  Future<List<double>> getConsumptionData(ChartsProvider provider) async {
     return provider.waterChartModel!.consumptions;
   }
 
   @override
-  Future<List<String>> getMonthsData(ChartsViewModel provider) async {
+  Future<List<String>> getMonthsData(ChartsProvider provider) async {
     return provider.waterChartModel!.rMonth;
   }
 }

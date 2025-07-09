@@ -14,9 +14,6 @@ A Flutter application for tracking electricity and water consumption with billin
 - [Setup Instructions](#setup-instructions)
 - [Usage](#usage)
 - [Screenshots](#screenshots)
-- [Contributing](#contributing)
-- [License](#license)
-- [Support](#support)
 
 ---
 
@@ -47,14 +44,41 @@ A Flutter application for tracking electricity and water consumption with billin
 
 ## Architecture
 
-The project follows a **feature-based architecture** with a clear separation of concerns:
+The project uses a **feature-based, layered architecture** with a clean separation of concerns, following best practices for maintainability and scalability:
 
-- **Data Layer**: Handles data sources, models, and repositories
-- **Domain Layer**: Contains business logic, entities, and use cases
-- **Presentation Layer**: UI widgets, screens, and view models/providers
-- **Core**: Shared utilities, services, themes, and reusable widgets
+- **Feature Modules**: Each major feature (e.g., Auth, Bills, Charts, Landing Page, Profile) is organized under `lib/features/[feature]/`.
+  - **data/**: Data sources, models, repositories for the feature
+  - **domain/**: Business logic, entities, and use cases (where applicable)
+  - **presentation/**: UI screens, widgets, shimmers, and view models/providers
+- **Core Layer** (`lib/core/`): Shared utilities, services, themes, reusable widgets, and global models
+  - **config/**: App configuration
+  - **global/**: Global models (e.g., current user)
+  - **logger/**: Logging utilities
+  - **model/**: Shared models
+  - **services/**: Shared services (API, device info, Firebase, etc.)
+  - **theme/**: App colors, gradients, text styles
+  - **usecases/**: Shared use cases
+  - **utils/**: Utility functions/helpers
+  - **widgets/**: Reusable widgets (buttons, inputs, etc.)
 
-This structure ensures maintainability, scalability, and testability.
+**State Management:**
+
+- Uses the Provider pattern (`ChangeNotifier`) for state management, with focused providers per feature.
+- Follows MVVM principles for separation between UI and business logic.
+
+**UI/UX:**
+
+- Responsive layouts for mobile and tablet
+- Shimmer loading states for smooth UX
+- Consistent design system using core theme and widget utilities
+
+**Other Practices:**
+
+- JSON serialization for models
+- Error handling and logging via core utilities
+- Secure storage and proper session management for authentication
+
+This structure ensures clear boundaries between features, easy scalability, and maintainability.
 
 ---
 
@@ -162,44 +186,3 @@ Screenshots of the app are available in the repository:
 - `tablet_10_inch_01.png`, `tablet_7_inch_01.png`, ...
 
 ---
-
-## Contributing
-
-We welcome contributions! Please follow these guidelines:
-
-### Code Style
-
-- Use `snake_case` for file names
-- Use `camelCase` for variables and methods
-- Use `PascalCase` for class names
-- Follow the [Dart Style Guide](https://dart.dev/guides/language/effective-dart/style)
-- Keep lines under 80 characters when possible
-
-### Workflow
-
-- Fork the repository and create a feature branch
-- Write clear, descriptive commit messages
-- Ensure your code passes all tests and lints
-- Submit a pull request with a detailed description
-
-### Testing
-
-- Write unit tests for business logic and services
-- Add widget tests for UI components
-- Use mocks for external dependencies
-- Run tests with:
-  ```bash
-  flutter test
-  ```
-
----
-
-## License
-
-[PLACEHOLDER: Add your license information here]
-
----
-
-## Support
-
-[PLACEHOLDER: Add your support contact or issue tracker link here]

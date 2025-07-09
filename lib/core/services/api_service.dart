@@ -7,7 +7,7 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
-import '../../features/bills/data/transaction_history_model.dart';
+import '../../features/bills/model/transaction_history_model.dart';
 import '../logger/app_logger.dart';
 
 class ApiService {

@@ -3,11 +3,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
-import 'package:rq_balay_tracker/core/global/current_user_model.dart';
+import 'package:rq_balay_tracker/core/model/current_user_model.dart';
 import 'package:rq_balay_tracker/core/utils/responsive_helper.dart';
+import 'package:rq_balay_tracker/features/landing_page/view/shimmer/row_toggle_chart_shimmer.dart';
+import 'package:rq_balay_tracker/features/landing_page/view/shimmer/user_info_card_shimmer.dart';
 import 'package:rq_balay_tracker/features/landing_page/view/widgets/daily_kwh_consump_chart.dart';
-import 'package:rq_balay_tracker/features/landing_page/view/widgets/shimmer/row_toggle_chart_shimmer.dart';
-import 'package:rq_balay_tracker/features/landing_page/view/widgets/shimmer/user_info_card_shimmer.dart';
 import 'package:rq_balay_tracker/features/landing_page/view/widgets/today_kwh_consump_chart.dart';
 
 import '../../../core/theme/app_colors.dart';
