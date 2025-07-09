@@ -48,4 +48,4 @@ balay-rq-firebase-adminsdk-fbsvc-ad45fec5ce.json
 # Dependencies
 node_modules/
 upload-keystore.jks
-android/app/google-services.json
+/android/app/google-services.json
