@@ -137,7 +137,6 @@ lib/
 
 - [Flutter SDK](https://docs.flutter.dev/get-started/install) (latest stable)
 - [Dart](https://dart.dev/get-dart)
-- [Firebase CLI](https://firebase.google.com/docs/cli) (for Firebase setup)
 
 ### 2. Clone the Repository
 
@@ -152,16 +151,7 @@ cd rq_balay_tracker
 flutter pub get
 ```
 
-### 4. Firebase Configuration
-
-- Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
-- Add Android/iOS apps to your Firebase project
-- Download `google-services.json` (Android) and/or `GoogleService-Info.plist` (iOS) and place them in the appropriate directories:
-  - `android/app/google-services.json`
-  - `ios/Runner/GoogleService-Info.plist`
-- Update `lib/firebase_options.dart` using the [FlutterFire CLI](https://firebase.flutter.dev/docs/cli/)
-
-### 5. Run the App
+### 4. Run the App
 
 ```bash
 flutter run
